@@ -1,6 +1,7 @@
 RASPBERRY PI PICO 2WH
 https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-m33_wifi_microusb-398576
 --> Preis: 9€
+Der Raspberry Pi Pico 2wh wertet die Sensoren / Knopf / NFC Daten aus und schickt sie an das Backend.
 
 --> Pro 
     - Sensorenkombinationen (Ultrachall, Knopf, Bewegungssensor, NFC)
@@ -25,4 +26,9 @@ https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-
     - Knopf:  
     - NFC: https://www.reichelt.at/at/de/shop/produkt/entwicklerboards_-_rfid-modul_nxp_mfrc-522-192147
         - 7€ 
-  
+    - IR Lichtschranke 2 * pro Koje
+        - Empfänger:  https://www.reichelt.at/at/de/shop/produkt/arduino_-_ir-empaenger-282519
+            - 1,56€
+        - Sender: https://www.reichelt.at/at/de/shop/produkt/arduino_-_ir-sendermodul-282523
+            - 1,61€
+    --> Solange die Lichtschranke unterbrochen ist wird die Koje auf besetzt gesetz.
