@@ -1,9 +1,9 @@
-RASBERRY PI PICO 2WH
+RASPBERRY PI PICO 2WH
 https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-m33_wifi_microusb-398576
 --> Preis: 9€
 
 --> Pro 
-    - Sensorenkobinationen 
+    - Sensorenkombinationen (Ultrachall, Knopf, Bewegungssensor, NFC)
     - Hardwareerweiterungen 
     - schnelle Prototypen 
     - eigene Datenübertragung (keine fremde API)
