@@ -1,0 +1,16 @@
+Indoor-Navigation / Hardware-Lösung
+Preis: 20–80 €
+
+Vorteile:
+
+Funktioniert ohne GPS
+Nutzt eine Mischung aus BLE-Beacons, Bewegungs-Sensoren (IMU) und Karten
+Daten können selbst übertragen und berechnet werden – kein externer Dienst nötig
+
+Nachteile:
+
+Viele Beacons oder Sensoren können teuer werden
+Einrichtung erfordert Grundwissen in Mikrocontroller-Programmierung
+Position kann ungenau sein (1–3 m bei BLE)
+Web Bluetooth ist eingeschränkt, z. B. auf iOS Safari
+Indoor-Karte muss erstellt und kalibriert werden
