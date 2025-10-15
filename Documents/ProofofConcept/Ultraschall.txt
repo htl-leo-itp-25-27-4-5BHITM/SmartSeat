@@ -2,4 +2,12 @@ ULTRASCHALL SENSOREN
 https://botland.de/ultraschall-abstandssensoren/5686-ultraschall-abstandssensor-hc-sr04-2-200cm-montagehalterung-5904422308452.html
 --> Preis pro Stück: 3€ --> mind. 2
 
+--> Pro 
+    - billig 
+    - einfach zum Verwenden 
+    - bereits erlernt, wie diese funktionieren 
 
+--> Con 
+    - Objekt kann im Weg sein, wodurch er auslöst.
+    - Kann nicht richtig funktionieren .
+    - weitere Hardwarekomponente
