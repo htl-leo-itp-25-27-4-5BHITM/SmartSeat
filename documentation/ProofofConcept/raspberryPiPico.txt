@@ -14,4 +14,15 @@ https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-
     - Preis (für viele)
     - man muss es zusammenbauen  --> mehr kosten 
     - Microchip programmieren 
-    
+
+--> Sensoren 
+    - Bewegungssensor: https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_-_infrarot_bewegungsmelder_pir_hc-sr501-224216
+        - 3m minimale Reichweite
+        - 2,30€
+    - Utraschallsensor: https://www.reichelt.at/at/de/shop/produkt/entwicklerboards_-_ultraschall_abstandssensor_hc-sr04-161487
+        - 3- 400cm 
+        - 3,83€ 
+    - Knopf:  
+    - NFC: https://www.reichelt.at/at/de/shop/produkt/entwicklerboards_-_rfid-modul_nxp_mfrc-522-192147
+        - 7€ 
+  
