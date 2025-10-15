@@ -5,7 +5,7 @@ Dadurch wird die Koje in der Datenbank als „besetzt“ markiert.
 Beim Verlassen hält er sie erneut hin, um sich abzumelden.
 
 --- Vorteile ---
-- Sehr prraktisch, da man immer das Handy dabei hat und sich sehr schnell anmelden kann
+- Sehr praktisch, da man immer das Handy dabei hat und sich sehr schnell anmelden kann
 
 --- Nachteile ---
 - Kompabilität: Nicht jedes Handy kann sich mit NFC verbinden -> nur ein Teil kann das
@@ -28,7 +28,7 @@ Beim Verlassen hält er sie erneut hin, um sich abzumelden.
   ESP32 7€ * 5 = 35€
   NFC-Modul 4€ * 5 = 20€
   
-  Gesamt: 55€ (gut leistbar) ✅
+  Gesamt: 55€
   
   --- Vorteile ---
   WLAN schon integriert
@@ -38,8 +38,3 @@ Beim Verlassen hält er sie erneut hin, um sich abzumelden.
   Kein „All-in-One“-Reader – man muss trotzdem ein NFC-Modul anschließen
   Programmierung komplexer (NFC-Bibliotheken + WLAN)
   Stromversorgung über USB oder Netzteil nötig
-
-
-
-
-
