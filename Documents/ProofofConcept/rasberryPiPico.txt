@@ -1,1 +1,17 @@
 RASBERRY PI PICO 2WH
+https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-m33_wifi_microusb-398576
+--> Preis: 9€
+
+--> Pro 
+    - Sensorenkobinationen 
+    - Hardwareerweiterungen 
+    - schnelle Prototypen 
+    - eigene Datenübertragung (keine fremde API)
+    - gut dokumentiert 
+    - viele Tutorials 
+
+--> Con
+    - Preis (für viele)
+    - man muss es zusammenbauen  --> mehr kosten 
+    - Microchip programmieren 
+    
