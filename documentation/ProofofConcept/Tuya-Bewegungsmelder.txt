@@ -24,3 +24,6 @@ Technische Daten des Sensors
 	Stromverbrauch: Niedrig
 	Zusatzfunktion: Automatische Benachrichtigung bei niedrigem Batteriestand
 
+
+https://www.amazon.de/WiFi-Bewegungssensor-Bewegungsmelder-Heimsicherheit-Fernüberwachungs/dp/B0CLY2H1H6/ref=pd_ci_mcx_mh_mcx_views_1_image?pd_rd_w=Du72A&content-id=amzn1.sym.e43449ad-4bb7-4aee-a0fd-e15d81a9f8db%3Aamzn1.symc.30e3dbb4-8dd8-4bad-b7a1-a45bcdbc49b8&pf_rd_p=e43449ad-4bb7-4aee-a0fd-e15d81a9f8db&pf_rd_r=Y4T6GCV4EQKYBV95ZFYW&pd_rd_wg=EGZVY&pd_rd_r=ca7dcebc-9498-452a-87d8-c07b18409a8d&pd_rd_i=B0CLY2H1H6&th=1
+
