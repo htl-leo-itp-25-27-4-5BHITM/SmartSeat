@@ -4,7 +4,7 @@ https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_pico_2_wh_rp235x_cortex-
 Der Raspberry Pi Pico 2wh wertet die Sensoren / Knopf / NFC Daten aus und schickt sie an das Backend.
 
 --> Pro 
-    - Sensorenkombinationen (Ultrachall, Knopf, Bewegungssensor, NFC)
+    - Sensorenkombinationen (z.B Ultrachall, Knopf, Bewegungssensor, NFC)
     - Hardwareerweiterungen 
     - schnelle Prototypen 
     - eigene Datenübertragung (keine fremde API)
