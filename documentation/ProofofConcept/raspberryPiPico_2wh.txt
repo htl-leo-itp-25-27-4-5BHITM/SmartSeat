@@ -32,3 +32,7 @@ Der Raspberry Pi Pico 2wh wertet die Sensoren / Knopf / NFC Daten aus und schick
         - Sender: https://www.reichelt.at/at/de/shop/produkt/arduino_-_ir-sendermodul-282523
             - 1,61€
     --> Solange die Lichtschranke unterbrochen ist wird die Koje auf besetzt gesetz.
+
+--> Kabel: https://www.reichelt.at/at/de/shop/produkt/entwicklerboards_-_steckbrueckenkabel_50cm_20_kabel_einzeln-238965 
+    - 50cm * 20 
+    - 7,16€
