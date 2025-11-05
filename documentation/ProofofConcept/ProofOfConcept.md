@@ -50,12 +50,13 @@ Der **Raspberry Pi Pico 2 WH** wertet **Sensoren, Knöpfe und NFC-Daten** aus un
 #### 🔸 IR-Lichtschranken (2 × pro Koje)
 - **Empfänger:** [IR-Empfänger](https://www.reichelt.at/at/de/shop/produkt/arduino_-_ir-empaenger-282519) → **1,56 €**  
 - **Sender:** [IR-Sender](https://www.reichelt.at/at/de/shop/produkt/arduino_-_ir-sendermodul-282523) → **1,61 €**
+> Solange die Lichtschranke unterbrochen ist, wird die Koje als **besetzt** markiert.
+
 
 #### 🔸 Kabel
 - Länge: **50cm * 20**
 - Preis: **7,16€**
 
-> Solange die Lichtschranke unterbrochen ist, wird die Koje als **besetzt** markiert.
 
 ---
 
