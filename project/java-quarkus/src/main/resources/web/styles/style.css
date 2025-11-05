@@ -2,7 +2,22 @@
     --primary-color: rgb(54, 89, 126);
     --secondary-color: rgb(68, 130, 194);
     --accent-color: rgb(12, 0, 83);
-    --background-color: linear-gradient(135deg, rgb(72, 95, 132), rgb(130, 145, 180));
+    --background-color: linear-gradient(
+            105deg,
+            rgb(72, 95, 132) 0%,
+            rgb(80, 100, 140) 8%,
+            rgb(90, 110, 150) 15%,
+            rgb(100, 120, 160) 22%,
+            rgb(110, 125, 165) 30%,
+            rgb(120, 130, 170) 38%,
+            rgb(125, 135, 175) 46%,
+            rgb(130, 140, 180) 55%,
+            rgb(125, 135, 175) 63%,
+            rgb(120, 130, 170) 70%,
+            rgb(100, 120, 160) 82%,
+            rgb(80, 100, 140) 90%,
+            rgb(72, 95, 132) 100%
+    );;
 }
 
 body {
@@ -12,25 +27,26 @@ body {
     background: rgb(72, 95, 132);
 }
 
-.wave {
+.wave-bg {
     position: absolute;
-    width: 200%;
-    height: 200%;
+    width: 300%;
+    height: 300%;
+    top: -100%;
+    left: -100%;
     background: var(--background-color);
-    top: -50%;
-    left: -50%;
-    animation: waveMove 10s linear infinite;
     border-radius: 50%;
-    transform: rotate(45deg);
+    animation: waveMove 20s ease-in-out infinite;
 }
 
-.wave:nth-child(2) {
-    animation-delay: -5s;
-    opacity: 0.6;
+.wave-bg:nth-child(2) {
+    animation-delay: -10s;
+    opacity: 0.7;
 }
 
 @keyframes waveMove {
     0% { transform: translateX(0) translateY(0) rotate(45deg); }
-    50% { transform: translateX(20%) translateY(10%) rotate(45deg); }
+    25% { transform: translateX(15%) translateY(10%) rotate(45deg); }
+    50% { transform: translateX(30%) translateY(5%) rotate(45deg); }
+    75% { transform: translateX(15%) translateY(-10%) rotate(45deg); }
     100% { transform: translateX(0) translateY(0) rotate(45deg); }
 }
