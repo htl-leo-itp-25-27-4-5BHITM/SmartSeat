@@ -116,7 +116,6 @@ Der **Raspberry Pi Pico 2 WH** wertet **Sensoren, Knöpfe und NFC-Daten** aus un
 
 <img src='./images/Ultraschall.png' style='width: 60%'>
 
-<!-- ![Platzhalter für Ultraschallsensor Bild](./images/Ultraschall.png) -->
 
 [Botland-Link](https://botland.de/ultraschall-abstandssensoren/5686-ultraschall-abstandssensor-hc-sr04-2-200cm-montagehalterung-5904422308452.html)  
 **Preis:** 3 € pro Stück → mind. 2 Sensoren nötig  
@@ -139,7 +138,6 @@ Der **Raspberry Pi Pico 2 WH** wertet **Sensoren, Knöpfe und NFC-Daten** aus un
 
 <img src='./images/Nfc.png' style='width: 45%'>
 
-<!-- ![Platzhalter für NFC-Reader Bild](./images/Nfc.png) -->
 
 ### Funktionsprinzip
 Beim Platznehmen hält der Schüler sein **Smartphone oder Karte** an den **NFC-Reader**.  
@@ -158,29 +156,6 @@ Beim Verlassen wiederholt er den Vorgang → **„frei“**.
 - **Nur Teil der Nutzer** kann das Feature verwenden  
 - Benötigt speziellen **NFC-Reader mit HCE-Unterstützung**
 
----
-
-### Beispiel: ESP32 + NFC-Modul
-
-#### Komponenten:
-- **ESP32 (WLAN & Bluetooth integriert)**  
-- **NFC-Modul (z. B. PN532 oder RC522)**  
-
-#### Preisübersicht
-| Komponente | Einzelpreis | Menge | Gesamt |
-|-------------|-------------|--------|---------|
-| ESP32 | 7 € | 5 | 35 € |
-| NFC-Modul | 4 € | 5 | 20 € |
-| **Gesamt** |  |  | **55 €** |
-
-#### Vorteile
-- **WLAN integriert**  
-- Kann direkt mit **REST-APIs** kommunizieren  
-
-#### Nachteile
-- Kein All-in-One-Gerät (NFC-Modul nötig)  
-- **Komplexe Programmierung** (NFC + WLAN)  
-- **Stromversorgung** über USB oder Netzteil erforderlich  
 
 ---
 
