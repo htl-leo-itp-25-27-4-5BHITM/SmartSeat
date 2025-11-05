@@ -1,7 +1,8 @@
 package at.htl.boundary;
 
 
-import at.htl.repository.KojenRepository;
+import at.htl.model.Seat;
+import at.htl.repository.Repository;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -16,7 +17,7 @@ import java.util.List;
 public class Resource {
 
     @Inject
-    KojenRepository repository;
+    Repository repository;
 
     @GET
     @Path("Seats")
