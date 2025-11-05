@@ -17,14 +17,25 @@ public class Seat {
     private SeatStatus status;
     //@CurrentTimestamp
     private LocalDateTime timeStamp;
+    private int floor;
 
-    public Seat (String location, String name, SeatStatus status, LocalDateTime timeStamp) {
+    public Seat (int floor,String location, String name, SeatStatus status, LocalDateTime timeStamp) {
         setLocation(location);
         setStatus(status);
         setTimeStamp(timeStamp);
         setName(name);
+        setFloor(floor);
     }
     public Seat () {
+    }
+
+    //<editor-fold desc="Getter Setter">
+    public int getFloor() {
+        return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
     }
 
     public String getName() {
@@ -58,4 +69,5 @@ public class Seat {
     public void setLocation(String location) {
         this.location = location;
     }
+    //</editor-fold>
 }
