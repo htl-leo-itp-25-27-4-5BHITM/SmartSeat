@@ -5,6 +5,7 @@ import org.hibernate.annotations.CurrentTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name="seatUse")
 public class Seat {
 
     @Id
@@ -12,14 +13,26 @@ public class Seat {
 
     private Long id;
     private String location;
+    private String name;
     private SeatStatus status;
     //@CurrentTimestamp
     private LocalDateTime timeStamp;
 
-    public Seat (String location, SeatStatus status, LocalDateTime timeStamp) {
+    public Seat (String location, String name, SeatStatus status, LocalDateTime timeStamp) {
         setLocation(location);
         setStatus(status);
         setTimeStamp(timeStamp);
+        setName(name);
+    }
+    public Seat () {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LocalDateTime getTimeStamp() {
