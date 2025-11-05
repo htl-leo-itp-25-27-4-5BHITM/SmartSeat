@@ -189,5 +189,3 @@ Beim Verlassen wiederholt er den Vorgang → **„frei“**.
 | **Tuya-Bewegungsmelder** | 50 € (4 Stk.) | WLAN & Cloud ready | Teilweise Cloud-abhängig |
 | **Ultraschallsensoren** | 3 €/Stk. | Günstig & einfach | Fehleranfällig |
 | **NFC-Reader (ESP32 + NFC)** | 55 € | Handy-Integration | Nicht alle Geräte kompatibel |
-
--
