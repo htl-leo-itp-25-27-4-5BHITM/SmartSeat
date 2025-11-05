@@ -82,7 +82,10 @@ Der **Raspberry Pi Pico 2 WH** wertet **Sensoren, Knöpfe und NFC-Daten** aus un
 - Über **Tuya IoT Console** ([iot.tuya.com](https://iot.tuya.com))  
 - Geräteverknüpfung per **QR-Code**  
 - Zugriff auf **Device ID**, **Local Key**, **DP-Codes**  
-- Integration in eigene Software möglich  
+- Integration in eigene Software möglich
+- **KO Kriterien:**
+  - 1 Monat Free Trial
+  - Standard Version: 300€ pro Monat  
 
 ---
 
@@ -104,7 +107,7 @@ Der **Raspberry Pi Pico 2 WH** wertet **Sensoren, Knöpfe und NFC-Daten** aus un
 | Technologie | Infrarot, WiFi |
 | Laufzeit | Bis zu 6 Monate |
 | Stromverbrauch | Niedrig |
-| Zusatzfunktion | Batteriestands-Warnung |
+
 
 ---
 
