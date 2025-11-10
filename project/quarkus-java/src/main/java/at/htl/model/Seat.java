@@ -1,4 +1,5 @@
 package at.htl.model;
+import io.quarkus.runtime.Startup;
 import jakarta.persistence.*;
 import org.h2.api.DatabaseEventListener;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,12 +22,10 @@ public class Seat {
     private SeatStatus status;
     //@CurrentTimestamp
     @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_Date")
     private Date timeStamp;
 
     @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(name ="last_change_date")
     private Date lastUse;
 
@@ -62,4 +61,6 @@ public class Seat {
     public void setLocation(String location) {
         this.location = location;
     }
+
+
 }

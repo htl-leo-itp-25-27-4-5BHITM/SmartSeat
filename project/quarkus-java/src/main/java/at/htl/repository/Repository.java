@@ -1,6 +1,9 @@
 package at.htl.repository;
 
 import at.htl.model.Seat;
+import at.htl.model.SeatStatus;
+import io.quarkus.runtime.Startup;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -19,6 +22,12 @@ public class Repository {
         en.persist(seat);
         return  en.find(Seat.class,seat) != null;
     }
+    @Transactional
+    public boolean removeSeat (Long id) {
+        en.remove(id);
+        return en.find(Seat.class,id) != null;
+    }
+
     public boolean updateSeat (Seat seat) {
         if (en.find(Seat.class, seat) != null) {
             en.merge(seat);
@@ -59,5 +68,25 @@ public class Repository {
         return null;
     }
 
+    //Adds the Seats at the start of the application
+    @Startup
+    @Transactional
+    public void init () {
+        System.out.println("Starting application");
+        en.persist(new Seat("1OG Rechter Flügel","Koje 1", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 2", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 3", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 4", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 5", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 6", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 7", SeatStatus.UNCCOPIED));
+
+    }
+
+    @PreDestroy
+    public void destroy () {
+        en.getProperties().values().forEach(System.out::println);
+        en.clear();
+    }
 
 }
