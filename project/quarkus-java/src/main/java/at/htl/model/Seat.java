@@ -1,7 +1,11 @@
 package at.htl.model;
 import jakarta.persistence.*;
+import org.h2.api.DatabaseEventListener;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.CurrentTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
@@ -16,12 +20,19 @@ public class Seat {
     private String name;
     private SeatStatus status;
     //@CurrentTimestamp
-    private LocalDateTime timeStamp;
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_Date")
+    private Date timeStamp;
 
-    public Seat (String location, String name, SeatStatus status, LocalDateTime timeStamp) {
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name ="last_change_date")
+    private Date lastUse;
+
+    public Seat (String location, String name, SeatStatus status) {
         setLocation(location);
         setStatus(status);
-        setTimeStamp(timeStamp);
         setName(name);
     }
     public Seat () {
@@ -35,13 +46,6 @@ public class Seat {
         this.name = name;
     }
 
-    public LocalDateTime getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(LocalDateTime timeStamp) {
-        this.timeStamp = timeStamp;
-    }
 
     public SeatStatus getStatus() {
         return status;
