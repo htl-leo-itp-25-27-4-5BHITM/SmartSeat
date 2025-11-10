@@ -34,8 +34,7 @@ body {
 
 table {
     border-collapse: collapse;
-    width: 70%;
-    max-width: 800px;
+    width: 60%;
     background-color: var(--table-bg);
     backdrop-filter: blur(12px);
     border-radius: 12px;
