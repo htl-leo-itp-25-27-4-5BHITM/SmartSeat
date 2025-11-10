@@ -29,10 +29,10 @@ public class Resource {
     }
 
     @GET
-    @Path("{filter:[a-zA-Z0-9]+}")
+    @Path("{id:\\d+}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getSeatById() {
-        Seat seat;
+    public Response getSeatById(@PathParam("id") long id) {
+        Seat seat = repository.getSeatById(id);
         if (seat == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -44,7 +44,7 @@ public class Resource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addSeat(Seat seat) {
-        if (!addSeat(seat)) {
+        if (!repository.addSeat(seat)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         return Response.status(Response.Status.OK).build();
