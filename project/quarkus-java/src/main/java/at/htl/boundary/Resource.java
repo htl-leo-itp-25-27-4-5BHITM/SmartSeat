@@ -4,9 +4,7 @@ package at.htl.boundary;
 import at.htl.model.Seat;
 import at.htl.repository.Repository;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -20,7 +18,7 @@ public class Resource {
     Repository repository;
 
     @GET
-    @Path("Seats")
+    @Path("getAllSeats")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAll() {
         List<Seat> seatList = repository.getAll();
@@ -29,4 +27,28 @@ public class Resource {
         }
         return Response.status(Response.Status.OK).entity(seatList).build();
     }
+
+    @GET
+    @Path("{filter:[a-zA-Z0-9]+}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSeatById() {
+        Seat seat;
+        if (seat == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.status(Response.Status.OK).entity(seat).build();
+    }
+
+    @POST
+    @Path("addSeat")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addSeat(Seat seat) {
+        if (!addSeat(seat)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
+
 }
