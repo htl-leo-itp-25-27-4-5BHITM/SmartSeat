@@ -73,13 +73,13 @@ public class Repository {
     @Transactional
     public void init () {
         System.out.println("Starting application");
-        en.persist(new Seat("1OG Rechter Flügel","Koje 1", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("1OG Linker Flügel","Koje 2", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("1OG Linker Flügel","Koje 3", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("2OG Rechter Flügel","Koje 4", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("2OG Rechter Flügel","Koje 5", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("2OG Linker Flügel","Koje 6", SeatStatus.UNCCOPIED));
-        en.persist(new Seat("2OG Linker Flügel","Koje 7", SeatStatus.UNCCOPIED));
+        en.persist(new Seat("1OG Rechter Flügel","Koje 1", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 2", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 3", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 4", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 5", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 6", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 7", SeatStatus.UNOCCOPIED));
 
     }
 
