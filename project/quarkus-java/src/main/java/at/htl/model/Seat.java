@@ -1,33 +1,34 @@
 package at.htl.model;
-import io.quarkus.runtime.Startup;
 import jakarta.persistence.*;
-import org.h2.api.DatabaseEventListener;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.CurrentTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.LinkedList;
+import java.util.List;
 
 @Entity
-@Table(name="seatUse")
 public class Seat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-
     private Long id;
+
+
     private String location;
     private String name;
     private SeatStatus status;
-    //@CurrentTimestamp
-    @CreationTimestamp
-    @Column(name = "created_Date")
-    private Date timeStamp;
 
-    @UpdateTimestamp
-    @Column(name ="last_change_date")
-    private Date lastUse;
+    //@CurrentTimestamp
+//    @CreationTimestamp
+//    @Column(name = "created_Date")
+//    private Date timeStamp = Date.valueOf(LocalDate.now());
+//
+//    @UpdateTimestamp
+//    @Column(name ="last_change_date")
+//    private Date lastUse;
 
     public Seat (String location, String name, SeatStatus status) {
         setLocation(location);
@@ -37,6 +38,7 @@ public class Seat {
     public Seat () {
     }
 
+    //<editor-fold desc="Getter Setter">
     public String getName() {
         return name;
     }
@@ -62,5 +64,24 @@ public class Seat {
         this.location = location;
     }
 
+//    public Date getTimeStamp() {
+//        return timeStamp;
+//    }
+//
+//    public void setTimeStamp(Date timeStamp) {
+//        this.timeStamp = timeStamp;
+//    }
+//
+//    public Date getLastUse() {
+//        return lastUse;
+//    }
+//
+//    public void setLastUse(Date lastUse) {
+//        this.lastUse = lastUse;
+//    }
 
+    public Long getId() {
+        return id;
+    }
+    //</editor-fold>
 }
