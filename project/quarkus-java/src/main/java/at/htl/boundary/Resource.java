@@ -65,8 +65,7 @@ public class Resource {
             return Response.seeOther(URI.create("http://10.152.213.15:8080/error.html"))
                     .build();
         }
-        return Response.seeOther(URI.create("http://10.152.213.15:8080"))
-                //.status(Response.Status.OK)
+        return Response.seeOther(URI.create("../"))
                 .build();
 
     }
