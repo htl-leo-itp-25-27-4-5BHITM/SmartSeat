@@ -37,26 +37,23 @@ public class ScanHistoryRepo {
     }
 
     public List<ScanHistory> getAllEntries() {
-         return em.createQuery("select s from ScanHistory s order by s.scannedAt desc").getResultList();
+        return em.createQuery("select s from ScanHistory s order by s.scannedAt desc").getResultList();
     }
 
 
     @Startup
     @Transactional
-    public void init () {
+    public void init() {
         System.out.println("Starting application");
         em.persist(new ScanHistory(1));
         em.persist(new ScanHistory(2));
         em.persist(new ScanHistory(3));
         em.persist(new ScanHistory(4));
         em.persist(new ScanHistory(5));
-        em.persist(new ScanHistory(6));
-
-
     }
 
     @PreDestroy
-    public void destroy () {
+    public void destroy() {
         em.getProperties().values().forEach(System.out::println);
         em.clear();
     }
