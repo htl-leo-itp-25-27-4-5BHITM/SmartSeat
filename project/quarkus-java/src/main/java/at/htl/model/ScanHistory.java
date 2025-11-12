@@ -27,9 +27,9 @@ public class ScanHistory {
 
     }
 
-    public ScanHistory(long seatId, LocalDateTime scannedAt) {
+    public ScanHistory(long seatId) {
         this.seatId = seatId;
-        this.scannedAt = scannedAt;
+        this.scannedAt = LocalDateTime.now();
     }
 
     public long getId() {

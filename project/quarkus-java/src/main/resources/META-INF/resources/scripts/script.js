@@ -7,7 +7,7 @@ function getAllSeats() {
             <th>Gescannt Am</th>
         </tr>
     `;
-    fetch("/api/getAllSeats")
+    fetch("/api/getAllEntries")
         .then((response) => { return response.json(); })
         .then((data) => {
 
