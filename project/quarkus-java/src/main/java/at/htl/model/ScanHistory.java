@@ -1,58 +1,48 @@
 package at.htl.model;
 
+import java.util.Date;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import org.hibernate.annotations.CreationTimestamp;
+import jakarta.persistence.OneToOne;
 
-import java.time.LocalDateTime;
-
+//Saves the history of the usage
 @Entity
 public class ScanHistory {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private
-    long id;
+    Long id;
 
-    private long seatId;
+    @OneToOne
+    Seat seat;
 
     @CreationTimestamp
-    private
-    LocalDateTime scannedAt;
+    Date scanned;
 
-
-    public ScanHistory() {
-
+    public ScanHistory() {}
+    public ScanHistory(Seat seat) {
+        setSeat(seat);
     }
 
-    public ScanHistory(long seatId, LocalDateTime scannedAt) {
-        this.seatId = seatId;
-        this.scannedAt = scannedAt;
+    //<editor-fold desc="Getter Setter">
+    public Seat getSeat() {
+        return seat;
     }
 
-    public long getId() {
+    public void setSeat(Seat seat) {
+        this.seat = seat;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public Date getScanned() {
+        return scanned;
     }
-
-    public long getSeatId() {
-        return seatId;
-    }
-
-    public void setSeatId(long seatId) {
-        this.seatId = seatId;
-    }
-
-    public LocalDateTime getScannedAt() {
-        return scannedAt;
-    }
-
-    public void setScannedAt(LocalDateTime scannedAt) {
-        this.scannedAt = scannedAt;
-    }
+    //</editor-fold>
 }

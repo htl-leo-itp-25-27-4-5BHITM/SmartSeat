@@ -2,6 +2,7 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.model.SeatStatus;
+import at.htl.model.ScanHistory;
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -55,17 +56,26 @@ public class Repository {
     //</editor-fold>
 
     //Change Status and History
-    public List<Seat> getLastUsedSeats() {
-        return null;
+    public List<Seat> getSeatUsageHistoryAll() {
+        var query = en.createQuery("select  c from ScanHistory c");
+        return query.getResultList();
     }
-    public List<Object> getSeatUsageHistory (Long seatId) {
-        return null;
+    public List<ScanHistory> getSeatUsageHistoryFromId (Long seatId) {
+        var query = en.createQuery("select c from ScanHistory c where id = :seatID");
+        query.setParameter("seatID",seatId);
+        return query.getResultList();
     }
     public String timeSinceLastUse (Long id) {
         return "";
     }
-    public boolean changeStatusToOccupied (Long id) {
-        return false;
+
+    //QR Code --> Event neuer Eintrag in SeatUsageHistory
+    @Transactional
+    public void changeStatusToOccupied (Long id) {
+        Seat seat = en.find(Seat.class,id);
+        seat.setStatus(SeatStatus.OCCUPIED);
+        en.merge(seat);
+        en.persist(new ScanHistory(seat));
     }
 
     //CHAT
