@@ -69,13 +69,13 @@ public class Repository {
         return "";
     }
 
-    //QR Code --> Event neuer Eintrag in SeatUsageHistory
+    //QR Code --> Event neuer Eintrag in SeatUsageHistory -->Seat in persist
     @Transactional
     public void changeStatusToOccupied (Long id) {
         Seat seat = en.find(Seat.class,id);
         seat.setStatus(SeatStatus.OCCUPIED);
         en.merge(seat);
-        en.persist(new ScanHistory(seat));
+        en.persist(new ScanHistory(id));
     }
 
     //CHAT
