@@ -2,7 +2,6 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.model.SeatStatus;
-import at.htl.model.SeatUsage;
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -83,13 +82,13 @@ public class Repository {
     @Transactional
     public void init () {
         System.out.println("Starting application");
-        en.persist(new Seat("1OG Rechter Flügel","Koje 1", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("1OG Linker Flügel","Koje 2", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("1OG Linker Flügel","Koje 3", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("2OG Rechter Flügel","Koje 4", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("2OG Rechter Flügel","Koje 5", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("2OG Linker Flügel","Koje 6", SeatStatus.UNOCCOPIED));
-        en.persist(new Seat("2OG Linker Flügel","Koje 7", SeatStatus.UNOCCOPIED));
+        en.persist(new Seat("1OG Rechter Flügel","Koje 1", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 2", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("1OG Linker Flügel","Koje 3", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 4", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("2OG Rechter Flügel","Koje 5", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 6", SeatStatus.UNOCCUPIED));
+        en.persist(new Seat("2OG Linker Flügel","Koje 7", SeatStatus.UNOCCUPIED));
 
     }
 
