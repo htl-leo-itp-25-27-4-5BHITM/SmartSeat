@@ -6,21 +6,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 public class ScanHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private
-    long id;
+    private long id;
 
     private long seatId;
 
-    @CreationTimestamp
-    private
-    LocalDateTime scannedAt;
+    //    @CreationTimestamp
+    private LocalDateTime scannedAt;
 
 
     public ScanHistory() {
@@ -29,7 +30,7 @@ public class ScanHistory {
 
     public ScanHistory(long seatId) {
         this.seatId = seatId;
-        this.scannedAt = LocalDateTime.now();
+        this.scannedAt = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
     }
 
     public long getId() {
