@@ -2,8 +2,7 @@ package at.htl.boundary;
 
 
 import at.htl.model.ScanHistory;
-import at.htl.model.Seat;
-import at.htl.repository.Repository;
+
 import at.htl.repository.ScanHistoryRepo;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
