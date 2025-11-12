@@ -1,6 +1,6 @@
 let tableBody = document.getElementById("table-body");
 
-function getAllSeats() {
+function getAllEntries() {
     let html = `
         <tr>
             <th>Seat ID</th>
@@ -26,5 +26,5 @@ function getAllSeats() {
             console.error('Fetch error:', error);
         });
 }
-
-setInterval(getAllSeats(), 5000);
+getAllEntries();
+setInterval(getAllEntries, 5000);
