@@ -37,7 +37,7 @@ public class ScanHistoryRepo {
     }
 
     public List<ScanHistory> getAllEntries() {
-         return em.createQuery("select s from ScanHistory s").getResultList();
+         return em.createQuery("select s from ScanHistory s order by s.scannedAt desc").getResultList();
     }
 
 
