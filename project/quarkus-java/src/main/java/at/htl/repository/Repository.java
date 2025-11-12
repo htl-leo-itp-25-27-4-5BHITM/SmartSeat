@@ -2,6 +2,7 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.model.SeatStatus;
+import at.htl.model.SeatUsage;
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -17,6 +18,7 @@ public class Repository {
     @Inject
     EntityManager en;
 
+    //<editor-fold desc="Seat functions">
     @Transactional
     public boolean addSeat(Seat seat) {
         en.persist(seat);
@@ -51,16 +53,23 @@ public class Repository {
 
         return query.getResultList();
     }
+    //</editor-fold>
+
+    //Change Status and History
     public List<Seat> getLastUsedSeats() {
         return null;
     }
-
-    public String timeSinceLastUse (long id) {
+    public List<Object> getSeatUsageHistory (Long seatId) {
+        return null;
+    }
+    public String timeSinceLastUse (Long id) {
         return "";
     }
-    public boolean changeStatusToOccupied (long id) {
+    public boolean changeStatusToOccupied (Long id) {
         return false;
     }
+
+    //CHAT
     public boolean saveChatMessage (String schoolClass) {
         return false;
     }
@@ -68,6 +77,7 @@ public class Repository {
         return null;
     }
 
+    //<editor-fold desc="Init and Destroy Functions">
     //Adds the Seats at the start of the application
     @Startup
     @Transactional
@@ -88,5 +98,6 @@ public class Repository {
         en.getProperties().values().forEach(System.out::println);
         en.clear();
     }
+    //</editor-fold>
 
 }
