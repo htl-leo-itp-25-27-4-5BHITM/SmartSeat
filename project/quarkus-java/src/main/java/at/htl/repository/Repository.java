@@ -36,7 +36,7 @@ public class Repository {
         return false;
     }
     public List<Seat> getAll () {
-        var query = en.createQuery("select c from seatUse c");
+        var query = en.createQuery("select c from Seat c");
 
         return query.getResultList();
     }
@@ -45,7 +45,7 @@ public class Repository {
     }
 
     public List<Seat> getFilteredSeats (String filter) {
-        var query = en.createQuery("select c from seatUse c where lower(name) like lower('%'||:filter||'%')" +
+        var query = en.createQuery("select c from Seat c where lower(name) like lower('%'||:filter||'%')" +
                 " or lower(location) like lower('%'||:filter||'%')");
         query.setParameter("filter",filter);
 
