@@ -62,7 +62,7 @@ public class Resource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response addSeat(@PathParam("id") long id) {
         if (!repository.addEntry(id)) {
-            return Response.seeOther(URI.create("http://10.152.213.15:8080/error.html"))
+            return Response.seeOther(URI.create("../error.html"))
                     .build();
         }
         return Response.seeOther(URI.create("../"))
