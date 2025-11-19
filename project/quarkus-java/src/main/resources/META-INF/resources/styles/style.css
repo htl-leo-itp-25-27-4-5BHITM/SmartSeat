@@ -54,6 +54,7 @@ h1 {
     align-items: flex-start;
     flex-direction: column;
 }
+
 .floors p {
     color: greenyellow;
 }
@@ -70,4 +71,48 @@ h1 {
     background-image: url(../map.png);
     background-size: contain;
     background-repeat: no-repeat;
+}
+
+
+.koje {
+    position: absolute;
+    width: 1.5vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+
+.koje.occupied {
+    background-color: red;
+}
+
+.koje.unoccupied {
+    background-color: green;
+}
+
+#k1 {
+    top: 38%;
+    left: 20%;
+}
+
+#k2 {
+    top: 23%;
+    left: 48%;
+}
+
+#k3 {
+    top: 40%;
+    left: 57%;
+}
+
+
+#k4 {
+    top: 57%;
+    left: 28%;
+}
+
+#k5 {
+    top: 40%;
+    left: 57%;
 }

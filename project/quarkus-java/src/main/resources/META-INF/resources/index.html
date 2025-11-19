@@ -11,26 +11,32 @@
 
 <body>
 
-<div id="nav">
-    <h1>Smartseat Dashboard</h1>
-</div>
-
-
-<div id="floor-box">
-    <div class="floors">
-        <h1>Stockwerk: 1.OG</h1>
-        <p>2 Kojen verfügbar</p>
+    <div id="nav">
+        <h1>Smartseat - Dashboard</h1>
     </div>
 
-    <div class="floors">
-        <h1>Stockwerk: 2.OG</h1>
-        <p>5 Kojen verfügbar</p>
+
+    <div id="floor-box">
+        <div class="floors" onclick="loadFloor(1)">
+            <h1>Stockwerk: 1.OG</h1>
+            <p>2 Kojen verfügbar</p>
+        </div>
+
+        <div class="floors" onclick="loadFloor(2)">
+            <h1>Stockwerk: 2.OG</h1>
+            <p>5 Kojen verfügbar</p>
+        </div>
     </div>
-</div>
 
 
-<div id="map">
-</div>
+    <div id="map">
+        <div class="koje occupied" id="k1"></div>
+        <div class="koje occupied" id="k2"></div>
+        <div class="koje unoccupied" id="k3"></div>
+        <div class="koje occupied" id="k4"></div>
+        <div class="koje unoccupied" id="k5"></div>
+    </div>
 
 </body>
+
 </html>

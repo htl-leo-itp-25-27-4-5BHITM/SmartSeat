@@ -1,30 +1,17 @@
-let tableBody = document.getElementById("table-body");
 
-function getAllEntries() {
-    let html = `
-        <tr>
-            <th>Seat ID</th>
-            <th>Gescannt Am</th>
-        </tr>
-    `;
-    fetch("/api/getAllEntries")
-        .then((response) => { return response.json(); })
-        .then((data) => {
-
-            for (let i = 0; i < data.length; i++) {
-                html += `
-                    <tr>
-                        <td>${data[i].seatId}</td>
-                        <td>${data[i].scannedAt}</td>
-                    </tr>
-                `;
-            }
-
-            tableBody.innerHTML = html;
-        })
-        .catch((error) => {
-            console.error('Fetch error:', error);
-        });
+function loadFloor(floorNumber) {
+    if(floorNumber == 1) {
+        document.getElementById('k1').style.display = 'block';
+        document.getElementById('k2').style.display = 'block';
+        document.getElementById('k3').style.display = 'block';
+        document.getElementById('k4').style.display = 'none';
+        document.getElementById('k5').style.display = 'none';
+    } else if(floorNumber == 2) {
+        document.getElementById('k1').style.display = 'none';
+        document.getElementById('k2').style.display = 'none';
+        document.getElementById('k3').style.display = 'none';
+        document.getElementById('k4').style.display = 'block';
+        document.getElementById('k5').style.display = 'block';
+    }
 }
-getAllEntries();
-setInterval(getAllEntries, 5000);
+loadFloor(1);
