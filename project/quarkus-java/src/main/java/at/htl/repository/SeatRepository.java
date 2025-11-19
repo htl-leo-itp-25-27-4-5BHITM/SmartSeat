@@ -40,18 +40,21 @@ public class SeatRepository {
         return false;
     }
     public List<Seat> getAllSeats () {
-        var query = em.createQuery("select c from Seat c order by id desc");
+        var query = em.createQuery("select c from Seat c order by id desc",Seat.class);
         return  query.getResultList();
     }
     public List<Seat> getSeatByFloor (String floor) {
-        var query = em.createQuery("select c from Seat c join SeatLocation se on c.location = se.id where lower(se.floor) like lower(:floor) order by c.id desc");
+        var query = em.createQuery("select c from Seat c" +
+                " join SeatLocation se on c.location = se.id" +
+                " where lower(se.floor) like lower(:floor) order by c.id desc", Seat.class);
         query.setParameter("floor",floor);
         return query.getResultList();
     }
     public boolean changeStatusToOccupiedAfterTime () {
         //Scanhistory -> Timestamp
-        var query = em.createQuery("select c from Seat c ");
+        var query = em.createQuery("select c from Seat c ", Seat.class);
         var seatList =query.getResultList();
+        seatList.forEach(e -> e.setStatus(SeatStatus.OCCUPIED));
 
         return false;
     }
