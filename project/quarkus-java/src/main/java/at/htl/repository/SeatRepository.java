@@ -15,10 +15,11 @@ public class SeatRepository {
     public boolean addSeat (Long seatID) {
         return false;
     }
-    public boolean deleateSeat (Long seatId) {
+    public boolean deleteSeat (Long seatId) {
         return false;
     }
     public List<Seat> getAllSeats () {
+        var query = en.
         return  null;
     }
     public List<Seat> getSeatByFloor (String floor) {
