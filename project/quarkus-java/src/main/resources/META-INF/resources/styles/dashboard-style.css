@@ -1,0 +1,39 @@
+@font-face {
+    font-family: Poppins;
+    src: url(../assets/font/Poppins-Regular.ttf);
+}
+
+:root {
+    --primary-color: rgb(47, 84, 150);
+    --secondary-color: rgb(91, 155, 213);
+    --table-bg: rgba(48, 83, 225, 0.598);
+    --table-border: rgba(255, 255, 255, 0.2);
+    --background-color-main: ;
+
+}
+
+
+body {
+    background: linear-gradient(180deg,rgba(32, 160, 247, 1) 0%, rgba(29, 89, 239, 1) 100%);
+    background-repeat: no-repeat;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 3vh 8vh;
+    font-family: Poppins;
+
+    /*display: flex;*/
+    /*justify-content: flex-start;*/
+    /*align-items: center;*/
+    /*flex-direction: column;*/
+}
+
+.floors{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.floors > div{
+    margin: 0;
+}
