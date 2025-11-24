@@ -14,10 +14,10 @@ public class Seat {
     private SeatStatus status;
 
 
-    public Seat ( String name, SeatStatus status, SeatLocation location) {
+    public Seat ( String name, SeatStatus status) {
         setStatus(status);
         setName(name);
-        setLocation(location);
+//        setLocation(location);
     }
     public Seat () {
     }
