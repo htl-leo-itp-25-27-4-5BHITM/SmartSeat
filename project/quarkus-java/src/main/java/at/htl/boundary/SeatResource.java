@@ -45,7 +45,7 @@ public class SeatResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUnoccupiedSeatsByFloor (@PathParam("floor") String floor) {
         var seats = seatRepository.getUnoccupiedByFloor(floor);
-        if (seats == null) {
+        if (seats == -1) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 
