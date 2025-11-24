@@ -4,6 +4,7 @@ import at.htl.model.ScanHistory;
 import at.htl.model.Seat;
 import at.htl.model.SeatLocation;
 import at.htl.model.SeatStatus;
+import at.htl.repository.dto.SeatInformationDTO;
 import io.quarkus.runtime.Startup;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -43,18 +44,19 @@ public class SeatRepository {
 
         return false;
     }
-    public List<Seat> getAllSeats () {
-        var query = em.createQuery("select c.name, c.status, se.floor, se.wing" +
+    public List<SeatInformationDTO> getAllSeats () {
+        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.name, c.status, se.floor, se.wing)" +
                 " from Seat c " +
                 "join SeatLocation se on se.id = c.location.id " +
-                " order by c.id desc",Seat.class);
+                " order by c.id desc", SeatInformationDTO.class);
 
         return  query.getResultList();
     }
-    public List<Seat> getSeatByFloor (String floor) {
-        var query = em.createQuery("select c.name, c.status, se.floor, se.wing from Seat c" +
-                " join SeatLocation se on c.location.id = se.id" +
-                " where lower(se.floor) like lower(:floor) order by c.id desc", Seat.class);
+    public List<SeatInformationDTO> getSeatByFloor (String floor) {
+        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.name, c.status, se.floor, se.wing)" +
+                "from Seat c" +
+                " join SeatLocation se on c.location.id = se.id " +
+                " where lower(se.floor) like lower(:floor) order by c.id desc", SeatInformationDTO.class);
         query.setParameter("floor",floor);
         return query.getResultList();
     }
@@ -62,14 +64,14 @@ public class SeatRepository {
         //Scanhistory -> Timestamp
         var query = em.createQuery("select c from Seat c", Seat.class);
         var seatList =query.getResultList();
-        seatList.forEach(e -> e.setStatus(SeatStatus.OCCUPIED));
+        seatList.forEach(e -> e.setStatus(false));
 
         return false;
     }
     public boolean changeStatusToOccupied (Long id) {
         if (id <= 5 && id >= 1) {
             try {
-                em.find(Seat.class, id).setStatus(SeatStatus.OCCUPIED);
+                em.find(Seat.class, id).setStatus(false);
 
             } catch (Exception e) {
                 return false;
@@ -84,7 +86,7 @@ public class SeatRepository {
     public boolean changeStatusToUnoccupied (Long id) {
         if (id <= 5 && id >= 1) {
             try {
-                em.find(Seat.class, id).setStatus(SeatStatus.UNOCCUPIED);
+                em.find(Seat.class, id).setStatus(false);
 
             } catch (Exception e) {
                 return false;
@@ -93,37 +95,4 @@ public class SeatRepository {
         }
         return false;
     }
-
-    @Startup
-    @Transactional
-    public void init() {
-        //LOCATION
-//        var seatLoc1 = new SeatLocation("1OG","left");
-//        var seatLoc2 = new SeatLocation("1OG","right");
-//        var seatLoc3 = new SeatLocation("2OG","left");
-//        var seatLoc4 = new SeatLocation("2OG","right");
-//
-////        em.persist(seatLoc1);
-////        em.persist(seatLoc2);
-////        em.persist(seatLoc3);
-////        em.persist(seatLoc4);
-
-        //SEATS
-//        em.persist(new Seat("Koje 1", SeatStatus.UNOCCUPIED,seatLoc1));
-//        em.persist(new Seat("Koje 2", SeatStatus.UNOCCUPIED,seatLoc2));
-//        em.persist(new Seat("Koje 3", SeatStatus.UNOCCUPIED,seatLoc2));
-//        em.persist(new Seat("Koje 4", SeatStatus.UNOCCUPIED,seatLoc3));
-//        em.persist(new Seat("Koje 5", SeatStatus.UNOCCUPIED,seatLoc4));
-
-
-
-
-
-    }
-    @PreDestroy
-    @Transactional
-    public void clear () {
-        em.clear();
-    }
-
 }

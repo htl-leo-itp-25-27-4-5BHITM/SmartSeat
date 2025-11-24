@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 //@Table(name = "location")
 public class SeatLocation {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String floor;
     String wing;

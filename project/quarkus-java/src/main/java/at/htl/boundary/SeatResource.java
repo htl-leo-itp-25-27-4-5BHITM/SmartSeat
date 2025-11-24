@@ -2,6 +2,8 @@ package at.htl.boundary;
 
 import at.htl.model.Seat;
 import at.htl.repository.SeatRepository;
+import at.htl.repository.dto.SeatInformationDTO;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -9,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
+@Path("/seat")
 public class SeatResource {
 
     @Inject
@@ -18,7 +21,7 @@ public class SeatResource {
     @Path("getAllSeats")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllSeats() {
-        List<Seat> seats = seatRepository.getAllSeats();
+       var seats = seatRepository.getAllSeats();
         if (seats == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -27,10 +30,9 @@ public class SeatResource {
 
     @GET
     @Path("getSeatsByFloor/{floor}")
-    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSeatsByFloor(@PathParam("floor") String floor) {
-        List<Seat> seats = seatRepository.getSeatByFloor(floor);
+       var seats = seatRepository.getSeatByFloor(floor);
 
         if (seats == null) {
             return Response.status(Response.Status.NOT_FOUND).build();

@@ -4,20 +4,19 @@ import jakarta.persistence.*;
 public class Seat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     private SeatLocation location;
 
     private String name;
-    private SeatStatus status;
+    private boolean status;
 
 
-    public Seat ( String name, SeatStatus status) {
+    public Seat ( String name, boolean status) {
         setStatus(status);
         setName(name);
-//        setLocation(location);
     }
     public Seat () {
     }
@@ -32,11 +31,11 @@ public class Seat {
     }
 
 
-    public SeatStatus getStatus() {
+    public boolean getStatus() {
         return status;
     }
 
-    public void setStatus(SeatStatus status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 
