@@ -60,6 +60,15 @@ public class SeatRepository {
         query.setParameter("floor",floor);
         return query.getResultList();
     }
+    public List<SeatInformationDTO> getUnoccupiedByFloor (String floor) {
+        var query = em.createQuery("select count(c)" +
+                " from Seat c " +
+                " join SeatLocation se on c.location.id = se.id" +
+                " where lower(se.floor) like lower(:floor)", SeatInformationDTO.class);
+        query.setParameter("floor", floor);
+
+        return query.getResultList();
+    }
     public boolean changeStatusToOccupiedAfterTime () {
         //Scanhistory -> Timestamp
         var query = em.createQuery("select c from Seat c", Seat.class);
