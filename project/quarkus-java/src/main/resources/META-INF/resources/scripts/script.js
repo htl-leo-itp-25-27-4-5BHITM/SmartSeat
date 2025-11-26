@@ -1,33 +1,70 @@
+const floorCountDOM = {
+    "1OG": document.getElementById("count1"),
+    "2OG": document.getElementById("count2")
+};
 
-function loadFloor(floorNumber) {
-    if (floorNumber == 1) {
-        document.getElementById('k1').style.display = 'block';
-        document.getElementById('k2').style.display = 'block';
-        document.getElementById('k3').style.display = 'block';
-        document.getElementById('k4').style.display = 'none';
-        document.getElementById('k5').style.display = 'none';
-    } else if (floorNumber == 2) {
-        document.getElementById('k1').style.display = 'none';
-        document.getElementById('k2').style.display = 'none';
-        document.getElementById('k3').style.display = 'none';
-        document.getElementById('k4').style.display = 'block';
-        document.getElementById('k5').style.display = 'block';
+const seatDOM = {
+    1: document.getElementById("k1"),
+    2: document.getElementById("k2"),
+    3: document.getElementById("k3"),
+    4: document.getElementById("k4"),
+    5: document.getElementById("k5")
+};
+
+async function loadFloor(floorNumber) {
+    let floorCode = floorNumber === 1 ? "1OG" : "2OG";
+    let seats = await getSeatsByFloor(floorCode);
+
+    Object.keys(seatDOM).forEach(num => {
+        let isFloor1Seat = ["1", "2", "3"].includes(num);
+        seatDOM[num].style.display =
+            (floorNumber === 1 && isFloor1Seat) ||
+                (floorNumber === 2 && !isFloor1Seat)
+                ? "block"
+                : "none";
+    });
+
+    updateSeatClasses(seats);
+}
+
+async function getSeatsByFloor(floor) {
+    try {
+        const res = await fetch(`/api/seat/getSeatsByFloor/${floor}`);
+        return await res.json();
+    } catch (err) {
+        console.error(err);
+        return [];
     }
 }
+
+
+function getUnoccupiedCount(floor) {
+    fetch(`/api/seat/getUnoccupiedSeatsByFloor/${floor}`)
+        .then(res => res.json())
+        .then(data => {
+            const label = data === 1 ? "Koje" : "Kojen";
+            const color = data === 0 ? "red" : "greenyellow";
+            floorCountDOM[floor].innerText = `${data} ${label} verfügbar`;
+            floorCountDOM[floor].style.color = color;
+        })
+        .catch(err => console.error(err));
+}
+
+
+function updateSeatClasses(seatData) {
+    seatData.forEach(seat => {
+        const match = seat.name.match(/Koje\s*(\d+)/i);
+        if (!match) return;
+
+        const num = match[1];
+        const el = seatDOM[num];
+        if (!el) return;
+
+        el.classList.remove("occupied", "unoccupied");
+        el.classList.add(seat.status ? "occupied" : "unoccupied");
+    });
+}
+
 loadFloor(1);
-
-function getSeatsFrom1OG() {
-    fetch('/api/seat/getSeatsByFloor/1OG')
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
-}
-getSeatsFrom1OG();
-
-function getUnoccupiedCount() {
-    fetch('/api/seat/getUnoccupiedSeatsByFloor/1OG')
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
-}
-getUnoccupiedCount();
+getUnoccupiedCount("1OG");
+getUnoccupiedCount("2OG");
