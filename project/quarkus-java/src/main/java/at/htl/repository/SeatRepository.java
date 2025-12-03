@@ -9,6 +9,7 @@ import jakarta.persistence.EntityManager;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @ApplicationScoped
 public class SeatRepository {
@@ -72,20 +73,21 @@ public class SeatRepository {
     public String getFloorByID (Long seatId) {
 
         var query = em.createQuery(""" 
-            select sl.floor from Seat se 
+            select sl.floor from Seat se
                  join SeatLocation sl on se.location.id = sl.id
                  where se.id = :seatId
-                  """,String.class)
+            """,String.class)
                 .setParameter("seatId", seatId);
 
         return query.getResultList().getFirst();
     }
-    public boolean changeStatusToUnoccupiedAfterTime () {
+    public void changeStatusToUnoccupiedAfterTime () {
         // scheduler
         //String cron = "0 8 * * *";
-        String cron = getCron();
+        AtomicReference<String> cron = new AtomicReference<>(getCron());
+        System.out.println(cron.get());
         scheduler.newJob("setSeatsToUnoccupiedJob")
-                .setCron(cron)
+                .setCron(cron.get())
                 .setAsyncTask(scheduledExecution -> {
                     try {
 
@@ -93,7 +95,13 @@ public class SeatRepository {
                         var seatList =query.getResultList();
                         seatList.forEach(e -> e.setStatus(true));
 
-                        //cron = getCron();
+                        scheduler.pause("setSeatsToUnoccupiedJob");
+                        cron.set(getCron());
+                        System.out.println(cron.get());
+                        scheduler.resume();
+
+
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -101,7 +109,6 @@ public class SeatRepository {
                     return null;
 
                 }).schedule();
-                return true;
     }
     public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
@@ -119,7 +126,7 @@ public class SeatRepository {
     private String getCron () {
         LocalTime timeNow = LocalTime.now();
         var endtimeCron = em.createQuery("select e.endTime" +
-                " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
+                        " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
                 .setParameter("currentTime", timeNow).getSingleResult();
 
         if (endtimeCron == null) {
