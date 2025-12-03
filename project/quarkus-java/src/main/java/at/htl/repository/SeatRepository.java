@@ -69,9 +69,21 @@ public class SeatRepository {
 
         return query.getSingleResult();
     }
+    public String getFloorByID (Long seatId) {
+
+        var query = em.createQuery(""" 
+            select sl.floor from Seat se 
+                 join SeatLocation sl on se.location.id = sl.id
+                 where se.id = :seatId
+                  """,String.class)
+                .setParameter("seatId", seatId);
+
+        return query.getResultList().getFirst();
+    }
     public boolean changeStatusToUnoccupiedAfterTime () {
         // scheduler
-        String cron = "0 8 * * *";
+        //String cron = "0 8 * * *";
+        String cron = getCron();
         scheduler.newJob("setSeatsToUnoccupiedJob")
                 .setCron(cron)
                 .setAsyncTask(scheduledExecution -> {
@@ -81,15 +93,15 @@ public class SeatRepository {
                         var seatList =query.getResultList();
                         seatList.forEach(e -> e.setStatus(true));
 
+                        //cron = getCron();
 
                     } catch (Exception e) {
-
+                        e.printStackTrace();
                     }
+                    return null;
+
                 }).schedule();
-
-
-
-return false;
+                return true;
     }
     public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
