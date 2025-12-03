@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -82,5 +83,18 @@ public class SeatRepository {
             return true;
         }
         return false;
+    }
+    //Returns a String in the cron format, with the time of the next closes endTime.
+    private String getCron () {
+        LocalTime timeNow = LocalTime.now();
+        var endtimeCron = em.createQuery("select e.endTime" +
+                " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
+                .setParameter("currentTime", timeNow).getSingleResult();
+
+        int hours = endtimeCron.getHour();
+        int minutes = endtimeCron.getMinute();
+
+        return String.format("%d %d * * *",minutes,hours);
+
     }
 }
