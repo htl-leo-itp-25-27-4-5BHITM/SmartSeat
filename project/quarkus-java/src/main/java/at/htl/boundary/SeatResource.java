@@ -1,6 +1,7 @@
 package at.htl.boundary;
 
 import at.htl.repository.SeatRepository;
+import at.htl.sockets.SeatWebSocket;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -11,6 +12,9 @@ public class SeatResource {
 
     @Inject
     SeatRepository seatRepository;
+
+    @Inject
+    SeatWebSocket seatWebSocket;
 
     @GET
     @Path("getAllSeats")
@@ -53,6 +57,7 @@ public class SeatResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeStatus(@PathParam("id") long id) {
         if (seatRepository.changeStatus(id)) {
+            seatWebSocket.broadcastSeats(seatRepository.getFloorByID(id));
             return Response.status(Response.Status.OK).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
