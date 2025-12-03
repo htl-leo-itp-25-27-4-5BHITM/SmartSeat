@@ -83,8 +83,6 @@ public class SeatRepository {
             return true;
         }
 
-
-
         return false;
     }
 }

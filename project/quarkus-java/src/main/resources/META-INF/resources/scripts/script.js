@@ -11,11 +11,12 @@ const seatDOM = {
     5: document.getElementById("k5")
 };
 
-function setSessionStorage(floorCode) {
-    // currentFloor updaten
-    currentFloor = floorCountDOM[floorCode];
+// Elemente holen
+const floor1 = document.getElementById("floor_1OG");
+const floor2 = document.getElementById("floor_2OG");
 
-    // SessionStorage setzen
+function setSessionStorage(floorCode) {
+    currentFloor = floorCountDOM[floorCode];
     sessionStorage.setItem("currentFloor", floorCode);
 }
 
@@ -36,18 +37,37 @@ async function loadFloor(floorNumber) {
 
     updateSeatClasses(seats);
 
+
+    const isMobile = window.innerWidth <= 768;
+
+
     document.getElementById("floor_1OG").style.backgroundColor =
         floorNumber === 1 ? "#6a92f4" : "#b7cbfa";
 
     document.getElementById("floor_2OG").style.backgroundColor =
         floorNumber === 2 ? "#6a92f4" : "#b7cbfa";
 
-        
-    document.getElementById("floor_1OG").style.marginLeft =
-        floorNumber === 1 ? "15%" : "0";
-        
-    document.getElementById("floor_2OG").style.marginLeft =
-        floorNumber === 2 ? "15%" : "0";
+    floor1.style.marginTop = "0";
+    floor1.style.marginLeft = "0";
+    floor2.style.marginTop = "0";
+    floor2.style.marginLeft = "0";
+
+    if (floorNumber === 1) {
+        if (isMobile) {
+            floor1.style.marginTop = "10%";
+        } else {
+            floor1.style.marginLeft = "15%";
+        }
+    }
+
+    if (floorNumber === 2) {
+        if (isMobile) {
+            floor2.style.marginTop = "10%";
+        } else {
+            floor2.style.marginLeft = "15%";
+        }
+    }
+
 }
 
 async function getSeatsByFloor(floor) {
@@ -94,6 +114,5 @@ if (currentFloor) {
 } else {
     loadFloor(1);
 }
-
 getUnoccupiedCount("1OG");
 getUnoccupiedCount("2OG");
