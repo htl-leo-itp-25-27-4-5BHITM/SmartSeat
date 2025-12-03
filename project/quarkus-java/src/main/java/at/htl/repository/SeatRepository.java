@@ -1,16 +1,10 @@
 package at.htl.repository;
 
-import at.htl.model.ScanHistory;
 import at.htl.model.Seat;
-import at.htl.model.SeatLocation;
-import at.htl.model.SeatStatus;
 import at.htl.repository.dto.SeatInformationDTO;
-import io.quarkus.runtime.Startup;
-import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 
