@@ -25,6 +25,19 @@ async function loadFloor(floorNumber) {
     });
 
     updateSeatClasses(seats);
+
+    document.getElementById("floor_1OG").style.backgroundColor =
+        floorNumber === 1 ? "#6a92f4" : "#b7cbfa";
+
+    document.getElementById("floor_2OG").style.backgroundColor =
+        floorNumber === 2 ? "#6a92f4" : "#b7cbfa";
+
+        
+    document.getElementById("floor_1OG").style.marginLeft =
+        floorNumber === 1 ? "15%" : "0";
+        
+    document.getElementById("floor_2OG").style.marginLeft =
+        floorNumber === 2 ? "15%" : "0";
 }
 
 async function getSeatsByFloor(floor) {
@@ -61,7 +74,7 @@ function updateSeatClasses(seatData) {
         if (!el) return;
 
         el.classList.remove("occupied", "unoccupied");
-        el.classList.add(seat.status ? "occupied" : "unoccupied");
+        el.classList.add(seat.status ? "unoccupied" : "occupied");
     });
 }
 

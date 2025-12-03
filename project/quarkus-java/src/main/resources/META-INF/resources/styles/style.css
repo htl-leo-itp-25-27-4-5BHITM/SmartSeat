@@ -55,6 +55,15 @@ h1 {
     flex-direction: column;
 }
 
+#floor_1OG, #floor_2OG {
+    transition: 0.5s ease-in-out;
+    border : 4px solid white;
+}
+
+#floor_1OG:hover, #floor_2OG:hover {
+    cursor: pointer;
+    transform: scale(1.02);
+}
 
 #map {
     position: fixed;
