@@ -11,9 +11,19 @@ const seatDOM = {
     5: document.getElementById("k5")
 };
 
+function setSessionStorage(floorCode) {
+    // currentFloor updaten
+    currentFloor = floorCountDOM[floorCode];
+
+    // SessionStorage setzen
+    sessionStorage.setItem("currentFloor", floorCode);
+}
+
 async function loadFloor(floorNumber) {
     let floorCode = floorNumber === 1 ? "1OG" : "2OG";
     let seats = await getSeatsByFloor(floorCode);
+
+    setSessionStorage(floorCode);
 
     Object.keys(seatDOM).forEach(num => {
         let isFloor1Seat = ["1", "2", "3"].includes(num);
@@ -78,6 +88,12 @@ function updateSeatClasses(seatData) {
     });
 }
 
-loadFloor(1);
+let currentFloor = sessionStorage.getItem("currentFloor");
+if (currentFloor) {
+    loadFloor(currentFloor === "1OG" ? 1 : 2);
+} else {
+    loadFloor(1);
+}
+
 getUnoccupiedCount("1OG");
 getUnoccupiedCount("2OG");
