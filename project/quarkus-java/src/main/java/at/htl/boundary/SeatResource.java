@@ -57,7 +57,6 @@ public class SeatResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeStatus(@PathParam("id") long id) {
         if (seatRepository.changeStatus(id)) {
-            seatWebSocket.broadcastSeats(seatRepository.getFloorByID(id));
             return Response.status(Response.Status.OK).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
