@@ -1,25 +1,28 @@
 package at.htl.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.LocalTime;
-import java.util.List;
 
 @Entity
-public class endTimes {
+public class EndTimes {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime endTime;
 
-    public endTimes() {
+
+    public EndTimes() {
     }
 
-    public endTimes(LocalTime endTime) {
+    public EndTimes(LocalTime endTime) {
         this.endTime = endTime;
     }
 

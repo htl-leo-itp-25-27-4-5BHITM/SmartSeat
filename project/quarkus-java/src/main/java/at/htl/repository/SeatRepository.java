@@ -59,13 +59,12 @@ public class SeatRepository {
                 " from Seat c " +
                 " join SeatLocation se on c.location.id = se.id" +
                 " where lower(se.floor) like lower(:floor)" +
-                "and c.status = false", Long.class);
+                "and c.status = true", Long.class);
         query.setParameter("floor", floor);
 
         return query.getSingleResult();
     }
     public boolean changeStatusToUnoccupiedAfterTime () {
-        //Scanhistory -> Timestamp
         var query = em.createQuery("select c from Seat c", Seat.class);
         var seatList =query.getResultList();
         seatList.forEach(e -> e.setStatus(true));
@@ -82,7 +81,6 @@ public class SeatRepository {
             }
             return true;
         }
-
         return false;
     }
 }

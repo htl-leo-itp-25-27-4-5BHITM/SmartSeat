@@ -54,17 +54,17 @@ async function loadFloor(floorNumber) {
 
     if (floorNumber === 1) {
         if (isMobile) {
-            floor1.style.marginTop = "10%";
+            floor1.style.marginTop = "5%";
         } else {
-            floor1.style.marginLeft = "15%";
+            floor1.style.marginLeft = "10%";
         }
     }
 
     if (floorNumber === 2) {
         if (isMobile) {
-            floor2.style.marginTop = "10%";
+            floor2.style.marginTop = "5%";
         } else {
-            floor2.style.marginLeft = "15%";
+            floor2.style.marginLeft = "10%";
         }
     }
 
@@ -85,6 +85,7 @@ function getUnoccupiedCount(floor) {
     fetch(`/api/seat/getUnoccupiedSeatsByFloor/${floor}`)
         .then(res => res.json())
         .then(data => {
+            console.log(data);
             const label = data === 1 ? "Koje" : "Kojen";
             const color = data === 0 ? "red" : "greenyellow";
             floorCountDOM[floor].innerText = `${data} ${label} verfügbar`;
