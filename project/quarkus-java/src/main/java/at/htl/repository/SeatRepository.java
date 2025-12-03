@@ -6,7 +6,7 @@ import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import org.jboss.logging.Logger;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -20,7 +20,10 @@ public class SeatRepository {
     @Inject
     Scheduler scheduler;
 
-    public boolean addSeat(Seat seat) {
+    @Inject
+    Logger logger;
+
+    public boolean addSeat (Seat seat) {
         if (seat.getId() <= 5 && seat.getId() >= 1) {
             try {
                 em.persist(seat);
@@ -33,8 +36,7 @@ public class SeatRepository {
         return false;
 
     }
-
-    public boolean deleteSeat(Long seatId) {
+    public boolean deleteSeat (Long seatId) {
         if (seatId <= 5 && seatId >= 1) {
             try {
                 em.remove(seatId);
@@ -46,26 +48,23 @@ public class SeatRepository {
 
         return false;
     }
-
-    public List<SeatInformationDTO> getAllSeats() {
+    public List<SeatInformationDTO> getAllSeats () {
         var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.name, c.status, se.floor, se.wing)" +
                 " from Seat c " +
                 "join SeatLocation se on se.id = c.location.id " +
                 " order by c.id desc", SeatInformationDTO.class);
 
-        return query.getResultList();
+        return  query.getResultList();
     }
-
-    public List<SeatInformationDTO> getSeatByFloor(String floor) {
+    public List<SeatInformationDTO> getSeatByFloor (String floor) {
         var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.name, c.status, se.floor, se.wing)" +
                 "from Seat c" +
                 " join SeatLocation se on c.location.id = se.id " +
                 " where lower(se.floor) like lower(:floor) order by c.id desc", SeatInformationDTO.class);
-        query.setParameter("floor", floor);
+        query.setParameter("floor",floor);
         return query.getResultList();
     }
-
-    public long getUnoccupiedByFloor(String floor) {
+    public long getUnoccupiedByFloor (String floor) {
         var query = em.createQuery("select count(c)" +
                 " from Seat c " +
                 " join SeatLocation se on c.location.id = se.id" +
@@ -75,63 +74,55 @@ public class SeatRepository {
 
         return query.getSingleResult();
     }
-
-    public String getFloorByID(Long seatId) {
+    public String getFloorByID (Long seatId) {
 
         var query = em.createQuery(""" 
-                        select sl.floor from Seat se
-                             join SeatLocation sl on se.location.id = sl.id
-                             where se.id = :seatId
-                        """, String.class)
+            select sl.floor from Seat se
+                 join SeatLocation sl on se.location.id = sl.id
+                 where se.id = :seatId
+            """,String.class)
                 .setParameter("seatId", seatId);
 
         return query.getResultList().getFirst();
     }
 
-    public void changeStatusToUnoccupiedAfterTime() {
+
+    public void changeStatusToUnoccupiedAfterTime () {
         // scheduler
-        //String cron = "0 8 * * *";
+        //String cron = "0 8 * * *" --> Startwert für den normalen Betrieb;
         AtomicReference<String> cron = new AtomicReference<>(getCron());
-        System.out.println(cron.get());
+        logger.infof("%s --> Endzeit", cron.get());
+
         scheduler.newJob("setSeatsToUnoccupiedJob")
                 .setCron(cron.get())
-                .setAsyncTask(scheduledExecution -> {
-                    try {
+                .setTask(scheduledExecution -> {
 
-                        var query = em.createQuery("select c from Seat c", Seat.class);
-                        var seatList = query.getResultList();
-                        seatList.forEach(e -> e.setStatus(true));
+                    var query = em.createQuery("select c from Seat c", Seat.class);
+                    var seatList =query.getResultList();
+                    seatList.forEach(e -> e.setStatus(true));
 
-                        scheduler.pause("setSeatsToUnoccupiedJob");
-                        cron.set(getCron());
-                        System.out.println(cron.get());
-                        scheduler.resume();
+                    scheduler.pause("setSeatsToUnoccupiedJob");
+                    cron.set(getCron());
 
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return null;
+                    logger.infof("%s --> neue Endzeit", cron.get());
+                    scheduler.resume();
 
                 }).schedule();
     }
-
-
-    @Transactional
-    public boolean changeStatus(Long id) {
+    public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
-            Seat seat = em.find(Seat.class, id);
-            if (seat == null) {
+            try {
+                em.find(Seat.class, id).setStatus(!em.find(Seat.class,id).getStatus());
+
+            } catch (Exception e) {
                 return false;
             }
-            seat.setStatus(!seat.getStatus());
             return true;
         }
         return false;
     }
-
     //Returns a String in the cron format, with the time of the next closes endTime.
-    private String getCron() {
+    private String getCron () {
         LocalTime timeNow = LocalTime.now();
         var endtimeCron = em.createQuery("select e.endTime" +
                         " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
@@ -144,7 +135,7 @@ public class SeatRepository {
         int hours = endtimeCron.getHour();
         int minutes = endtimeCron.getMinute();
 
-        return String.format("%d %d * * *", minutes, hours);
+        return String.format("%d %d * * *",minutes,hours);
 
     }
 }
