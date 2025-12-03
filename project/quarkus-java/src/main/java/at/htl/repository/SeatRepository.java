@@ -64,18 +64,18 @@ public class SeatRepository {
 
         return query.getSingleResult();
     }
-    public boolean changeStatusToOccupiedAfterTime () {
+    public boolean changeStatusToUnoccupiedAfterTime () {
         //Scanhistory -> Timestamp
         var query = em.createQuery("select c from Seat c", Seat.class);
         var seatList =query.getResultList();
-        seatList.forEach(e -> e.setStatus(false));
+        seatList.forEach(e -> e.setStatus(true));
 
         return false;
     }
-    public boolean changeStatusToOccupied (Long id) {
+    public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
             try {
-                em.find(Seat.class, id).setStatus(false);
+                em.find(Seat.class, id).setStatus(!em.find(Seat.class,id).getStatus());
 
             } catch (Exception e) {
                 return false;
@@ -85,18 +85,6 @@ public class SeatRepository {
 
 
 
-        return false;
-    }
-    public boolean changeStatusToUnoccupied (Long id) {
-        if (id <= 5 && id >= 1) {
-            try {
-                em.find(Seat.class, id).setStatus(false);
-
-            } catch (Exception e) {
-                return false;
-            }
-            return true;
-        }
         return false;
     }
 }
