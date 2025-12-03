@@ -2,6 +2,7 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.repository.dto.SeatInformationDTO;
+import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -13,6 +14,9 @@ import java.util.List;
 public class SeatRepository {
     @Inject
     EntityManager em;
+
+    @Inject
+    Scheduler scheduler;
 
     public boolean addSeat (Seat seat) {
         if (seat.getId() <= 5 && seat.getId() >= 1) {
@@ -66,11 +70,26 @@ public class SeatRepository {
         return query.getSingleResult();
     }
     public boolean changeStatusToUnoccupiedAfterTime () {
-        var query = em.createQuery("select c from Seat c", Seat.class);
-        var seatList =query.getResultList();
-        seatList.forEach(e -> e.setStatus(true));
+        // scheduler
+        String cron = "0 8 * * *";
+        scheduler.newJob("setSeatsToUnoccupiedJob")
+                .setCron(cron)
+                .setAsyncTask(scheduledExecution -> {
+                    try {
 
-        return false;
+                        var query = em.createQuery("select c from Seat c", Seat.class);
+                        var seatList =query.getResultList();
+                        seatList.forEach(e -> e.setStatus(true));
+
+
+                    } catch (Exception e) {
+
+                    }
+                }).schedule();
+
+
+
+return false;
     }
     public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
@@ -90,6 +109,10 @@ public class SeatRepository {
         var endtimeCron = em.createQuery("select e.endTime" +
                 " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
                 .setParameter("currentTime", timeNow).getSingleResult();
+
+        if (endtimeCron == null) {
+            return "";
+        }
 
         int hours = endtimeCron.getHour();
         int minutes = endtimeCron.getMinute();
