@@ -11,6 +11,8 @@ public class Seat {
     private SeatLocation location;
 
     private String name;
+
+    @Column(name = "unoccupied")
     private boolean status;
 
 
