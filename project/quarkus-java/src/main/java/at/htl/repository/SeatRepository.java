@@ -6,6 +6,7 @@ import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 
 import java.time.LocalTime;
@@ -109,6 +110,8 @@ public class SeatRepository {
 
                 }).schedule();
     }
+
+    @Transactional
     public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
             try {
@@ -121,6 +124,7 @@ public class SeatRepository {
         }
         return false;
     }
+
     //Returns a String in the cron format, with the time of the next closes endTime.
     private String getCron () {
         LocalTime timeNow = LocalTime.now();

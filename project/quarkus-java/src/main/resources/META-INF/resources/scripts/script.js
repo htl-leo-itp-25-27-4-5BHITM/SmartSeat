@@ -117,7 +117,7 @@
 // getUnoccupiedCount("1OG");
 // getUnoccupiedCount("2OG");
 
-let ws = new WebSocket("ws://172.20.10.3:8080/ws/seats");
+let ws = new WebSocket(`ws://${window.location.host}/ws/seats`);
 
 ws.onopen = () => console.log("Verbunden!");
 ws.onmessage = (e) => {
