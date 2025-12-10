@@ -2,6 +2,7 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.repository.dto.SeatInformationDTO;
+import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,6 +25,7 @@ public class SeatRepository {
     @Inject
     Logger logger;
 
+    @Transactional
     public boolean addSeat (Seat seat) {
         if (seat.getId() <= 5 && seat.getId() >= 1) {
             try {
@@ -37,6 +39,8 @@ public class SeatRepository {
         return false;
 
     }
+
+    @Transactional
     public boolean deleteSeat (Long seatId) {
         if (seatId <= 5 && seatId >= 1) {
             try {
@@ -88,25 +92,36 @@ public class SeatRepository {
     }
 
 
+    @Transactional
     public void changeStatusToUnoccupiedAfterTime () {
         // scheduler
-        //String cron = "0 8 * * *" --> Startwert für den normalen Betrieb;
+        //String cron = "0 8 * * *" --> Startwert für den normalen Betrieb =  get cron;
         AtomicReference<String> cron = new AtomicReference<>(getCron());
         logger.infof("%s --> Endzeit", cron.get());
+
 
         scheduler.newJob("setSeatsToUnoccupiedJob")
                 .setCron(cron.get())
                 .setTask(scheduledExecution -> {
 
-                    var query = em.createQuery("select c from Seat c", Seat.class);
-                    var seatList =query.getResultList();
-                    seatList.forEach(e -> e.setStatus(true));
+                    em.createQuery("""
+                                select c from Seat c
+                                """, Seat.class)
+                            .getResultList().forEach(e ->
+                                e.setStatus(true));
 
-                    scheduler.pause("setSeatsToUnoccupiedJob");
+//                    var seatList =query.getResultList();
+//                    seatList.forEach(e -> {
+//                        e.setStatus(true);
+//                        em.merge(e);
+//
+//                    });
+
+//                    scheduler.pause("setSeatsToUnoccupiedJob");
                     cron.set(getCron());
 
                     logger.infof("%s --> neue Endzeit", cron.get());
-                    scheduler.resume();
+//                    scheduler.resume();
 
                 }).schedule();
     }
@@ -127,10 +142,17 @@ public class SeatRepository {
 
     //Returns a String in the cron format, with the time of the next closes endTime.
     private String getCron () {
-        LocalTime timeNow = LocalTime.now();
-        var endtimeCron = em.createQuery("select e.endTime" +
-                        " from EndTimes e where e.endTime - :currentTime <= 50 ", LocalTime.class)
-                .setParameter("currentTime", timeNow).getSingleResult();
+       var time = LocalTime.now().toString();
+        logger.info(time);
+
+        var endtimeCron = em.createQuery(""" 
+                        select e.endTime
+                         from EndTimes e
+                         where DATEDIFF(minute, cast(to_char(e.endTime, 'HH24:mm') as time), cast(:currentTime as time)) <= 50
+                          order by e.endTime
+                                """
+                        , LocalTime.class)
+                .setParameter("currentTime", time).getResultList().getFirst();
 
         if (endtimeCron == null) {
             return "";
@@ -139,7 +161,9 @@ public class SeatRepository {
         int hours = endtimeCron.getHour();
         int minutes = endtimeCron.getMinute();
 
-        return String.format("%d %d * * *",minutes,hours);
+        return String.format("0 %d %d 1/1 * ? *",minutes,hours);
 
     }
+
+
 }
