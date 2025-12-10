@@ -100,8 +100,6 @@ ws.onmessage = (e) => {
     if (!Array.isArray(seats)) seats = [seats];
 
     new_data = seats;
-    console.log(new_data)
-
     updateSeatClasses(seats);
 
     const floors = [...new Set(seats.map(s => s.floor))];
