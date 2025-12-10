@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -107,12 +108,15 @@ public class SeatRepository {
                     em.createQuery("""
                                 select c from Seat c
                                 """, Seat.class)
-                            .getResultList().forEach(e ->
-                                e.setStatus(true));
+                            .getResultList().forEach(e -> changeStatusToUnoccupied(e.getId()));
 
+
+
+//                    scheduler.pause("setSeatsToUnoccupiedJob");
                     cron.set(getCron());
 
                     logger.infof("%s --> neue Endzeit", cron.get());
+//                    scheduler.resume();
 
                 }).schedule();
     }
@@ -122,7 +126,6 @@ public class SeatRepository {
         if (id <= 5 && id >= 1) {
             try {
                 em.find(Seat.class, id).setStatus(!em.find(Seat.class,id).getStatus());
-
             } catch (Exception e) {
                 return false;
             }
@@ -130,29 +133,45 @@ public class SeatRepository {
         }
         return false;
     }
-
-    private String getCron() {
-        LocalTime now = LocalTime.now();
-
-        List<LocalTime> allEndTimes = em.createQuery(
-                        "SELECT e.endTime FROM EndTimes e ORDER BY e.endTime", LocalTime.class)
-                .getResultList();
-
-        LocalTime nextEndTime = allEndTimes.stream()
-                .filter(t -> !t.isBefore(now))
-                .findFirst()
-                .orElse(null);
-
-        if (nextEndTime == null) {
-            return ""; // Keine zukünftige Zeit
-        }
-
-        int hours = nextEndTime.getHour();
-        int minutes = nextEndTime.getMinute();
-
-        return String.format("0 %d %d 1/1 * ? *", minutes, hours);
+    @Transactional
+    public void changeStatusToUnoccupied (Long id) {
+        em.find(Seat.class, id).setStatus(true);
     }
 
+    //Returns a String in the cron format, with the time of the next closes endTime.
+    private String getCron () {
+        var time = LocalTime.now();
+        logger.info(time);
+        if (LocalTime.now().getHour() == 9) {
+            time = LocalTime.of(10,0);
+        }
+
+        var endtimeCronList = em.createQuery(""" 
+                        select e.endTime from EndTimes e
+                                                 where
+                                                  DATEADD('MINUTE', 55,(cast(:currentTime as time))) <= CAST(e.endTime as time)
+                               order by e.endTime
+                                """
+                        , LocalTime.class)
+                .setParameter("currentTime", time.toString()).getResultList();
+
+        var endCron = LocalTime.now();
+
+
+
+
+        endCron = endtimeCronList.getFirst();
+
+        if (endCron == null) {
+            return "0 0 8 1/1 * ? *";
+        }
+
+        int hours = endCron.getHour();
+        int minutes = endCron.getMinute();
+
+        return String.format("0 %d %d 1/1 * ? *",minutes,hours);
+
+    }
 
 
 }
