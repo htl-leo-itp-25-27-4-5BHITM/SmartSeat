@@ -110,18 +110,9 @@ public class SeatRepository {
                             .getResultList().forEach(e ->
                                 e.setStatus(true));
 
-//                    var seatList =query.getResultList();
-//                    seatList.forEach(e -> {
-//                        e.setStatus(true);
-//                        em.merge(e);
-//
-//                    });
-
-//                    scheduler.pause("setSeatsToUnoccupiedJob");
                     cron.set(getCron());
 
                     logger.infof("%s --> neue Endzeit", cron.get());
-//                    scheduler.resume();
 
                 }).schedule();
     }
@@ -140,30 +131,28 @@ public class SeatRepository {
         return false;
     }
 
-    //Returns a String in the cron format, with the time of the next closes endTime.
-    private String getCron () {
-       var time = LocalTime.now().toString();
-        logger.info(time);
+    private String getCron() {
+        LocalTime now = LocalTime.now();
 
-        var endtimeCron = em.createQuery(""" 
-                        select e.endTime
-                         from EndTimes e
-                         where DATEDIFF(minute, cast(to_char(e.endTime, 'HH24:mm') as time), cast(:currentTime as time)) <= 50
-                          order by e.endTime
-                                """
-                        , LocalTime.class)
-                .setParameter("currentTime", time).getResultList().getFirst();
+        List<LocalTime> allEndTimes = em.createQuery(
+                        "SELECT e.endTime FROM EndTimes e ORDER BY e.endTime", LocalTime.class)
+                .getResultList();
 
-        if (endtimeCron == null) {
-            return "";
+        LocalTime nextEndTime = allEndTimes.stream()
+                .filter(t -> !t.isBefore(now))
+                .findFirst()
+                .orElse(null);
+
+        if (nextEndTime == null) {
+            return ""; // Keine zukünftige Zeit
         }
 
-        int hours = endtimeCron.getHour();
-        int minutes = endtimeCron.getMinute();
+        int hours = nextEndTime.getHour();
+        int minutes = nextEndTime.getMinute();
 
-        return String.format("0 %d %d 1/1 * ? *",minutes,hours);
-
+        return String.format("0 %d %d 1/1 * ? *", minutes, hours);
     }
+
 
 
 }
