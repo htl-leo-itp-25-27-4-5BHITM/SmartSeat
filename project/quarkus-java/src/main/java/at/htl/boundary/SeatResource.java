@@ -7,6 +7,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.net.URI;
+
 @Path("/seat")
 public class SeatResource {
 
@@ -59,8 +61,14 @@ public class SeatResource {
     public Response changeStatus(@PathParam("id") long id) {
         if (seatRepository.changeStatus(id)) {
             seatWebSocket.broadcastSeatUpdate();
-            return Response.status(Response.Status.OK).build();
+
+            return redirect("../");
         }
         return Response.status(Response.Status.BAD_REQUEST).build();
+    }
+
+    private Response redirect(String path) {
+        URI uri = URI.create(path);
+        return Response.temporaryRedirect(uri).build();
     }
 }
