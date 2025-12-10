@@ -2,6 +2,7 @@ package at.htl.repository;
 
 import at.htl.model.Seat;
 import at.htl.repository.dto.SeatInformationDTO;
+import at.htl.sockets.SeatWebSocket;
 import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,6 +26,9 @@ public class SeatRepository {
 
     @Inject
     Logger logger;
+
+    @Inject
+    SeatWebSocket ws;
 
     @Transactional
     public boolean addSeat (Seat seat) {
@@ -108,7 +112,7 @@ public class SeatRepository {
                                 """, Seat.class)
                             .getResultList().forEach(e -> changeStatusToUnoccupied(e.getId()));
 
-
+                ws.broadcastSeatUpdate();
 
 //                    scheduler.pause("setSeatsToUnoccupiedJob");
                     cron.set(getCron());
@@ -117,6 +121,7 @@ public class SeatRepository {
 //                    scheduler.resume();
 
                 }).schedule();
+
     }
     @Transactional
     public boolean changeStatus (Long id) {
@@ -134,30 +139,27 @@ public class SeatRepository {
     public void changeStatusToUnoccupied (Long id) {
         em.find(Seat.class, id).setStatus(true);
     }
-    //Returns a String in the cron format, with the time of the next closes endTime.
-    private String getCron () {
-        var time = LocalTime.now();
-        logger.info(time);
 
-        var endtimeCronList = em.createQuery(""" 
-                        select e.endTime from EndTimes e
-                                                 where
-                                                  DATEADD('MINUTE', 55,(cast(:currentTime as time))) <= CAST(e.endTime as time)
-                               order by e.endTime
-                                """
-                        , LocalTime.class)
-                .setParameter("currentTime", time.toString()).getResultList().getFirst();
+    private String getCron() {
+        LocalTime now = LocalTime.now();
 
-        if (endtimeCronList == null) {
-            return "0 0 8 1/1 * ? *";
+
+        List<LocalTime> allEndTimes = em.createQuery(
+                        "SELECT e.endTime FROM EndTimes e ORDER BY e.endTime", LocalTime.class)
+                .getResultList();
+
+        LocalTime nextEndTime = allEndTimes.stream()
+                .filter(t -> !t.isBefore(now))
+                .findFirst()
+                .orElse(null);
+
+        if (nextEndTime == null) {
+            return ""; // Keine zukünftige Zeit
         }
 
-        int hours = endtimeCronList.getHour();
-        int minutes = endtimeCronList.getMinute();
+        int hours = nextEndTime.getHour();
+        int minutes = nextEndTime.getMinute();
 
-        return String.format("0 %d %d 1/1 * ? *",minutes,hours);
-
+        return String.format("0 %d %d 1/1 * ? *", minutes, hours);
     }
-
-
 }
