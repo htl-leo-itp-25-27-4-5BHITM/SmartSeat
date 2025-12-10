@@ -91,8 +91,6 @@ public class SeatRepository {
 
         return query.getResultList().getFirst();
     }
-
-
     @Transactional
     public void changeStatusToUnoccupiedAfterTime () {
         // scheduler
@@ -120,7 +118,6 @@ public class SeatRepository {
 
                 }).schedule();
     }
-
     @Transactional
     public boolean changeStatus (Long id) {
         if (id <= 5 && id >= 1) {
@@ -137,14 +134,10 @@ public class SeatRepository {
     public void changeStatusToUnoccupied (Long id) {
         em.find(Seat.class, id).setStatus(true);
     }
-
     //Returns a String in the cron format, with the time of the next closes endTime.
     private String getCron () {
         var time = LocalTime.now();
         logger.info(time);
-        if (LocalTime.now().getHour() == 9) {
-            time = LocalTime.of(10,0);
-        }
 
         var endtimeCronList = em.createQuery(""" 
                         select e.endTime from EndTimes e
@@ -153,21 +146,14 @@ public class SeatRepository {
                                order by e.endTime
                                 """
                         , LocalTime.class)
-                .setParameter("currentTime", time.toString()).getResultList();
+                .setParameter("currentTime", time.toString()).getResultList().getFirst();
 
-        var endCron = LocalTime.now();
-
-
-
-
-        endCron = endtimeCronList.getFirst();
-
-        if (endCron == null) {
+        if (endtimeCronList == null) {
             return "0 0 8 1/1 * ? *";
         }
 
-        int hours = endCron.getHour();
-        int minutes = endCron.getMinute();
+        int hours = endtimeCronList.getHour();
+        int minutes = endtimeCronList.getMinute();
 
         return String.format("0 %d %d 1/1 * ? *",minutes,hours);
 
