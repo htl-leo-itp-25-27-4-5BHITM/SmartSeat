@@ -154,7 +154,7 @@ public class SeatRepository {
                 .orElse(null);
 
         if (nextEndTime == null) {
-            return ""; // Keine zukünftige Zeit
+            return "0 0 8 1/1 * ? *"; // Keine zukünftige Zeit
         }
 
         int hours = nextEndTime.getHour();
