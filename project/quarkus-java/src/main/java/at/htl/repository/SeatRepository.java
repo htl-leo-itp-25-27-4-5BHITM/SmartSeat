@@ -3,7 +3,6 @@ package at.htl.repository;
 import at.htl.model.Seat;
 import at.htl.repository.dto.SeatInformationDTO;
 import at.htl.sockets.SeatWebSocket;
-import io.quarkus.runtime.Startup;
 import io.quarkus.scheduler.Scheduler;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,7 +11,6 @@ import jakarta.transaction.Transactional;
 import org.jboss.logging.Logger;
 
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -154,7 +152,7 @@ public class SeatRepository {
                 .orElse(null);
 
         if (nextEndTime == null) {
-            return "0 0 8 1/1 * ? *"; // Keine zukünftige Zeit
+            return "0 0 8 1/1 * ? *";
         }
 
         int hours = nextEndTime.getHour();

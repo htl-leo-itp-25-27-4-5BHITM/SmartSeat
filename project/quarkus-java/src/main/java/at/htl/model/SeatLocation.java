@@ -3,7 +3,6 @@ package at.htl.model;
 import jakarta.persistence.*;
 
 @Entity
-//@Table(name = "location")
 public class SeatLocation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
