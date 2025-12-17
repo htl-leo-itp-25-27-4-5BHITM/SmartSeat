@@ -64,7 +64,7 @@ public class SeatWebSocket {
     }
 
     public void broadcastSeatUpdate() {
-        LOG.debugf("Broadcast seat update to %d connections at %s",
+        LOG.infof("Broadcast seat update to %d connections at %s",
                 connections.size(), java.time.LocalTime.now());
 
         try {
