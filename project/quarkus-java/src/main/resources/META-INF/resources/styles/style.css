@@ -55,25 +55,45 @@ h1 {
     flex-direction: column;
 }
 
-#floor_1OG, #floor_2OG {
+#floor_1OG,
+#floor_2OG {
     transition: 0.5s ease-in-out;
-    border : 4px solid white;
+    border: 4px solid white;
 }
 
-#floor_1OG:hover, #floor_2OG:hover {
+#floor_1OG:hover,
+#floor_2OG:hover {
     cursor: pointer;
-    transform: scale(1.02);
 }
+
+#selected1 {
+    transform: rotate(180deg);
+    position: fixed;
+    width: 2.5vw;
+    aspect-ratio: 1;
+    top: 35%;
+    left: 23.5%;
+}
+
+#selected2 {
+    transform: rotate(180deg);
+    position: fixed;
+    width: 2.5vw;
+    aspect-ratio: 1;
+    top: 60%;
+    left: 23.5%;
+}
+
 
 #map {
     position: fixed;
-    right: 5%;
-    top: 50%;
+    right: 10%;
+    top: 60%;
     transform: translateY(-50%);
     width: 50vw;
     height: 80vh;
     border-radius: 25px;
-    background-image: url(../map.png);
+    background-image: url(../map2.png);
     background-size: contain;
     background-repeat: no-repeat;
 }
@@ -98,33 +118,32 @@ h1 {
 
 #k1 {
     display: none;
-    top: 38%;
-    left: 20%;
+    top: 15%;
+    left: 30%;
 }
 
 #k2 {
     display: none;
-    top: 23%;
-    left: 48%;
+    top: 15%;
+    left: 62.5%;
 }
 
 #k3 {
     display: none;
-    top: 40%;
-    left: 57%;
+    top: 37%;
+    left: 67.5%;
 }
-
 
 #k4 {
     display: none;
-    top: 57%;
-    left: 28%;
+    top: 37%;
+    left: 29%;
 }
 
 #k5 {
     display: none;
-    top: 40%;
-    left: 57%;
+    top: 37%;
+    left: 67.5%;
 }
 
 @media (max-width: 600px) {
@@ -189,21 +208,27 @@ h1 {
         0% {
             transform: scale(1) rotate(0deg);
         }
+
         15% {
             transform: scale(0.75) rotate(-12deg);
         }
+
         30% {
             transform: scale(0.75) rotate(12deg);
         }
+
         45% {
             transform: scale(0.75) rotate(-10deg);
         }
+
         60% {
             transform: scale(0.75) rotate(10deg);
         }
+
         75% {
             transform: scale(0.75) rotate(-6deg);
         }
+
         100% {
             transform: scale(1) rotate(0deg);
         }
@@ -217,32 +242,53 @@ h1 {
         0% {
             transform: scale(1);
         }
+
         75% {
             transform: scale(1.25);
         }
+
         100% {
             transform: scale(1);
         }
     }
 
     #k1 {
-        top: 24%;
-        left: 25%;
+        top: 8%;
+        left: 30%;
     }
+
     #k2 {
-        top: 15%;
-        left: 56%;
+        top: 8%;
+        left: 65%;
     }
+
     #k3 {
-        top: 26%;
-        left: 60%;
+        top: 18.5%;
+        left: 67.5%;
     }
+
     #k4 {
-        top: 35%;
-        left: 32%;
+        top: 18.5%;
+        left: 31.5%;
     }
+
     #k5 {
-        top: 26%;
-        left: 66%;
+       top: 18.5%;
+        left: 67.5%;
     }
+
+    #selected1 {
+        transform: rotate(-90deg);
+        width: 5vw;
+        top: 26.5%;
+        left: 22.5%;
+    }
+
+    #selected2 {
+        transform: rotate(-90deg);
+        width: 5vw;
+        top: 26.5%;
+        left: 72.5%;
+    }
+
 }

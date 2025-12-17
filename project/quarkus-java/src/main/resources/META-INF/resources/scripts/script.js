@@ -3,6 +3,10 @@ const floorCountDOM = {
     "2OG": document.getElementById("count2")
 };
 
+let isFirstFloor = true;
+const selected1 = document.getElementById("selected1");
+const selected2 = document.getElementById("selected2");
+
 const seatDOM = {
     1: document.getElementById("k1"),
     2: document.getElementById("k2"),
@@ -34,16 +38,13 @@ async function loadFloor(floorNumber) {
     floor1.style.backgroundColor = floorNumber === 1 ? "#6a92f4" : "#a6bcefff";
     floor2.style.backgroundColor = floorNumber === 2 ? "#6a92f4" : "#a6bcefff";
 
-    floor1.style.marginTop = "0";
-    floor1.style.marginLeft = "0";
-    floor2.style.marginTop = "0";
-    floor2.style.marginLeft = "0";
-
     if (floorNumber === 1) {
-        isMobile ? floor1.style.marginTop = "5%" : floor1.style.marginLeft = "10%";
+        selected1.style.display = "block";
+        selected2.style.display = "none";
     }
     if (floorNumber === 2) {
-        isMobile ? floor2.style.marginTop = "5%" : floor2.style.marginLeft = "10%";
+        selected1.style.display = "none";
+        selected2.style.display = "block";
     }
 
     getUnoccupiedCount(floorCode);
@@ -89,9 +90,6 @@ let ws = new WebSocket(`ws://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
 
 
-let old_data = null;
-let new_data = null;
-let currentFloorNumber = 1;
 
 ws.onmessage = (e) => {
     let seats = JSON.parse(e.data);
@@ -105,25 +103,12 @@ ws.onmessage = (e) => {
     const floors = [...new Set(seats.map(s => s.floor))];
     floors.forEach(floor => getUnoccupiedCount(floor));
 
-    let floorToReload = null;
-    if (old_data != null) {
-        for (let newSeat of new_data) {
-            const oldSeat = old_data.find(s => s.name === newSeat.name);
-            if (!oldSeat) continue;
-
-            if (oldSeat.status !== newSeat.status) {
-                floorToReload = newSeat.floor;
-                break;
-            }
-        }
+    if (isFirstFloor) {
+        loadFloor(1);
+    } else {
+        loadFloor(2);
     }
 
-    if (floorToReload) {
-        currentFloorNumber = floorToReload === "1OG" ? 1 : 2;
-    }
-
-    loadFloor(currentFloorNumber);
-    old_data = new_data;
 };
 
 ws.onerror = (err) => console.error("Fehler:", err);
