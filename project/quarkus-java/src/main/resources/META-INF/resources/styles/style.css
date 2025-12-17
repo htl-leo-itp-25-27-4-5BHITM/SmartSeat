@@ -44,7 +44,7 @@ h1 {
 
 .floors {
     border-radius: 25px;
-    background-color: rgba(255, 255, 255, 0.613);
+    background-color: #6a92f4;
     width: 17.5vw;
     padding-top: 2.5vh;
     padding-left: 2.5vw;
@@ -67,6 +67,7 @@ h1 {
 }
 
 #selected1 {
+    display: none;
     transform: rotate(180deg);
     position: fixed;
     width: 2.5vw;
@@ -76,6 +77,7 @@ h1 {
 }
 
 #selected2 {
+    display: none;
     transform: rotate(180deg);
     position: fixed;
     width: 2.5vw;
@@ -84,6 +86,48 @@ h1 {
     left: 23.5%;
 }
 
+#status_info {
+    border-radius: 25px;
+    width: 15vw;
+    height: 15vh;
+    position: fixed;
+    bottom: 10%;
+    left: 57.5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 1em;
+    box-sizing: border-box;
+}
+
+#status_info .status {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+#status_info h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+#g_circle,
+#r_circle {
+    width: 1.2vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+#g_circle {
+    background-color: rgb(29, 195, 98);
+}
+
+#r_circle {
+    background-color: red;
+}
 
 #map {
     position: fixed;
@@ -113,7 +157,7 @@ h1 {
 }
 
 .koje.unoccupied {
-    background-color: rgb(17, 130, 17);
+    background-color: rgb(29, 195, 98);
 }
 
 #k1 {
@@ -273,7 +317,7 @@ h1 {
     }
 
     #k5 {
-       top: 18.5%;
+        top: 18.5%;
         left: 67.5%;
     }
 
@@ -291,4 +335,19 @@ h1 {
         left: 72.5%;
     }
 
+    #status_info {
+        bottom: 5%;
+        left: 45%;
+
+    }
+
+    #status_info h1 {
+        margin: 0;
+        font-size: 1.2em;
+    }
+
+    #g_circle,
+    #r_circle {
+        width: 15vw;
+    }
 }

@@ -33,10 +33,6 @@ async function loadFloor(floorNumber) {
     });
 
     updateSeatClasses(seats);
-    const isMobile = window.innerWidth <= 768;
-
-    floor1.style.backgroundColor = floorNumber === 1 ? "#6a92f4" : "#a6bcefff";
-    floor2.style.backgroundColor = floorNumber === 2 ? "#6a92f4" : "#a6bcefff";
 
     if (floorNumber === 1) {
         selected1.style.display = "block";
