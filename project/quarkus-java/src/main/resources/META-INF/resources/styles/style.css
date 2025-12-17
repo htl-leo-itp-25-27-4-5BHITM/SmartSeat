@@ -180,7 +180,51 @@ h1 {
     .koje {
         width: 2vw;
     }
-    
+
+    .koje.occupied {
+        animation: koje-lock 350ms ease-out;
+    }
+
+    @keyframes koje-lock {
+        0% {
+            transform: scale(1) rotate(0deg);
+        }
+        15% {
+            transform: scale(0.75) rotate(-12deg);
+        }
+        30% {
+            transform: scale(0.75) rotate(12deg);
+        }
+        45% {
+            transform: scale(0.75) rotate(-10deg);
+        }
+        60% {
+            transform: scale(0.75) rotate(10deg);
+        }
+        75% {
+            transform: scale(0.75) rotate(-6deg);
+        }
+        100% {
+            transform: scale(1) rotate(0deg);
+        }
+    }
+
+    .koje.unoccupied {
+        animation: koje-open 350ms ease-out;
+    }
+
+    @keyframes koje-open {
+        0% {
+            transform: scale(1);
+        }
+        75% {
+            transform: scale(1.25);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
     #k1 {
         top: 24%;
         left: 25%;
