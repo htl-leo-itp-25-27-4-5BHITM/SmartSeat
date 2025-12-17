@@ -5,11 +5,11 @@ VALUES ('Left', '1OG'),
        ('Right', '2OG');
 
 INSERT INTO SEAT(Name, unoccupied, LOCATION_ID)
-VALUES ('Koje 1', false, 1),
-       ('Koje 2', false, 2),
-       ('Koje 3', false, 2),
-       ('Koje 4', false, 3),
-       ('Koje 5', false, 4);
+VALUES ('Koje 1', true, 1),
+       ('Koje 2', true, 2),
+       ('Koje 3', true, 2),
+       ('Koje 4', true, 3),
+       ('Koje 5', true, 4);
 
 INSERT INTO ENDTIMES (ENDTIME) VALUES (to_char('8:50', 'HH24:mi'));
 INSERT INTO ENDTIMES (ENDTIME) VALUES (to_char('09:45', 'HH24:mi'));

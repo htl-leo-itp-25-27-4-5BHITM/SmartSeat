@@ -31,8 +31,8 @@ async function loadFloor(floorNumber) {
     updateSeatClasses(seats);
     const isMobile = window.innerWidth <= 768;
 
-    floor1.style.backgroundColor = floorNumber === 1 ? "#6a92f4" : "#b7cbfa";
-    floor2.style.backgroundColor = floorNumber === 2 ? "#6a92f4" : "#b7cbfa";
+    floor1.style.backgroundColor = floorNumber === 1 ? "#6a92f4" : "#a6bcefff";
+    floor2.style.backgroundColor = floorNumber === 2 ? "#6a92f4" : "#a6bcefff";
 
     floor1.style.marginTop = "0";
     floor1.style.marginLeft = "0";
