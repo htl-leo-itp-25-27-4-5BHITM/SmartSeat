@@ -28,35 +28,35 @@ set(PICO_BOARD pico2_w CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
-project(C_Pi_Movement C CXX ASM)
+project(C_PI C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(C_Pi_Movement C_Pi_Movement.c )
+add_executable(C_PI C_PI.c )
 
-pico_set_program_name(C_Pi_Movement "C_Pi_Movement")
-pico_set_program_version(C_Pi_Movement "0.1")
+pico_set_program_name(C_PI "C_PI")
+pico_set_program_version(C_PI "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(C_Pi_Movement 0)
-pico_enable_stdio_usb(C_Pi_Movement 1)
+pico_enable_stdio_uart(C_PI 0)
+pico_enable_stdio_usb(C_PI 1)
 
 # Add the standard library to the build
-target_link_libraries(C_Pi_Movement
+target_link_libraries(C_PI
         pico_stdlib)
 
 # Add the standard include files to the build
-target_include_directories(C_Pi_Movement PRIVATE
+target_include_directories(C_PI PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
 )
 
 # Add any user requested libraries
-target_link_libraries(C_Pi_Movement 
-        
+target_link_libraries(C_PI 
+        pico_cyw43_arch_none
         )
 
-pico_add_extra_outputs(C_Pi_Movement)
+pico_add_extra_outputs(C_PI)
 
