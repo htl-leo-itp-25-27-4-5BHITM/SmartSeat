@@ -8,7 +8,7 @@
 
 
 
-int pico_init_board_perifables (void) {
+int pico_init_board_peripherals (void) {
     stdio_init_all();
 
     if (cyw43_arch_init()) {
@@ -27,7 +27,7 @@ void change_led_status(bool ledOn) {
 }
 
 int main(){
-    int rc = pico_init_board_perifables();
+    int rc = pico_init_board_peripherals();
     hard_assert(rc == PICO_OK);
 
     //INIT BLINK
