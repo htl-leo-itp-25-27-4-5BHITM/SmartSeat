@@ -40,7 +40,7 @@ int main(){
     }
 
     while (true) {
-        if (cyw43_arch_gpio_get(MOTION_SENSOR_PIN) > 0) {
+        if (cyw43_arch_gpio_get(MOTION_SENSOR_PIN)) {
             change_led_status(true);
             sleep_ms(500);
         } 
