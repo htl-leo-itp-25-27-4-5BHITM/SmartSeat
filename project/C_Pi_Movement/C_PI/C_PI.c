@@ -2,54 +2,52 @@
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
-#ifndef MOTION_SENSOR_PIN 
+#ifndef MOTION_SENSOR_PIN
 #define MOTION_SENSOR_PIN 18
 #endif
 
-
-
-int pico_init_board_peripherals (void) {
+int pico_init_board_peripherals(void) {
     stdio_init_all();
 
-    if (cyw43_arch_init()) {
-      printf("Could not connect to the wifi %n");
-      return PICO_ERROR_CONNECT_FAILED;
+    if (cyw43_arch_init())
+    {
+        printf("Could not connect to the wifi %n");
+        return PICO_ERROR_CONNECT_FAILED;
     }
 
     gpio_init(MOTION_SENSOR_PIN);
     gpio_set_dir(MOTION_SENSOR_PIN, GPIO_IN);
     return PICO_OK;
-
 }
 
 void change_led_status(bool ledOn) {
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN,ledOn);
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledOn);
 }
 
-int main(){
+int main() {
     int rc = pico_init_board_peripherals();
     hard_assert(rc == PICO_OK);
-
-    //INIT BLINK
-    for(int i = 0; i < 5; i++) {
-     change_led_status(true);
-    sleep_ms(100);
-    change_led_status(false);
-    sleep_ms(100);
-  
+    printf("Starting Pico \n");
+    // INIT BLINK
+    for (int i = 0; i < 5; i++){
+        change_led_status(true);
+        sleep_ms(250);
+        change_led_status(false);
+        sleep_ms(250);
     }
-
+    printf("Detecting Motion... \n");
     while (true) {
-        if (cyw43_arch_gpio_get(MOTION_SENSOR_PIN)) {
+
+        if (cyw43_arch_gpio_get(MOTION_SENSOR_PIN) || gpio_get(MOTION_SENSOR_PIN) ) {
+            printf("Koje besetzt: %d \n", cyw43_arch_gpio_get(MOTION_SENSOR_PIN));
             change_led_status(true);
             sleep_ms(500);
-        } 
-        printf("MOTION SENSOR: %d \n", cyw43_arch_gpio_get(MOTION_SENSOR_PIN));
-             change_led_status(false);
-            sleep_ms(250);
+        }
+        else {
+            change_led_status(false);
+        }
 
-
-    //   printf("MOTION DETECTED I think %d",gpio_get(MOTION_SENSOR_PIN));
+        printf("MOTION SENSOR: %d %d \n", cyw43_arch_gpio_get(MOTION_SENSOR_PIN), gpio_get(MOTION_SENSOR_PIN));
+        sleep_ms(250);
     }
-
 }
