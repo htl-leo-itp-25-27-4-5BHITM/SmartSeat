@@ -9,8 +9,7 @@
 int pico_init_board_peripherals(void) {
     stdio_init_all();
 
-    if (cyw43_arch_init())
-    {
+    if (cyw43_arch_init()) {
         printf("Could not connect to the wifi %n");
         return PICO_ERROR_CONNECT_FAILED;
     }
@@ -35,11 +34,10 @@ int main() {
         change_led_status(false);
         sleep_ms(250);
     }
-    printf("Detecting Motion... \n");
     while (true) {
 
-        if (cyw43_arch_gpio_get(MOTION_SENSOR_PIN) || gpio_get(MOTION_SENSOR_PIN) ) {
-            printf("Koje besetzt: %d \n", cyw43_arch_gpio_get(MOTION_SENSOR_PIN));
+        if (gpio_get(MOTION_SENSOR_PIN) == 1 ) {
+            printf("Koje besetzt: %d \n", gpio_get(MOTION_SENSOR_PIN));
             change_led_status(true);
             sleep_ms(500);
         }
@@ -47,7 +45,6 @@ int main() {
             change_led_status(false);
         }
 
-        printf("MOTION SENSOR: %d %d \n", cyw43_arch_gpio_get(MOTION_SENSOR_PIN), gpio_get(MOTION_SENSOR_PIN));
-        sleep_ms(250);
+        sleep_ms(1);
     }
 }
