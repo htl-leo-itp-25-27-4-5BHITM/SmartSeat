@@ -1,4 +1,29 @@
 package at.htl.repository;
 
+import at.htl.model.SensorMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import org.eclipse.microprofile.reactive.messaging.Incoming;
+
+import java.io.IOException;
+
+@ApplicationScoped
 public class SensorService {
+
+    @Inject
+    EntityManager em;
+
+    @Incoming("pico-data")
+    public void handleIncoming(byte[] raw) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        SensorMessage sensorMessage = objectMapper.readValue(raw, SensorMessage.class);
+
+        System.out.println("Geht es!?");
+        System.out.println(sensorMessage.getName());
+        System.out.println(sensorMessage.getStatus());
+
+    }
 }
