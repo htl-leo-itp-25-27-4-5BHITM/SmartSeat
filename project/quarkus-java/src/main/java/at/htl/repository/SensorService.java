@@ -15,8 +15,10 @@ import java.io.IOException;
 @ApplicationScoped
 public class SensorService {
 
+    private long lastMovementTime = 0;
+
     @Inject
-    EntityManager em;
+    SeatRepository seatRepository;
 
     @Inject
     SeatWebSocket seatWebSocket;
@@ -32,14 +34,18 @@ public class SensorService {
         System.out.println(sensorMessage.getName());
         System.out.println(sensorMessage.getStatus());
 
-        var query = em.createQuery("""
-            update Seat s set status = :status where name = :name
-        """);
-        query.setParameter("status", sensorMessage.getStatus());
-        query.setParameter("name", sensorMessage.getName());
 
-        query.executeUpdate();
+        long now = System.currentTimeMillis();
+        lastMovementTime = now;
 
-        seatWebSocket.broadcastSeatUpdate();
+        if (!sensorMessage.getStatus()) {
+            System.out.println(seatRepository.changeSensorStatus(sensorMessage));
+        }
+
+
+        if (sensorMessage.getStatus() && now - lastMovementTime >= 3 * 60 * 1000) {
+            System.out.println(seatRepository.changeSensorStatus(sensorMessage));
+        }
+
     }
 }

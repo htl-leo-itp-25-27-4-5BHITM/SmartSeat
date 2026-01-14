@@ -1,6 +1,7 @@
 package at.htl.repository;
 
 import at.htl.model.Seat;
+import at.htl.model.SensorMessage;
 import at.htl.repository.dto.SeatInformationDTO;
 import at.htl.sockets.SeatWebSocket;
 import io.quarkus.scheduler.Scheduler;
@@ -130,5 +131,30 @@ public class SeatRepository {
         int minutes = nextEndTime.getMinute();
 
         return String.format("0 %d %d 1/1 * ? *", minutes, hours);
+    }
+
+    @Transactional
+    public String changeSensorStatus(SensorMessage sensorMessage) {
+        var query = em.createQuery("""
+                        update Seat s set status = :status where name = :name
+                    """);
+        query.setParameter("status", sensorMessage.getStatus());
+        query.setParameter("name", sensorMessage.getName());
+
+        int linesChanged = query.executeUpdate();
+
+
+        if (linesChanged >= 1) {
+            ws.broadcastSeatUpdate();
+            if (!sensorMessage.getStatus()) {
+                return "Koje wurde besetzt!";
+            } else {
+                return "Koje wurde freigegeben!!";
+            }
+        }
+
+        ws.broadcastSeatUpdate();
+
+        return "Something went wrong :(";
     }
 }
