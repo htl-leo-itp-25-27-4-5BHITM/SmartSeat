@@ -157,4 +157,30 @@ public class SeatRepository {
 
         return "Something went wrong :(";
     }
+
+    public void changeStatusEveryThreeMinutes() {
+        AtomicReference<String> cron = new AtomicReference<>(getCronThreeMinutes());
+        logger.infof("%s --> EndTime", getCronThreeMinutes());
+
+
+        scheduler.newJob("setSeatsToUnoccupiedEveryThreeMinutesJob")
+                .setCron(cron.get())
+                .setTask(scheduledExecution -> {
+
+                    em.createQuery("""
+                                    select c from Seat c
+                                    """, Seat.class)
+                            .getResultList().forEach(e -> changeStatusToUnoccupied(e.getId()));
+
+                    ws.broadcastSeatUpdate();
+                    cron.set(getCronThreeMinutes());
+                    logger.infof("%s --> new EndTime", getCronThreeMinutes());
+
+                }).schedule();
+
+    }
+
+    private String getCronThreeMinutes() {
+        return "0 */3 * * * ?";
+    }
 }

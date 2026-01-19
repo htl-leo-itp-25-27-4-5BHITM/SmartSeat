@@ -35,17 +35,17 @@ public class SensorService {
         System.out.println(sensorMessage.getStatus());
 
 
-        long now = System.currentTimeMillis();
-        lastMovementTime = now;
+//        long now = System.currentTimeMillis();
+//        lastMovementTime = now;
 
         if (!sensorMessage.getStatus()) {
             System.out.println(seatRepository.changeSensorStatus(sensorMessage));
         }
 
 
-        if (sensorMessage.getStatus() && now - lastMovementTime >= 3 * 60 * 1000) {
-            System.out.println(seatRepository.changeSensorStatus(sensorMessage));
-        }
+//        if (sensorMessage.getStatus() && now - lastMovementTime >= 3 * 60 * 1000) {
+//            System.out.println(seatRepository.changeSensorStatus(sensorMessage));
+//        }
 
     }
 }
