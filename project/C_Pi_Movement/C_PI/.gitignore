@@ -1,2 +1,8 @@
 build
+lib_connect
 !.vscode/*
+pico-sdk
+generated
+CMakeFiles
+build
+MqttConf.env

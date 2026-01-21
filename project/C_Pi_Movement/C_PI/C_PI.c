@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "pico/unique_id.h"
+#include "MQTTAsync.h"
+#include "hardware/gpio.h"
+
+
 
 #ifndef MOTION_SENSOR_PIN
 #define MOTION_SENSOR_PIN 18
 #endif
+
+#ifndef KOJE_NAME
+#define KOJE_NAME "Koje 1"
+#endif 
 
 int pico_init_board_peripherals(void) {
     stdio_init_all();
@@ -16,11 +25,14 @@ int pico_init_board_peripherals(void) {
 
     gpio_init(MOTION_SENSOR_PIN);
     gpio_set_dir(MOTION_SENSOR_PIN, GPIO_IN);
+    
     return PICO_OK;
 }
 
-void change_led_status(bool ledOn) {
+ void change_led_status(bool ledOn) {
+    
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledOn);
+
 }
 
 int main() {
@@ -47,4 +59,6 @@ int main() {
 
         sleep_ms(1);
     }
+
+    return 0; 
 }
