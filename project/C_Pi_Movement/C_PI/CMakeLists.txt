@@ -36,6 +36,7 @@ foreach(VAR ${ENV_FILE})
     set(ENV{${KEY}} ${VALUE})
 endforeach()
 
+
 pico_sdk_init()
 #MQTT
 if (DEFINED ENV{MQTT_SERVER} AND (NOT MQTT_SERVER))
