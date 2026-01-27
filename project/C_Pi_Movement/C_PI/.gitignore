@@ -5,4 +5,5 @@ pico-sdk
 generated
 CMakeFiles
 build
-MqttConf.env
+MqttConf.h
+eclipse-paho-mqtt.c
