@@ -75,16 +75,14 @@ typedef struct
 #define MQTT_UNIQUE_TOPIC 1
 #endif
 
-static void pub_request_cb(__unused void *arg, err_t err)
-{
+static void pub_request_cb(__unused void *arg, err_t err) {
     if (err != 0)
     {
         ERROR_printf("pub_request_cb failed %d", err);
     }
 }
 
-static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name)
-{
+static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name) {
 #if MQTT_UNIQUE_TOPIC
     static char full_topic[MQTT_TOPIC_LEN];
     snprintf(full_topic, sizeof(full_topic), "/%s%s", state->mqtt_client_info.client_id, name);
@@ -94,8 +92,7 @@ static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name)
 #endif
 }
 
-static void sub_request_cb(void *arg, err_t err)
-{
+static void sub_request_cb(void *arg, err_t err) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (err != 0)
     {
@@ -104,8 +101,7 @@ static void sub_request_cb(void *arg, err_t err)
     state->subscribe_count++;
 }
 
-static void unsub_request_cb(void *arg, err_t err)
-{
+static void unsub_request_cb(void *arg, err_t err) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (err != 0)
     {
@@ -120,16 +116,14 @@ static void unsub_request_cb(void *arg, err_t err)
         mqtt_disconnect(state->mqtt_client_inst);
     }
 }
-static void sub_unsub_topics(MQTT_CLIENT_DATA_T *state, bool sub)
-{
+static void sub_unsub_topics(MQTT_CLIENT_DATA_T *state, bool sub) {
     mqtt_request_cb_t cb = sub ? sub_request_cb : unsub_request_cb;
     mqtt_sub_unsub(state->mqtt_client_inst, full_topic(state, "/led"), MQTT_SUBSCRIBE_QOS, cb, state, sub);
     mqtt_sub_unsub(state->mqtt_client_inst, full_topic(state, "/print"), MQTT_SUBSCRIBE_QOS, cb, state, sub);
     mqtt_sub_unsub(state->mqtt_client_inst, full_topic(state, "/ping"), MQTT_SUBSCRIBE_QOS, cb, state, sub);
     mqtt_sub_unsub(state->mqtt_client_inst, full_topic(state, "/exit"), MQTT_SUBSCRIBE_QOS, cb, state, sub);
 }
-static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags)
-{
+static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t flags) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
 #if MQTT_UNIQUE_TOPIC
     const char *basic_topic = state->topic + strlen(state->mqtt_client_info.client_id) + 1;
@@ -158,13 +152,11 @@ static void mqtt_incoming_data_cb(void *arg, const u8_t *data, u16_t len, u8_t f
     //     sub_unsub_topics(state, false); // unsubscribe
     // }
 }
-static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len)
-{
+static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     strncpy(state->topic, topic, sizeof(state->topic));
 }
-static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status)
-{
+static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (status == MQTT_CONNECT_ACCEPTED)
     {
@@ -192,8 +184,7 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
         INFO_printf("Unexpected status\n");
     }
 }
-static void start_client(MQTT_CLIENT_DATA_T *state)
-{
+static void start_client(MQTT_CLIENT_DATA_T *state) {
 #if LWIP_ALTCP && LWIP_ALTCP_TLS
     const int port = MQTT_TLS_PORT;
     INFO_printf("Using TLS\n");
@@ -221,8 +212,7 @@ static void start_client(MQTT_CLIENT_DATA_T *state)
     mqtt_set_inpub_callback(state->mqtt_client_inst, mqtt_incoming_publish_cb, mqtt_incoming_data_cb, state);
     cyw43_arch_lwip_end();
 }
-static void dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg)
-{
+static void dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (ipaddr)
     {
@@ -240,11 +230,11 @@ int pico_init_board_peripherals(void) {
 
     if (cyw43_arch_init())
     {
-        INFO_printf("Could not connect to the wifi %n \n");
+        INFO_printf("Could not connect to the wifi\n");
         return PICO_ERROR_CONNECT_FAILED;
     }
-    cyw43_arch_enable_sta_mode();
-    cyw43_arch_disable_ap_mode();
+    // cyw43_arch_enable_sta_mode();
+    // cyw43_arch_disable_ap_mode();
 
     gpio_init(MOTION_SENSOR_PIN);
     gpio_set_dir(MOTION_SENSOR_PIN, GPIO_IN);
@@ -288,7 +278,7 @@ int main() {
     memcpy(&client_id_buf[0], MQTT_DEVICE_NAME, sizeof(MQTT_DEVICE_NAME) - 1);
     memcpy(&client_id_buf[sizeof(MQTT_DEVICE_NAME) - 1], unique_id_buf, sizeof(unique_id_buf) - 1);
     client_id_buf[sizeof(client_id_buf) - 1] = 0;
-    INFO_printf("272 Device name: %s\n", client_id_buf);
+    INFO_printf("291 Device name: %s\n", client_id_buf);
 
     state.mqtt_client_info.client_id = client_id_buf;
     state.mqtt_client_info.keep_alive = MQTT_KEEP_ALIVE_S; // Keep alive in sec
@@ -323,16 +313,20 @@ int main() {
     WARN_printf("Warning: tls without a certificate is insecure\n");
 #endif
 #endif
-    INFO_printf("WIFI CREDENTIALS: %s %s %s \n", WIFI_NAME, WIFI_PASSWORDV, MQTT_SERVERV);
 
-      //cyw43_arch_wifi_connect_blocking(WIFI_NAME,WIFI_PASSWORDV, CYW43_AUTH_WPA2_MIXED_PSK)
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_NAME, WIFI_PASSWORDV, CYW43_AUTH_WPA2_MIXED_PSK, 10000) != 0) {
+    cyw43_arch_enable_sta_mode();
+    cyw43_arch_disable_ap_mode();
+
+    INFO_printf("WIFI CREDENTIALS: %s %s %s \n", WIFI_NAME, WIFI_PASSWORDV, MQTT_SERVERV);
+    //cyw43_arch_wifi_connect_timeout_ms
+    //cyw43_arch_wifi_connect_blocking(WIFI_NAME,WIFI_PASSWORDV, CYW43_AUTH_WPA2_MIXED_PSK)4
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_NAME, WIFI_PASSWORDV, CYW43_AUTH_WPA2_AES_PSK, 10000) != 0) {
         panic("TIMED OUT! %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
-        sleep_ms(100);
+        sleep_ms(500);
     }
-    else {
 
         sleep_ms(1000);
+        INFO_printf("IP address of this device %s\n", ipaddr_ntoa(&(netif_list->ip_addr)));
         INFO_printf("\n Connected to Wifi: %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
 
         cyw43_arch_lwip_begin();
@@ -368,7 +362,7 @@ int main() {
 
             sleep_ms(100);
         }
-    }
+    
 
     return 0;
 }
