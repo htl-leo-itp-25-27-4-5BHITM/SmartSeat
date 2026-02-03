@@ -10,7 +10,7 @@
 #include "lwip/apps/mqtt_priv.h" // needed to set hostname
 #include "lwip/dns.h"
 #include "lwip/altcp_tls.h"
-#include "MqttConf.h"
+#include "WLANConf.h"
 
 // HARDWARE SETTINGS
 #ifndef MOTION_SENSOR_PIN
@@ -75,13 +75,15 @@ typedef struct
 #define MQTT_UNIQUE_TOPIC 1
 #endif
 
+#ifndef MOT_WORKER_TIME_S
+#define MOT_WORKER_TIME_S 10 
+#endif // !MOT_WORKER_TIME_S
 static void pub_request_cb(__unused void *arg, err_t err) {
     if (err != 0)
     {
         ERROR_printf("pub_request_cb failed %d", err);
     }
 }
-
 static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name) {
 #if MQTT_UNIQUE_TOPIC
     static char full_topic[MQTT_TOPIC_LEN];
@@ -91,8 +93,15 @@ static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name) {
     return name;
 #endif
 }
+static void publish_motion (MQTT_CLIENT_DATA_T *state) {
+    const char *key_motion = full_topic(state, "/motion-data");
+        mqtt_publish(state->mqtt_client_inst, key_motion, "false", strlen("false"), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+
+} 
+
 
 static void sub_request_cb(void *arg, err_t err) {
+
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (err != 0)
     {
@@ -100,7 +109,6 @@ static void sub_request_cb(void *arg, err_t err) {
     }
     state->subscribe_count++;
 }
-
 static void unsub_request_cb(void *arg, err_t err) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (err != 0)
@@ -156,6 +164,13 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     strncpy(state->topic, topic, sizeof(state->topic));
 }
+static void motion_worker_fn(async_context_t *context, async_at_time_worker_t *worker) {
+    MQTT_CLIENT_DATA_T* state = (MQTT_CLIENT_DATA_T*)worker->user_data;
+
+    publish_motion(state);
+    async_context_add_at_time_worker_in_ms(context, worker, MOT_WORKER_TIME_S * 1000);
+}
+static async_at_time_worker_t motion_worker = { .do_work = motion_worker_fn };
 static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (status == MQTT_CONNECT_ACCEPTED)
@@ -169,6 +184,8 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
             mqtt_publish(state->mqtt_client_inst, state->mqtt_client_info.will_topic, "1", 1, MQTT_WILL_QOS, true, pub_request_cb, state);
         }
 
+          motion_worker.user_data = state;
+        async_context_add_at_time_worker_in_ms(cyw43_arch_async_context(), &motion_worker, 0);
         // temperature_worker.user_data = state;
         // async_context_add_at_time_worker_in_ms(cyw43_arch_async_context(), &temperature_worker, 0);
     }
@@ -201,10 +218,15 @@ static void start_client(MQTT_CLIENT_DATA_T *state) {
     INFO_printf("Connecting to mqtt server at %s\n", ipaddr_ntoa(&state->mqtt_server_address));
 
     cyw43_arch_lwip_begin();
-    if (mqtt_client_connect(state->mqtt_client_inst, &state->mqtt_server_address, port, mqtt_connection_cb, state, &state->mqtt_client_info) != ERR_OK)
-    {
+    if (mqtt_client_connect(state->mqtt_client_inst,
+         &state->mqtt_server_address, port,
+          mqtt_connection_cb,
+           state, &state->mqtt_client_info) != ERR_OK) {
+
         INFO_printf("MQTT broker connection error \n");
     }
+    INFO_printf("MQTT connected, %s", state->mqtt_client_info);
+    
 #if LWIP_ALTCP && LWIP_ALTCP_TLS
     // This is important for MBEDTLS_SSL_SERVER_NAME_INDICATION
     mbedtls_ssl_set_hostname(altcp_tls_context(state->mqtt_client_inst->conn), MQTT_SERVER);
@@ -217,7 +239,9 @@ static void dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg) 
     if (ipaddr)
     {
         state->mqtt_server_address = *ipaddr;
+        INFO_printf("dns request success %d\n", ipaddr->addr);
         start_client(state);
+
     }
     else
     {
@@ -228,7 +252,7 @@ static void dns_found(const char *hostname, const ip_addr_t *ipaddr, void *arg) 
 int pico_init_board_peripherals(void) {
     stdio_init_all();
 
-    if (cyw43_arch_init())
+    if (cyw43_arch_init_with_country(CYW43_COUNTRY_AUSTRIA))
     {
         INFO_printf("Could not connect to the wifi\n");
         return PICO_ERROR_CONNECT_FAILED;
@@ -243,16 +267,18 @@ int pico_init_board_peripherals(void) {
 }
 
 static void change_led_status(MQTT_CLIENT_DATA_T *state, bool ledOn) {
-    char message[100] = "{\"Name\":  \"Koje 1\", \"Status\": ";
-    char *ledOnValue = ledOn ? "true" : "false";
+    char message[100] = "{\"name\":  \"Koje 1\", \"status\": ";
+    char *ledOnValue = ledOn ? "false" : "true";
     char *json3 = "}";
 
     strcat(message, ledOnValue);
     strcat(message, json3);
 
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledOn);
-    mqtt_publish(state->mqtt_client_inst, full_topic(state, "/pico-date"), message, strlen(message), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+    mqtt_publish(state->mqtt_client_inst, full_topic(state, "/pico-data"), message, strlen(message), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+
 }
+
 
 int main() {
     sleep_ms(2000);
@@ -316,20 +342,24 @@ int main() {
 
     cyw43_arch_enable_sta_mode();
     cyw43_arch_disable_ap_mode();
+    // cyw43_wifi_pm(&cyw43_state, 0xa11140);
 
-    INFO_printf("WIFI CREDENTIALS: %s %s %s \n", WIFI_NAME, WIFI_PASSWORDV, MQTT_SERVERV);
+    INFO_printf("\nWIFI CREDENTIALS: %s %s %s \n", WIFI_NAME, WIFI_PASSWORDV, MQTT_SERVERV);
     //cyw43_arch_wifi_connect_timeout_ms
     //cyw43_arch_wifi_connect_blocking(WIFI_NAME,WIFI_PASSWORDV, CYW43_AUTH_WPA2_MIXED_PSK)4
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_NAME, WIFI_PASSWORDV, CYW43_AUTH_WPA2_AES_PSK, 10000) != 0) {
-        panic("TIMED OUT! %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
+    
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_NAME, WIFI_PASSWORDV, CYW43_AUTH_WPA2_AES_PSK, 30000) != 0) {
+        INFO_printf("TIMED OUT! %s \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
         sleep_ms(500);
     }
 
         sleep_ms(1000);
         INFO_printf("IP address of this device %s\n", ipaddr_ntoa(&(netif_list->ip_addr)));
-        INFO_printf("\n Connected to Wifi: %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
+        INFO_printf("\nConnected to Wifi: %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
 
         cyw43_arch_lwip_begin();
+        INFO_printf("MQTT Server: %s", MQTT_SERVERV);
+
         int err = dns_gethostbyname(MQTT_SERVERV, &state.mqtt_server_address, dns_found, &state);
         cyw43_arch_lwip_end();
 
@@ -360,7 +390,7 @@ int main() {
             }
             cyw43_arch_poll();
 
-            sleep_ms(100);
+            sleep_ms(500);
         }
     
 
