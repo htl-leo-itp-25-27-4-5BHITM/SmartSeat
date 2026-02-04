@@ -95,7 +95,7 @@ static const char *full_topic(MQTT_CLIENT_DATA_T *state, const char *name) {
 }
 static void publish_motion (MQTT_CLIENT_DATA_T *state) {
     const char *key_motion = full_topic(state, "/motion-data");
-        mqtt_publish(state->mqtt_client_inst, key_motion, "false", strlen("false"), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+        mqtt_publish(state->mqtt_client_inst, key_motion, "{\"status\":false}", strlen("{\"status\":false}"), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
 
 } 
 
@@ -164,6 +164,7 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     strncpy(state->topic, topic, sizeof(state->topic));
 }
+
 static void motion_worker_fn(async_context_t *context, async_at_time_worker_t *worker) {
     MQTT_CLIENT_DATA_T* state = (MQTT_CLIENT_DATA_T*)worker->user_data;
 
@@ -171,6 +172,7 @@ static void motion_worker_fn(async_context_t *context, async_at_time_worker_t *w
     async_context_add_at_time_worker_in_ms(context, worker, MOT_WORKER_TIME_S * 1000);
 }
 static async_at_time_worker_t motion_worker = { .do_work = motion_worker_fn };
+
 static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     if (status == MQTT_CONNECT_ACCEPTED)
@@ -184,7 +186,7 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
             mqtt_publish(state->mqtt_client_inst, state->mqtt_client_info.will_topic, "1", 1, MQTT_WILL_QOS, true, pub_request_cb, state);
         }
 
-          motion_worker.user_data = state;
+        motion_worker.user_data = state;
         async_context_add_at_time_worker_in_ms(cyw43_arch_async_context(), &motion_worker, 0);
         // temperature_worker.user_data = state;
         // async_context_add_at_time_worker_in_ms(cyw43_arch_async_context(), &temperature_worker, 0);
@@ -372,6 +374,8 @@ int main() {
         }
 
         while (!state.connect_done || mqtt_client_is_connected(state.mqtt_client_inst)) {
+            cyw43_arch_poll();
+
             INFO_printf("Working and checking... \n");
             // if (!state.connect_done || mqtt_client_is_connected(state.mqtt_client_inst)) {
             //     INFO_printf("\nPico is connected to the mqtt client\n");
@@ -388,7 +392,6 @@ int main() {
             else {
                 change_led_status(&state, false);
             }
-            cyw43_arch_poll();
 
             sleep_ms(500);
         }
