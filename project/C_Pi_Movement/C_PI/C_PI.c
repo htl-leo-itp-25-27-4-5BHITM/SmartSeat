@@ -78,6 +78,8 @@ typedef struct
 #ifndef MOT_WORKER_TIME_S
 #define MOT_WORKER_TIME_S 10 
 #endif // !MOT_WORKER_TIME_S
+
+
 static void pub_request_cb(__unused void *arg, err_t err) {
     if (err != 0)
     {
@@ -164,11 +166,23 @@ static void mqtt_incoming_publish_cb(void *arg, const char *topic, u32_t tot_len
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
     strncpy(state->topic, topic, sizeof(state->topic));
 }
+static void change_led_status(MQTT_CLIENT_DATA_T *state, bool ledOn) {
+    char message[100] = "{\"name\":  \"Koje 1\", \"status\": ";
+    char *ledOnValue = ledOn ? "false" : "true";
+    char *json3 = "}";
+
+    strcat(message, ledOnValue);
+    strcat(message, json3);
+
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledOn);
+    mqtt_publish(state->mqtt_client_inst, full_topic(state, "/pico-data"), message, strlen(message), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
+
+}
 
 static void motion_worker_fn(async_context_t *context, async_at_time_worker_t *worker) {
     MQTT_CLIENT_DATA_T* state = (MQTT_CLIENT_DATA_T*)worker->user_data;
-
     publish_motion(state);
+
     async_context_add_at_time_worker_in_ms(context, worker, MOT_WORKER_TIME_S * 1000);
 }
 static async_at_time_worker_t motion_worker = { .do_work = motion_worker_fn };
@@ -204,11 +218,13 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection
     }
 }
 static void start_client(MQTT_CLIENT_DATA_T *state) {
+    const int port = 1883;
+
 #if LWIP_ALTCP && LWIP_ALTCP_TLS
-    const int port = MQTT_TLS_PORT;
+    // const int port = MQTT_TLS_PORT;
     INFO_printf("Using TLS\n");
 #else
-    const int port = 1883;
+    // const int port = 1883;
     INFO_printf("Warning: Not using TLS\n");
 #endif
     state->mqtt_client_inst = mqtt_client_new();
@@ -268,18 +284,6 @@ int pico_init_board_peripherals(void) {
     return PICO_OK;
 }
 
-static void change_led_status(MQTT_CLIENT_DATA_T *state, bool ledOn) {
-    char message[100] = "{\"name\":  \"Koje 1\", \"status\": ";
-    char *ledOnValue = ledOn ? "false" : "true";
-    char *json3 = "}";
-
-    strcat(message, ledOnValue);
-    strcat(message, json3);
-
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, ledOn);
-    mqtt_publish(state->mqtt_client_inst, full_topic(state, "/pico-data"), message, strlen(message), MQTT_PUBLISH_QOS, MQTT_PUBLISH_RETAIN, pub_request_cb, state);
-
-}
 
 
 int main() {
@@ -360,7 +364,7 @@ int main() {
         INFO_printf("\nConnected to Wifi: %d \n", cyw43_wifi_link_status(&cyw43_state, CYW43_ITF_STA));
 
         cyw43_arch_lwip_begin();
-        INFO_printf("MQTT Server: %s", MQTT_SERVERV);
+        INFO_printf("MQTT Server: %s\n", MQTT_SERVERV);
 
         int err = dns_gethostbyname(MQTT_SERVERV, &state.mqtt_server_address, dns_found, &state);
         cyw43_arch_lwip_end();
@@ -376,7 +380,7 @@ int main() {
         while (!state.connect_done || mqtt_client_is_connected(state.mqtt_client_inst)) {
             cyw43_arch_poll();
 
-            INFO_printf("Working and checking... \n");
+            INFO_printf("\nWorking and checking... \n");
             // if (!state.connect_done || mqtt_client_is_connected(state.mqtt_client_inst)) {
             //     INFO_printf("\nPico is connected to the mqtt client\n");
             //     cyw43_arch_poll();
@@ -385,8 +389,8 @@ int main() {
             // }
 
             if (gpio_get(MOTION_SENSOR_PIN) == 1) {
-                INFO_printf("Koje besetzt: %d \n", gpio_get(MOTION_SENSOR_PIN));
                 change_led_status(&state, true);
+                INFO_printf("Koje besetzt: %d \n", gpio_get(MOTION_SENSOR_PIN));
                 sleep_ms(500);
             }
             else {
@@ -395,7 +399,6 @@ int main() {
 
             sleep_ms(500);
         }
-    
-
+        cyw43_arch_deinit();
     return 0;
 }

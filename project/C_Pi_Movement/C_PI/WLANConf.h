@@ -7,5 +7,5 @@
 #endif
 
 #ifndef MQTT_SERVERV
-#define MQTT_SERVERV "mqtt://192.168.188.228.nip.io/mqtt.eclipse.org" 
+#define MQTT_SERVERV "192.168.188.228" 
 #endif
