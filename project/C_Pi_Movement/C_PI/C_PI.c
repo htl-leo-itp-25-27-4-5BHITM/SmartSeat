@@ -315,9 +315,9 @@ int main() {
     state.mqtt_client_info.client_id = client_id_buf;
     state.mqtt_client_info.keep_alive = MQTT_KEEP_ALIVE_S; // Keep alive in sec
 
-#if defined(MQTT_USERNAME) && defined(MQTT_PASSWORD)
-    state.mqtt_client_info.client_user = MQTT_USERNAME;
-    state.mqtt_client_info.client_pass = MQTT_PASSWORD;
+#if defined(MQTT_USERNAMEV) && defined(MQTT_PASSWORDV)
+    state.mqtt_client_info.client_user = MQTT_USERNAMEV;
+    state.mqtt_client_info.client_pass = MQTT_PASSWORDV;
 #else
     state.mqtt_client_info.client_user = NULL;
     state.mqtt_client_info.client_pass = NULL;
