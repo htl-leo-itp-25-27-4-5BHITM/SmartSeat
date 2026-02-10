@@ -136,6 +136,7 @@ int main() {
     static MQTT_CLIENT_DATA_T state;
     memset(&state, 0, sizeof(state));
 
+    // ---- Client ID: DEVICE_NAME + unique ID
     char unique_id_buf[UNIQUE_ID_STR_LEN];
     pico_get_unique_board_id_string(unique_id_buf, sizeof(unique_id_buf));
     for (int i = 0; unique_id_buf[i]; i++)
@@ -164,7 +165,7 @@ int main() {
     sleep_ms(500);
     INFO_printf("WiFi IP: %s\n",
                 ipaddr_ntoa(&(netif_list->ip_addr)));
-)
+
     ipaddr_aton(MQTT_SERVERV, &state.mqtt_server_address);
     start_client(&state);
 
