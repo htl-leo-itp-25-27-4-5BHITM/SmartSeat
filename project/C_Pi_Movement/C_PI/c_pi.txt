@@ -1,3 +1,7 @@
+// main.c  (Pico W / Pico 2W + Mosquitto 1883 + user/pass)
+// Publishes ONLY to topic: "pico-data"
+// JSON: {"name":"Koje_1","status":true/false}
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -6,15 +10,22 @@
 #include "pico/cyw43_arch.h"
 #include "pico/unique_id.h"
 
+#include "hardware/gpio.h"
+
 #include "lwip/apps/mqtt.h"
 #include "lwip/ip_addr.h"
 #include "lwip/netif.h"
 
 #include "WLANConf.h"
 
+// -------------------- Hardware --------------------
+#ifndef MOTION_SENSOR_PIN
+#define MOTION_SENSOR_PIN 18
+#endif
+
 // -------------------- App Settings --------------------
 #ifndef DEVICE_NAME
-#define DEVICE_NAME "Koje 1"
+#define DEVICE_NAME "Koje_1"
 #endif
 
 #define MQTT_PORT            1883
@@ -23,8 +34,9 @@
 #define MQTT_PUBLISH_QOS     1
 #define MQTT_PUBLISH_RETAIN  1   // retain last state
 
-#define SEND_COUNT           10
-#define SEND_INTERVAL_MS     10000
+// debounce/poll
+#define POLL_MS        50
+#define DEBOUNCE_MS   200
 
 // Unique ID string length
 #define UNIQUE_ID_STR_LEN (PICO_UNIQUE_BOARD_ID_SIZE_BYTES * 2 + 1)
@@ -32,6 +44,10 @@
 // -------------------- Logging --------------------
 #ifndef INFO_printf
 #define INFO_printf printf
+#endif
+
+#ifndef WARN_printf
+#define WARN_printf printf
 #endif
 
 #ifndef ERROR_printf
@@ -54,7 +70,7 @@ static void pub_request_cb(__unused void *arg, err_t err) {
 }
 
 static void publish_status(MQTT_CLIENT_DATA_T *state, bool status) {
-    // LED reflects status
+    // LED on when status == true
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, status);
 
     char payload[128];
@@ -64,7 +80,7 @@ static void publish_status(MQTT_CLIENT_DATA_T *state, bool status) {
              status ? "true" : "false");
 
     mqtt_publish(state->mqtt_client_inst,
-                 "pico-data",
+                 "pico-data",          // ONLY topic
                  payload,
                  (u16_t)strlen(payload),
                  MQTT_PUBLISH_QOS,
@@ -74,8 +90,7 @@ static void publish_status(MQTT_CLIENT_DATA_T *state, bool status) {
 }
 
 // -------------------- MQTT connect --------------------
-static void mqtt_connection_cb(mqtt_client_t *client, void *arg,
-                               mqtt_connection_status_t status) {
+static void mqtt_connection_cb(mqtt_client_t *client, void *arg, mqtt_connection_status_t status) {
     (void)client;
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
 
@@ -85,9 +100,10 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg,
         state->connect_done = true;
         INFO_printf("MQTT connected (client_id=%s)\n",
                     state->mqtt_client_info.client_id);
-    } else {
-        ERROR_printf("MQTT connect failed\n");
+        return;
     }
+
+    ERROR_printf("MQTT connect failed (status=%d)\n", (int)status);
 }
 
 // -------------------- Start MQTT --------------------
@@ -102,16 +118,16 @@ static void start_client(MQTT_CLIENT_DATA_T *state) {
                 ipaddr_ntoa(&state->mqtt_server_address), MQTT_PORT);
 
     cyw43_arch_lwip_begin();
-    err_t err = mqtt_client_connect(state->mqtt_client_inst,
-                                   &state->mqtt_server_address,
-                                   MQTT_PORT,
-                                   mqtt_connection_cb,
-                                   state,
-                                   &state->mqtt_client_info);
+    err_t e = mqtt_client_connect(state->mqtt_client_inst,
+                                  &state->mqtt_server_address,
+                                  MQTT_PORT,
+                                  mqtt_connection_cb,
+                                  state,
+                                  &state->mqtt_client_info);
     cyw43_arch_lwip_end();
 
-    if (err != ERR_OK) {
-        ERROR_printf("mqtt_client_connect error: %d\n", (int)err);
+    if (e != ERR_OK) {
+        ERROR_printf("mqtt_client_connect error: %d\n", (int)e);
     }
 }
 
@@ -123,6 +139,9 @@ static int pico_init_board_peripherals(void) {
         ERROR_printf("cyw43 init failed\n");
         return PICO_ERROR_CONNECT_FAILED;
     }
+
+    gpio_init(MOTION_SENSOR_PIN);
+    gpio_set_dir(MOTION_SENSOR_PIN, GPIO_IN);
 
     return PICO_OK;
 }
@@ -136,14 +155,14 @@ int main() {
     static MQTT_CLIENT_DATA_T state;
     memset(&state, 0, sizeof(state));
 
+    // ---- Client ID: DEVICE_NAME + unique id
     char unique_id_buf[UNIQUE_ID_STR_LEN];
     pico_get_unique_board_id_string(unique_id_buf, sizeof(unique_id_buf));
     for (int i = 0; unique_id_buf[i]; i++)
         unique_id_buf[i] = (char)tolower((unsigned char)unique_id_buf[i]);
 
     static char client_id[96];
-    snprintf(client_id, sizeof(client_id),
-             "%s_%s", DEVICE_NAME, unique_id_buf);
+    snprintf(client_id, sizeof(client_id), "%s_%s", DEVICE_NAME, unique_id_buf);
 
     state.mqtt_client_info.client_id  = client_id;
     state.mqtt_client_info.keep_alive = MQTT_KEEP_ALIVE_S;
@@ -153,39 +172,51 @@ int main() {
     state.mqtt_client_info.client_pass = MQTT_PASSWORDV;
 #endif
 
+    // ---- WiFi
     cyw43_arch_enable_sta_mode();
     cyw43_arch_wifi_connect_timeout_ms(
-        WIFI_NAME,
-        WIFI_PASSWORDV,
-        CYW43_AUTH_WPA2_AES_PSK,
-        30000
-    );
+        WIFI_NAME, WIFI_PASSWORDV, CYW43_AUTH_WPA2_AES_PSK, 30000);
 
     sleep_ms(500);
-    INFO_printf("WiFi IP: %s\n",
-                ipaddr_ntoa(&(netif_list->ip_addr)));
-)
+    INFO_printf("WiFi IP: %s\n", ipaddr_ntoa(&(netif_list->ip_addr)));
+
+    // ---- MQTT server IP (NO DNS!)
     ipaddr_aton(MQTT_SERVERV, &state.mqtt_server_address);
     start_client(&state);
 
-    while (!state.connect_done) {
+    // ---- Motion logic
+    bool last_sample = false;
+    bool last_status = false;
+    absolute_time_t last_change = get_absolute_time();
+    bool initial_sent = false;
+
+    while (!state.connect_done || mqtt_client_is_connected(state.mqtt_client_inst)) {
         cyw43_arch_poll();
-        sleep_ms(100);
-    }
 
-    for (int i = 0; i < SEND_COUNT; i++) {
-        cyw43_arch_poll();
+        bool sample = gpio_get(MOTION_SENSOR_PIN);
 
-        publish_status(&state, false);
-        INFO_printf("Sent status=false (%d/%d)\n", i + 1, SEND_COUNT);
-
-        for (int t = 0; t < SEND_INTERVAL_MS / 100; t++) {
-            cyw43_arch_poll();
-            sleep_ms(100);
+        if (sample != last_sample) {
+            last_sample = sample;
+            last_change = get_absolute_time();
         }
-    }
 
-    INFO_printf("Finished sending messages\n");
+        if (absolute_time_diff_us(last_change, get_absolute_time())
+            >= (int64_t)DEBOUNCE_MS * 1000) {
+
+            bool status = last_sample;
+
+            if (state.connect_done) {
+                if (!initial_sent || status != last_status) {
+                    initial_sent = true;
+                    last_status = status;
+                    publish_status(&state, status);
+                    INFO_printf("Status: %s\n", status ? "true" : "false");
+                }
+            }
+        }
+
+        sleep_ms(POLL_MS);
+    }
 
     cyw43_arch_deinit();
     return 0;

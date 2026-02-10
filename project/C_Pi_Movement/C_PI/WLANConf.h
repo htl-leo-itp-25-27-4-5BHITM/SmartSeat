@@ -10,7 +10,7 @@
 // #define MQTT_SERVERV "192.168.188.228" 
 // #endif
 #ifndef MQTT_SERVERV
-#define MQTT_SERVERV "vm90.htl-leonding.ac.at" 
+#define MQTT_SERVERV "10.191.112.90" 
 #endif
 
 #ifndef MQTT_USERNAMEV
