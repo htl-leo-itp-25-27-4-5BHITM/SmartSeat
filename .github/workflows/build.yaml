@@ -13,7 +13,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-          cache-dependency-path: 'quarkus-java/pom.xml'
+          cache-dependency-path: 'project/quarkus-java/pom.xml'
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-        working-directory: quarkus-java
+        working-directory: project/quarkus-java
