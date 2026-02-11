@@ -26,6 +26,9 @@
 #define SEND_COUNT           10
 #define SEND_INTERVAL_MS     10000
 
+// Motion Sensor Pin
+#define MOTION_SENSOR_PIN 18
+
 // Unique ID string length
 #define UNIQUE_ID_STR_LEN (PICO_UNIQUE_BOARD_ID_SIZE_BYTES * 2 + 1)
 
@@ -123,6 +126,8 @@ static int pico_init_board_peripherals(void) {
         ERROR_printf("cyw43 init failed\n");
         return PICO_ERROR_CONNECT_FAILED;
     }
+    gpio_init(MOTION_SENSOR_PIN);
+    gpio_set_dir(MOTION_SENSOR_PIN, GPIO_IN);
 
     return PICO_OK;
 }
@@ -177,7 +182,7 @@ int main() {
     for (int i = 0; i < SEND_COUNT; i++) {
         cyw43_arch_poll();
 
-        publish_status(&state, false);
+        publish_status(&state, !gpio_get(MOTION_SENSOR_PIN));
         INFO_printf("Sent status=false (%d/%d)\n", i + 1, SEND_COUNT);
 
         for (int t = 0; t < SEND_INTERVAL_MS / 100; t++) {
