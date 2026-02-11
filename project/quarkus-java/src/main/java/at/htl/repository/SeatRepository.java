@@ -181,6 +181,6 @@ public class SeatRepository {
     }
 
     private String getCronThreeMinutes() {
-        return "0 */3 * * * ?";
+        return "0/15 * * * * ?";
     }
 }
