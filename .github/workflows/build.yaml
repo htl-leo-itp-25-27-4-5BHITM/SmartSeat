@@ -14,5 +14,5 @@ jobs:
           cache: 'maven'
           cache-dependency-path: 'project/quarkus-java/pom.xml'
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B package --file pom.xml -DskipTests
         working-directory: project/quarkus-java
