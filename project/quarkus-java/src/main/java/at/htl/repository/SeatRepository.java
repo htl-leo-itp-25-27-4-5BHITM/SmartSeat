@@ -159,8 +159,8 @@ public class SeatRepository {
     }
 
     public void changeStatusEveryThreeMinutes() {
-        AtomicReference<String> cron = new AtomicReference<>(getCronThreeMinutes());
-        logger.infof("%s --> EndTime", getCronThreeMinutes());
+        AtomicReference<String> cron = new AtomicReference<>(getCronThirtySeconds());
+        logger.infof("%s --> EndTime", getCronThirtySeconds());
 
 
         scheduler.newJob("setSeatsToUnoccupiedEveryThreeMinutesJob")
@@ -173,14 +173,14 @@ public class SeatRepository {
                             .getResultList().forEach(e -> changeStatusToUnoccupied(e.getId()));
 
                     ws.broadcastSeatUpdate();
-                    cron.set(getCronThreeMinutes());
-                    logger.infof("%s --> new EndTime", getCronThreeMinutes());
+                    cron.set(getCronThirtySeconds());
+                    logger.infof("%s --> new EndTime", getCronThirtySeconds());
 
                 }).schedule();
 
     }
 
-    private String getCronThreeMinutes() {
-        return "0/15 * * * * ?";
+    private String getCronThirtySeconds() {
+        return "0/30 * * * * ?";
     }
 }
