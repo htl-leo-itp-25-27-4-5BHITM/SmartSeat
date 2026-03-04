@@ -8,6 +8,11 @@ Daniel Riemer, Joschua Auer, Nino Tesar, Stefan Meinhart
 
 ## Projektübersicht
 
+###
+***TechStack***
+
+![Alt text](./TechStack.png)
+
 ### Projektbezeichnung
 **SmartSeat**
 
