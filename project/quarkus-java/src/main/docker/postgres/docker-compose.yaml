@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: quarkus-postgres
+    environment:
+      POSTGRES_DB: smartseatDB
+      POSTGRES_USER: smartseat
+      POSTGRES_PASSWORD: smartseat_pw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
