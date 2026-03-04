@@ -12,6 +12,6 @@ public class InitMethods {
     @Startup
     public void init () {
         repository.changeStatusToUnoccupiedAfterTime();
-        repository.changeStatusEveryThreeMinutes();
+        repository.resetStatusEveryFortyFiveSeconds();
     }
 }
