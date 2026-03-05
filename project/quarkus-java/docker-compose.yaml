@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: quarkus-postgres
+    environment:
+      POSTGRES_DB: smartseatDB
+      POSTGRES_USER: smartseat
+      POSTGRES_PASSWORD: smartseat_pw
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: smartseat-app
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      QUARKUS_DATASOURCE_DB_KIND: postgresql
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/smartseatDB
+      QUARKUS_DATASOURCE_USERNAME: smartseat
+      QUARKUS_DATASOURCE_PASSWORD: smartseat_pw
+      QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT: import.sql
+
+      QUARKUS_HIBERNATE_ORM_SCHEMA_MANAGEMENT_STRATEGY: create
+
+      QUARKUS_HTTP_HOST: 0.0.0.0
+      QUARKUS_HTTP_PORT: 8080
+
+      MP_MESSAGING_INCOMING_PICO_DATA_CONNECTOR: smallrye-mqtt
+      MP_MESSAGING_INCOMING_PICO_DATA_HOST: vm90.htl-leonding.ac.at
+      MP_MESSAGING_INCOMING_PICO_DATA_PORT: 1883
+      MP_MESSAGING_INCOMING_PICO_DATA_USERNAME: student
+      MP_MESSAGING_INCOMING_PICO_DATA_PASSWORD: passme
+
+    volumes:
+      - applogs:/work/.log
+
+volumes:
+  pgdata:
+  applogs:
