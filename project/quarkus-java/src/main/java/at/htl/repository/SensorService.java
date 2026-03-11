@@ -15,12 +15,15 @@ public class SensorService {
     @Inject
     SeatRepository seatRepository;
 
-    @Transactional
     @Incoming("pico-data")
+    @Transactional
     public void handleIncoming(byte[] raw) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
 
-        SensorMessage sensorMessage = objectMapper.readValue(raw, SensorMessage.class);
+        String payload = new String(raw);
+        System.out.println("RAW MQTT: " + payload);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        SensorMessage sensorMessage = objectMapper.readValue(payload, SensorMessage.class);
 
         if (!sensorMessage.getStatus()) {
             System.out.println("<===Übertragung===>");
