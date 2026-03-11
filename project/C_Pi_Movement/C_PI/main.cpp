@@ -1,3 +1,5 @@
+#include<format>
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -11,6 +13,8 @@
 #include "lwip/netif.h"
 
 #include "WLANConf.h"
+
+
 
 // -------------------- App Settings --------------------
 #ifndef DEVICE_NAME
@@ -62,17 +66,20 @@ static void publish_status(MQTT_CLIENT_DATA_T *state, bool motion)
 {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, motion);
 
-    char payload[128];
-    snprintf(payload, sizeof(payload),
-             "{\"name\":\"%s\",\"status\":%s}",
-             DEVICE_NAME,
-             !motion ? "true" : "false");
+    // char payload[128];
+    // snprintf(payload, sizeof(payload),
+    //          "{\"name\":\"%s\",\"status\":%s}",
+    //          DEVICE_NAME,
+    //          !motion ? "true" : "false");
+
+    std::string payload ="{"+ std::format("\"name\":{},\"status\":{}",DEVICE_NAME, !motion ? "true":"false") + "}";
+
 
     cyw43_arch_lwip_begin();
     err_t err = mqtt_publish(state->mqtt_client_inst,
                              TOPIC_STATUS,
-                             payload,
-                             (u16_t)strlen(payload),
+                             payload.c_str(),
+                             (u16_t)payload.length(),
                              MQTT_PUBLISH_QOS,
                              MQTT_PUBLISH_RETAIN,
                              pub_request_cb,
@@ -181,11 +188,13 @@ int main()
     pico_get_unique_board_id_string(unique_id_buf, sizeof(unique_id_buf));
     for (int i = 0; unique_id_buf[i]; i++)
         unique_id_buf[i] = (char)tolower((unsigned char)unique_id_buf[i]);
+    
 
-    static char client_id[96];
-    snprintf(client_id, sizeof(client_id), "%s_%s", DEVICE_NAME, unique_id_buf);
+    // static char client_id[96];
+    // snprintf(client_id, sizeof(client_id), "%s_%s", DEVICE_NAME, unique_id_buf);
+    static std::string client_id = std::format("{} {}",DEVICE_NAME,unique_id_buf);
 
-    state.mqtt_client_info.client_id = client_id;
+    state.mqtt_client_info.client_id = client_id.c_str();
     state.mqtt_client_info.keep_alive = MQTT_KEEP_ALIVE_S;
 
 #if defined(MQTT_USERNAMEV) && defined(MQTT_PASSWORDV)
