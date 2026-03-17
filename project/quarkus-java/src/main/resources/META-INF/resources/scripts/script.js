@@ -82,7 +82,8 @@ function updateSeatClasses(seatData) {
     });
 }
 
-let ws = new WebSocket(`ws://${window.location.host}/ws/seats`);
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
 
 

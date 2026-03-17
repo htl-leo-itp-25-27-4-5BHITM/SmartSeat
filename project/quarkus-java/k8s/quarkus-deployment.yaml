@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smartseat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smartseat
+  template:
+    metadata:
+      labels:
+        app: smartseat
+    spec:
+      containers:
+        - name: app
+          image: daniel31507/smartseat-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: QUARKUS_DATASOURCE_DB_KIND
+              value: postgresql
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: jdbc:postgresql://postgres:5432/smartseatDB
+            - name: QUARKUS_DATASOURCE_USERNAME
+              value: smartseat
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              value: smartseat_pw
+            - name: QUARKUS_HIBERNATE_ORM_SQL_LOAD_SCRIPT
+              value: import.sql
+            - name: QUARKUS_HIBERNATE_ORM_SCHEMA_MANAGEMENT_STRATEGY
+              value: drop-and-create
+            - name: QUARKUS_HTTP_HOST
+              value: 0.0.0.0
+            - name: QUARKUS_HTTP_PORT
+              value: "8080"
+            - name: MP_MESSAGING_INCOMING_PICO_DATA_CONNECTOR
+              value: smallrye-mqtt
+            - name: MP_MESSAGING_INCOMING_PICO_DATA_HOST
+              value: 10.191.112.90
+            - name: MP_MESSAGING_INCOMING_PICO_DATA_PORT
+              value: "1883"
+            - name: MP_MESSAGING_INCOMING_PICO_DATA_USERNAME
+              value: student
+            - name: MP_MESSAGING_INCOMING_PICO_DATA_PASSWORD
+              value: passme
+          volumeMounts:
+            - mountPath: /work/.log
+              name: applogs
+      volumes:
+        - name: applogs
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smartseat-service
+spec:
+  type: ClusterIP
+  selector:
+    app: smartseat
+  ports:
+    - port: 8080
+      targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: smartseat-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/upgrade: "websocket"
+    nginx.ingress.kubernetes.io/connection: "upgrade"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: it220228.cloud.htl-leonding.ac.at
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: smartseat-service
+                port:
+                  number: 8080
