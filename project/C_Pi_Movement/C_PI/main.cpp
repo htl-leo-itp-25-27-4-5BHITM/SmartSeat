@@ -1,4 +1,5 @@
 #include<format>
+#include<string>
 
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +14,6 @@
 #include "lwip/netif.h"
 
 #include "WLANConf.h"
-
 
 
 // -------------------- App Settings --------------------
@@ -62,23 +62,18 @@ static void pub_request_cb(__unused void *arg, err_t err)
     }
 }
 
-static void publish_status(MQTT_CLIENT_DATA_T *state, bool motion)
-{
+static void publish_status(MQTT_CLIENT_DATA_T *state, bool motion) {
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, motion);
 
-    // char payload[128];
-    // snprintf(payload, sizeof(payload),
-    //          "{\"name\":\"%s\",\"status\":%s}",
-    //          DEVICE_NAME,
-    //          !motion ? "true" : "false");
-
-    std::string payload ="{"+ std::format("\"name\":{},\"status\":{}",DEVICE_NAME, !motion ? "true":"false") + "}";
+    std::string payload ="{"+
+     std::format("\"name\":\"{}\",\"status\":{}", DEVICE_NAME, !motion ? "true":"false")
+      + "}";
 
 
     cyw43_arch_lwip_begin();
     err_t err = mqtt_publish(state->mqtt_client_inst,
                              TOPIC_STATUS,
-                             payload.c_str(),
+                             payload.data(),
                              (u16_t)payload.length(),
                              MQTT_PUBLISH_QOS,
                              MQTT_PUBLISH_RETAIN,
@@ -96,6 +91,7 @@ static void publish_status(MQTT_CLIENT_DATA_T *state, bool motion)
 static void mqtt_connection_cb(mqtt_client_t *client, void *arg,
                                mqtt_connection_status_t status)
 {
+
     (void)client;
     MQTT_CLIENT_DATA_T *state = (MQTT_CLIENT_DATA_T *)arg;
 
@@ -115,8 +111,8 @@ static void mqtt_connection_cb(mqtt_client_t *client, void *arg,
 }
 
 // -------------------- Start MQTT --------------------
-static bool start_client(MQTT_CLIENT_DATA_T *state)
-{
+static bool start_client(MQTT_CLIENT_DATA_T *state) {
+    
     state->mqtt_client_inst = mqtt_client_new();
     if (!state->mqtt_client_inst)
     {
@@ -189,9 +185,6 @@ int main()
     for (int i = 0; unique_id_buf[i]; i++)
         unique_id_buf[i] = (char)tolower((unsigned char)unique_id_buf[i]);
     
-
-    // static char client_id[96];
-    // snprintf(client_id, sizeof(client_id), "%s_%s", DEVICE_NAME, unique_id_buf);
     static std::string client_id = std::format("{} {}",DEVICE_NAME,unique_id_buf);
 
     state.mqtt_client_info.client_id = client_id.c_str();
