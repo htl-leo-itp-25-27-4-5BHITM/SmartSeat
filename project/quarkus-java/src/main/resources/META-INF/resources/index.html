@@ -4,53 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Info</title>
+    <title>Smart Seat</title>
     <link rel="stylesheet" href="styles/style.css">
     <script src="scripts/script.js" defer></script>
 </head>
 
 <body>
 
-    <div id="nav">
-        <h1>SmartSeat - Info</h1>
-    </div>
+    <!-- NAV -->
+    <header id="nav">
+        <img src="./assets/img/logo.png" alt="logo">
+        <h1>Smart Seat</h1>
+    </header>
 
+    <main>
+        <div id="floor-box">
+            <div class="floors" onclick="loadFloor(1)">
+                <h2>1.OG</h2>
+                <p id="count1"></p>
+                <img id="selected1" src="./assets/img/selected.png">
+            </div>
 
-    <div id="floor-box">
-        <div class="floors" id="floor_1OG" onclick="loadFloor(1)">
-            <h1>1.OG</h1>
-            <p id="count1"></p>
+            <div class="floors" onclick="loadFloor(2)">
+                <h2>2.OG</h2>
+                <p id="count2"></p>
+                <img id="selected2" src="./assets/img/selected.png">
+            </div>
         </div>
 
-
-        <div class="floors" id="floor_2OG" onclick="loadFloor(2)">
-            <h1>2.OG</h1>
-            <p id="count2"></p>
+        <div id="map">
+            <div class="koje" id="k1"></div>
+            <div class="koje" id="k2"></div>
+            <div class="koje" id="k3"></div>
+            <div class="koje" id="k4"></div>
+            <div class="koje" id="k5"></div>
         </div>
-    </div>
-        <img id="selected1" src="./selected.png" alt="sel">
-        <img id="selected2" src="./selected.png" alt="sel">
 
-    <div id="map">
-        <div class="koje" id="k1"></div>
-        <div class="koje" id="k2"></div>
-        <div class="koje" id="k3"></div>
-        <div class="koje" id="k4"></div>
-        <div class="koje" id="k5"></div>
-    </div>
-
-    <div id="status_info">
-        <div class="status">
-            <div id="g_circle"></div>
-            <h1>Frei</h1>
-            
-        </div>
-        <div class="status">
-            <div id="r_circle"></div>
-            <h1>Besetzt</h1>
-        </div>
-    </div>
+    </main>
 
 </body>
 
 </html>
+
+
+        
