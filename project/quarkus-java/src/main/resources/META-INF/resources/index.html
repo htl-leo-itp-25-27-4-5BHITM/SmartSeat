@@ -5,8 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Seat</title>
-    <link rel="stylesheet" href="styles/style.css">
-    <script src="scripts/script.js" defer></script>
+    <script>
+        let timestamp = new Date().getTime();
+        let link = document.createElement('link');
+        link.rel = 'stylesheet';
+        let script = document.createElement('script');
+        script.defer = true;
+
+        link.href = './styles/style.css' + `?${timestamp}`;
+        script.src = './scripts/script.js' + `?${timestamp}`;
+
+        document.head.appendChild(link);
+        document.head.appendChild(script);
+    </script>
 </head>
 
 <body>

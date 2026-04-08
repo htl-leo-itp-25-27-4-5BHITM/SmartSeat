@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: daniel31507/smartseat-app:latest
+          image: daniel31507/smartseat-app-v2:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
