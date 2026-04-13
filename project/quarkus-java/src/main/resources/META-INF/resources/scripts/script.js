@@ -3,6 +3,9 @@ const floorCountDOM = {
     "2OG": document.getElementById("count2")
 };
 
+const main1 = document.getElementById('main1');
+const main2 = document.getElementById('main2');
+
 let isFirstFloor = true;
 const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
@@ -14,6 +17,15 @@ const seatDOM = {
     4: document.getElementById("k4"),
     5: document.getElementById("k5")
 };
+
+const seatDOM2 = {
+    1: document.getElementById("e1"),
+    2: document.getElementById("e2"),
+    3: document.getElementById("e3"),
+    4: document.getElementById("e4"),
+    5: document.getElementById("e5")
+};
+
 
 const floor1 = document.getElementById("floor_1OG");
 const floor2 = document.getElementById("floor_2OG");
@@ -56,6 +68,17 @@ async function getSeatsByFloor(floor) {
     }
 }
 
+async function getAllUnoccupiedCount() {
+        try {
+            const res = await fetch(`/api/seat/getUnoccupiedCount`);
+            return await res.json();
+        } catch (err) {
+            console.error(err);
+            return [];
+        }
+    }
+
+
 function getUnoccupiedCount(floor) {
     fetch(`/api/seat/getUnoccupiedSeatsByFloor/${floor}`)
         .then(res => res.json())
@@ -82,6 +105,20 @@ function updateSeatClasses(seatData) {
     });
 }
 
+function updateEntryClasses(seatData) {
+    seatData.forEach(seat => {
+        const match = seat.name.match(/Koje\s*(\d+)/i);
+        if (!match) return;
+
+        const num = match[1];
+        const el = seatDOM2[num];
+        if (!el) return;
+
+        el.classList.remove("occupied", "unoccupied");
+        el.classList.add(seat.status ? "unoccupied" : "occupied");
+    });
+}
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
@@ -91,11 +128,12 @@ ws.onopen = () => console.log("Verbunden!");
 ws.onmessage = (e) => {
     let seats = JSON.parse(e.data);
 
-
     if (!Array.isArray(seats)) seats = [seats];
 
     new_data = seats;
     updateSeatClasses(seats);
+    updateEntryClasses(seats);
+    console.log(getAllUnoccupiedCount());
 
     const floors = [...new Set(seats.map(s => s.floor))];
     floors.forEach(floor => getUnoccupiedCount(floor));
@@ -110,3 +148,19 @@ ws.onmessage = (e) => {
 
 ws.onerror = (err) => console.error("Fehler:", err);
 ws.onclose = () => console.log("Verbindung geschlossen");
+
+function loadView(view) {
+    switch (view) {
+        case 1:
+            main1.style.display = 'flex';
+            main2.style.display = 'none';
+            break;
+        case 2:
+            main1.style.display = 'none';
+            main2.style.display = 'flex';
+            break;
+        default:
+            main1.style.display = 'flex';
+            main2.style.display = 'none';
+    }
+}

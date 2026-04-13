@@ -56,6 +56,18 @@ public class SeatResource {
     }
 
     @GET
+    @Path("getUnoccupiedCount")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUnoccupiedCount() {
+        var seats = seatRepository.getUnoccupiedCount();
+        if (seats == -1) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return Response.status(Response.Status.OK).entity(seats).build();
+    }
+
+    @GET
     @Path("changeStatus/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response changeStatus(@PathParam("id") long id) {

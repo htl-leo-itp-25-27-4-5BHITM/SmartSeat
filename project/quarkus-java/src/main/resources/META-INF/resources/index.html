@@ -26,9 +26,14 @@
     <header id="nav">
         <img src="./assets/img/logo.png" alt="logo">
         <h1>Smart Seat</h1>
+        <div id="btns">
+            <button onclick="loadView(1)">Map</button>
+            <button onclick="loadView(2)">List</button>
+        </div>
     </header>
 
-    <main>
+
+    <main id="main1">
         <div id="floor-box">
             <div class="floors" onclick="loadFloor(1)">
                 <h2>1.OG</h2>
@@ -53,9 +58,61 @@
 
     </main>
 
+    <main2 id="main2">
+        <div id="entries">
+            <div class="koje-entry">
+                <div class="infos-entry">
+                    <h1>Koje 1</h1>
+                    <p>1.OG - linker Flügel</p>
+                </div>
+                <div>
+                    <div class="koje2" id="e1"></div>
+                </div>
+            </div>
+
+            <div class="koje-entry">
+                <div class="infos-entry">
+                    <h1>Koje 2</h1>
+                    <p>1.OG - rechter Flügel</p>
+                </div>
+                <div>
+                    <div class="koje2" id="e2"></div>
+                </div>
+            </div>
+
+            <div class="koje-entry">
+                <div class="infos-entry">
+                    <h1>Koje 3</h1>
+                    <p>1.OG - rechter Flügel</p>
+                </div>
+                <div>
+                    <div class="koje2" id="e3"></div>
+                </div>
+            </div>
+
+            <div class="koje-entry">
+                <div class="infos-entry">
+                    <h1>Koje 4</h1>
+                    <p>2.OG - linker Flügel</p>
+                </div>
+                <div>
+                    <div class="koje2" id="e4"></div>
+                </div>
+            </div>
+
+            <div class="koje-entry">
+                <div class="infos-entry">
+                    <h1>Koje 5</h1>
+                    <p>2.OG - rechter Flügel</p>
+                </div>
+                <div>
+                    <div class="koje2" id="e5"></div>
+                </div>
+            </div>
+
+        </div>
+    </main2>
+
 </body>
 
 </html>
-
-
-        

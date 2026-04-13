@@ -183,4 +183,11 @@ public class SeatRepository {
     private String getCronFortyFiveSeconds() {
         return "0/45 * * * * ?";
     }
+
+    public long getUnoccupiedCount() {
+        return em.createQuery(
+                "select count(s) from Seat s where s.status = true",
+                Long.class
+        ).getSingleResult();
+    }
 }
