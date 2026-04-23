@@ -9,6 +9,8 @@ const main2 = document.getElementById('main2');
 let isFirstFloor = true;
 const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
+let occupiedInfo = document.getElementById('occupied-info');
+let occupiedCount = -1;
 
 const seatDOM = {
     1: document.getElementById("k1"),
@@ -39,7 +41,7 @@ async function loadFloor(floorNumber) {
         let isFloor1Seat = ["1", "2", "3"].includes(num);
         seatDOM[num].style.display =
             (floorNumber === 1 && isFloor1Seat) ||
-                (floorNumber === 2 && !isFloor1Seat)
+            (floorNumber === 2 && !isFloor1Seat)
                 ? "block"
                 : "none";
     });
@@ -69,14 +71,14 @@ async function getSeatsByFloor(floor) {
 }
 
 async function getAllUnoccupiedCount() {
-        try {
-            const res = await fetch(`/api/seat/getUnoccupiedCount`);
-            return await res.json();
-        } catch (err) {
-            console.error(err);
-            return [];
-        }
+    try {
+        const res = await fetch(`/api/seat/getUnoccupiedCount`);
+        return await res.json();
+    } catch (err) {
+        console.error(err);
+        return [];
     }
+}
 
 
 function getUnoccupiedCount(floor) {
@@ -84,7 +86,7 @@ function getUnoccupiedCount(floor) {
         .then(res => res.json())
         .then(data => {
             const label = data === 1 ? "Koje" : "Kojen";
-            const color = data === 0 ? "red" : "greenyellow";
+            const color = data === 0 ? "red" : "rgb(29, 195, 98)";
             floorCountDOM[floor].innerText = `${data} ${label} verfügbar`;
             floorCountDOM[floor].style.color = color;
         })
@@ -119,10 +121,42 @@ function updateEntryClasses(seatData) {
     });
 }
 
+function setMessage(count) {
+    let message = "";
+    occupiedInfo.style.display = 'flex';
+
+    switch (count) {
+        case 5:
+            message = "Alle Kojen frei!";
+            break;
+        case 4:
+            message = "4 Kojen frei!";
+            break;
+        case 3:
+            message = "3 Kojen frei!";
+            break;
+        case 2:
+            message = "2 Kojen frei!";
+            break;
+        case 1:
+            message = "1 Koje frei!";
+            break;
+        case 0:
+            message = "Alle Kojen belegt!";
+            break;
+        default:
+            message = "Ungültiger Wert!";
+    }
+    occupiedInfo.innerHTML = `<h2>${message}</h2>`;
+
+    setTimeout(() => {
+        occupiedInfo.style.display = 'none';
+    }, 1500);
+}
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
-
 
 
 ws.onmessage = (e) => {
@@ -133,7 +167,12 @@ ws.onmessage = (e) => {
     new_data = seats;
     updateSeatClasses(seats);
     updateEntryClasses(seats);
-    console.log(getAllUnoccupiedCount());
+    getAllUnoccupiedCount().then(count => {
+        if (occupiedCount === -1 || occupiedCount !== count) {
+            setMessage(count);
+            occupiedCount = count;
+        }
+    });
 
     const floors = [...new Set(seats.map(s => s.floor))];
     floors.forEach(floor => getUnoccupiedCount(floor));
