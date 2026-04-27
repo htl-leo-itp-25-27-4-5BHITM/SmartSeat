@@ -24,36 +24,48 @@ p {
 
 /* ===== NAV ===== */
 #nav {
-    width: 95%;
-    padding-left: 5%;
+    width: 100%;
+    padding: 0 1.5rem;
     height: 10dvh;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    font-size: clamp(1rem, 1.2vw, 1.4rem);
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+#nav-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 #nav img {
-    width: 3vw;
+    width: 40px;
     aspect-ratio: 1;
-    margin-right: 2vw;
+}
+
+/* Buttons */
+#btns {
+    display: flex;
+    gap: 2rem;
 }
 
 #nav button {
+    font-family: 'Poppins', sans-serif;
     border: none;
     outline: none;
     color: white;
-    background: none;
-    font-family: Poppins, sans-serif;
-    font-size: 1.2em;
-    font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    padding: 0.5rem 4.5rem;
+    border-radius: 25px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-#btns {
-    width: 80%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+#nav button:hover {
+    background: rgba(255,255,255,0.25);
 }
 
 /* ===== MAIN ===== */
@@ -116,7 +128,7 @@ main2 {
 /* ===== ENTRY ===== */
 
 #entries {
-    width: 30vw;
+    width: 50vw;
     height: 80vh;
     display: flex;
     flex-direction: column;
@@ -128,7 +140,7 @@ main2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 30vw;
+    width: 80%;
     height: 12vh;
     background: #203540;
     border-radius: 25px;
@@ -246,18 +258,20 @@ main2 {
 /* ===== RESPONSIVE DESIGN ===== */
 
 @media (max-width: 850px) {
-    #nav {
-        width: 100%;
-        padding: 0;
-        height: 10vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: clamp(1rem, 1.2vw, 1.4rem);
+
+    #entries {
+        width: 95vw;
     }
 
-    #nav img {
-        display: none;
+    #occupied-info {
+        top: 10%;
+        width: 30vw;
+        height: 5vh;
+        font-size: 0.8em;
+    }
+
+    #nav button {
+        padding: 0.5rem 3.5rem;
     }
 
     main {
@@ -290,8 +304,58 @@ main2 {
     }
 }
 
+@media (max-width: 700px) {
+    #nav button {
+        padding: 0.5rem 1.5rem;
+    }
 
-@media (max-width: 400px) {
+    #nav {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    #nav-left {
+        justify-content: center;
+    }
+
+    #btns {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #nav button {
+        flex: 1;
+        max-width: 120px;
+    }
+}
+
+
+@media (max-width: 500px) {
+
+    #occupied-info {
+        top: 15%;
+        width: 50vw;
+        height: 5vh;
+        font-size: 0.8em;
+    }
+
+    #occupied-info {
+        top: 15.5%;
+    }
+
+    #entries {
+    font-size: 0.8em;
+    }
+
+    .koje2 {
+        width: 5vw;
+    }
+
+    .koje-entry {
+        width: 80%;
+    }
 
     #floor-box {
 
