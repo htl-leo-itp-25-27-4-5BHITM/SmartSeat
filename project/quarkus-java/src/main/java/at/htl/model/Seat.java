@@ -1,5 +1,8 @@
 package at.htl.model;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
 @Entity
 public class Seat {
 
@@ -15,6 +18,7 @@ public class Seat {
     @Column(name = "unoccupied")
     private boolean status;
 
+    private LocalDateTime lastUpdate;
 
     public Seat ( String name, boolean status) {
         setStatus(status);
@@ -53,5 +57,14 @@ public class Seat {
     public void setLocation(SeatLocation location) {
         this.location = location;
     }
+
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
     //</editor-fold>
 }

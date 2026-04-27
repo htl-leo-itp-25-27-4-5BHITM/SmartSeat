@@ -32,7 +32,7 @@ public class SensorService {
         }
 
         if (!sensorMessage.getStatus()) {
-            System.out.println(seatRepository.changeSensorStatus(sensorMessage));
+            seatRepository.updateSeatFromSensor(sensorMessage);
         }
     }
 }
