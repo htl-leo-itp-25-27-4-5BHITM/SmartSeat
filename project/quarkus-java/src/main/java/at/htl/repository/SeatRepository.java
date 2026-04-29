@@ -26,9 +26,9 @@ public class SeatRepository {
     public void updateSeatFromSensor(SensorMessage msg) {
 
         Seat seat = em.createQuery("""
-            select s from Seat s where s.name = :name
+            select s from Seat s where s.id = :id
             """, Seat.class)
-                .setParameter("name", msg.getName())
+                .setParameter("id", msg.getId())
                 .getSingleResult();
 
         boolean oldStatus = seat.getStatus();

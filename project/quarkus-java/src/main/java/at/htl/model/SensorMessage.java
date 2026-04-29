@@ -2,23 +2,23 @@ package at.htl.model;
 
 public class SensorMessage {
 
-    private String name;
+    private long id;
     private Boolean status;
 
     public SensorMessage() {
     }
 
-    public SensorMessage(String name, Boolean status) {
-        this.name = name;
+    public SensorMessage(long id, Boolean status) {
+        this.id = id;
         this.status = status;
     }
 
-    public String getName() {
-        return name;
+    public long getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public Boolean getStatus() {

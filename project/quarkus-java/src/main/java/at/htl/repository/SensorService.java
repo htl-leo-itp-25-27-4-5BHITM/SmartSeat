@@ -26,12 +26,7 @@ public class SensorService {
         SensorMessage sensorMessage = objectMapper.readValue(payload, SensorMessage.class);
 
         if (!sensorMessage.getStatus()) {
-            System.out.println("<===Übertragung===>");
-            System.out.println(sensorMessage.getName());
-            System.out.println(sensorMessage.getStatus());
-        }
-
-        if (!sensorMessage.getStatus()) {
+            System.out.println("<= UPDATING =>");
             seatRepository.updateSeatFromSensor(sensorMessage);
         }
     }
