@@ -27,3 +27,6 @@ VALUES
     (TIME '15:25'),
     (TIME '16:20'),
     (TIME '17:15');
+
+INSERT INTO duration (seconds)
+VALUES (35);

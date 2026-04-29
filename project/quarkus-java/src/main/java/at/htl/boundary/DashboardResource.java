@@ -15,7 +15,7 @@ public class DashboardResource {
     @Inject
     SeatRepository seatRepository;
 
-    @GET
+    @POST
     @Path("rename")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
