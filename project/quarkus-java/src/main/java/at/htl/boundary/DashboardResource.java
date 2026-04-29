@@ -3,6 +3,7 @@ package at.htl.boundary;
 import at.htl.repository.SeatRepository;
 import at.htl.repository.dto.SeatRenameDTO;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -16,6 +17,7 @@ public class DashboardResource {
     SeatRepository seatRepository;
 
     @POST
+    @Transactional
     @Path("rename")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

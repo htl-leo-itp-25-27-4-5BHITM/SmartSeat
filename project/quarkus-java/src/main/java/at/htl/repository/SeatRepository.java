@@ -70,26 +70,6 @@ public class SeatRepository {
         }
     }
 
-//    @Transactional
-//    public void resetInactiveSeats() {
-//
-//
-//        LocalDateTime threshold = LocalDateTime.now().minusSeconds(35);
-//
-//        int updated = em.createQuery("""
-//                        update Seat s
-//                        set s.status = true
-//                        where s.lastUpdate < :threshold
-//                          and s.status = false
-//                        """)
-//                .setParameter("threshold", threshold)
-//                .executeUpdate();
-//
-//        if (updated > 0) {
-//            ws.broadcastSeatUpdate();
-//        }
-//    }
-
     @Scheduled(every = "10s")
     void checkInactiveSeats() {
         resetInactiveSeats();
@@ -164,8 +144,5 @@ public class SeatRepository {
 
         return new ArrayList<>();
     }
-
-
-
     //</editor-fold>
 }
