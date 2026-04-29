@@ -161,6 +161,10 @@ public class SeatRepository {
         return new ArrayList<>();
     }
 
+    public int getDuration() {
+        return em.find(Duration.class, 1).getSeconds();
+    }
+
     public boolean changeDuration(int newDuration) {
         int updated = em.createQuery("""
                 update Duration d

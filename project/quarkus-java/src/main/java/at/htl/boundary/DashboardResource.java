@@ -30,6 +30,13 @@ public class DashboardResource {
         return Response.status(Response.Status.NOT_FOUND).entity(seats).build();
     }
 
+    @GET
+    @Path("duration")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getDuration() {
+        return Response.status(Response.Status.OK).entity(seatRepository.getDuration()).build();
+    }
+
     @PUT
     @Transactional
     @Path("duration/{seconds}")
