@@ -35,8 +35,10 @@ function editName(id) {
 
     document.getElementById(`box${id}`).innerHTML = `
         <input type="text" id="name${id}" value="${seat.name}">
+    <div class="edit-buttons">
         <button onclick="renameSeat(${id})">Umbenennen</button>
         <button onclick="stopEdit()">Abbrechen</button>
+    </div>
     `;
 }
 

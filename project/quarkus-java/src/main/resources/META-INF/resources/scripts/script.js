@@ -95,10 +95,7 @@ function getUnoccupiedCount(floor) {
 
 function updateSeatClasses(seatData) {
     seatData.forEach(seat => {
-        const match = seat.name.match(/Koje\s*(\d+)/i);
-        if (!match) return;
-
-        const num = match[1];
+        const num = seat.id; // <-- clean mapping
         const el = seatDOM[num];
         if (!el) return;
 
@@ -109,10 +106,7 @@ function updateSeatClasses(seatData) {
 
 function updateEntryClasses(seatData) {
     seatData.forEach(seat => {
-        const match = seat.name.match(/Koje\s*(\d+)/i);
-        if (!match) return;
-
-        const num = match[1];
+        const num = seat.id;
         const el = seatDOM2[num];
         if (!el) return;
 
