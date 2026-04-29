@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Seat Dashboard</title>
+    <script>
+        let timestamp = new Date().getTime();
+        let link = document.createElement('link');
+        link.rel = 'stylesheet';
+        let script = document.createElement('script');
+        script.defer = true;
+
+        link.href = './styles/dashboard.css' + `?${timestamp}`;
+        script.src = './scripts/dashboard.js' + `?${timestamp}`;
+
+        document.head.appendChild(link);
+        document.head.appendChild(script);
+    </script>
+</head>
+<body>
+<header id="nav">
+    <div id="nav-left">
+        <img src="./assets/img/logo.png" alt="logo">
+        <h1>Dashboard</h1>
+    </div>
+</header>
+
+<main>
+    <section id="section1">
+
+    </section>
+
+</main>
+
+</body>
+</html>

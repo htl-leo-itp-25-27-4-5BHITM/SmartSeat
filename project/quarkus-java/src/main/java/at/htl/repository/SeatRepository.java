@@ -70,7 +70,7 @@ public class SeatRepository {
     public List<SeatInformationDTO> getAllSeats() {
         return em.createQuery("""
                 select new at.htl.repository.dto.SeatInformationDTO(
-                    c.name, c.status, se.floor, se.wing
+                    c.id, c.name, c.status, se.floor, se.wing
                 )
                 from Seat c
                 join SeatLocation se on se.id = c.location.id
@@ -93,7 +93,7 @@ public class SeatRepository {
     }
 
     public List<SeatInformationDTO> getSeatByFloor(String floor) {
-        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.name, c.status, se.floor, se.wing)" +
+        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.id, c.name, c.status, se.floor, se.wing)" +
                 "from Seat c" +
                 " join SeatLocation se on c.location.id = se.id " +
                 " where lower(se.floor) like lower(:floor) order by c.id desc", SeatInformationDTO.class);

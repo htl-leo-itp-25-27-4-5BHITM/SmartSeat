@@ -1,0 +1,47 @@
+@font-face {
+    font-family: Poppins;
+    src: url(../assets/font/Poppins-Regular.ttf);
+}
+
+/* ===== BASE ===== */
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: Poppins, sans-serif;
+    color: white;
+    background: linear-gradient(180deg, rgb(16, 72, 110) 0%, rgb(20, 58, 151) 100%);
+}
+
+h1 {
+    padding: 0;
+    margin: 0;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+}
+
+/* ===== NAV ===== */
+#nav {
+    width: 100%;
+    padding: 0 1.5rem;
+    height: 10dvh;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    box-sizing: border-box;
+}
+
+#nav-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#nav img {
+    width: 40px;
+    aspect-ratio: 1;
+}
