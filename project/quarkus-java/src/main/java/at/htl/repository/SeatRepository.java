@@ -153,10 +153,24 @@ public class SeatRepository {
             if (updated > 0) {
                 return getAllSeats();
             }
+
+            ws.broadcastSeatUpdate();
         }
 
 
         return new ArrayList<>();
     }
+
+    public boolean changeDuration(int newDuration) {
+        int updated = em.createQuery("""
+                update Duration d
+                set d.seconds = :newDuration
+                """)
+                .setParameter("newDuration", newDuration)
+                .executeUpdate();
+
+        return updated > 0;
+    }
+
     //</editor-fold>
 }

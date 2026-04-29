@@ -29,4 +29,16 @@ public class DashboardResource {
 
         return Response.status(Response.Status.NOT_FOUND).entity(seats).build();
     }
+
+    @PUT
+    @Transactional
+    @Path("duration/{seconds}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response changeDuration(@PathParam("seconds") int seconds) {
+        if (seatRepository.changeDuration(seconds)) {
+            return Response.status(Response.Status.OK).build();
+        }
+
+        return Response.status(Response.Status.BAD_REQUEST).build();
+    }
 }
