@@ -1,8 +1,10 @@
 package at.htl.repository;
 
+import at.htl.model.Duration;
 import at.htl.model.Seat;
 import at.htl.model.SensorMessage;
 import at.htl.repository.dto.SeatInformationDTO;
+import at.htl.repository.dto.SeatRenameDTO;
 import at.htl.sockets.SeatWebSocket;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -26,8 +29,8 @@ public class SeatRepository {
     public void updateSeatFromSensor(SensorMessage msg) {
 
         Seat seat = em.createQuery("""
-            select s from Seat s where s.id = :id
-            """, Seat.class)
+                        select s from Seat s where s.id = :id
+                        """, Seat.class)
                 .setParameter("id", msg.getId())
                 .getSingleResult();
 
@@ -45,14 +48,20 @@ public class SeatRepository {
 
     @Transactional
     public void resetInactiveSeats() {
-        LocalDateTime threshold = LocalDateTime.now().minusSeconds(35);
+
+        var query = em.createQuery("""
+                select d from Duration d
+                """, Duration.class);
+
+
+        LocalDateTime threshold = LocalDateTime.now().minusSeconds(query.getResultList().getFirst().getSeconds());
 
         int updated = em.createQuery("""
-                update Seat s
-                set s.status = true
-                where s.lastUpdate < :threshold
-                  and s.status = false
-                """)
+                        update Seat s
+                        set s.status = true
+                        where s.lastUpdate < :threshold
+                          and s.status = false
+                        """)
                 .setParameter("threshold", threshold)
                 .executeUpdate();
 
@@ -60,6 +69,26 @@ public class SeatRepository {
             ws.broadcastSeatUpdate();
         }
     }
+
+//    @Transactional
+//    public void resetInactiveSeats() {
+//
+//
+//        LocalDateTime threshold = LocalDateTime.now().minusSeconds(35);
+//
+//        int updated = em.createQuery("""
+//                        update Seat s
+//                        set s.status = true
+//                        where s.lastUpdate < :threshold
+//                          and s.status = false
+//                        """)
+//                .setParameter("threshold", threshold)
+//                .executeUpdate();
+//
+//        if (updated > 0) {
+//            ws.broadcastSeatUpdate();
+//        }
+//    }
 
     @Scheduled(every = "10s")
     void checkInactiveSeats() {
@@ -69,13 +98,13 @@ public class SeatRepository {
     //<editor-fold desc="Basic Functions">
     public List<SeatInformationDTO> getAllSeats() {
         return em.createQuery("""
-                select new at.htl.repository.dto.SeatInformationDTO(
-                    c.id, c.name, c.status, se.floor, se.wing
-                )
-                from Seat c
-                join SeatLocation se on se.id = c.location.id
-                order by c.id desc
-                """, SeatInformationDTO.class)
+                        select new at.htl.repository.dto.SeatInformationDTO(
+                            c.id, c.name, c.status, se.floor, se.wing
+                        )
+                        from Seat c
+                        join SeatLocation se on se.id = c.location.id
+                        order by c.id desc
+                        """, SeatInformationDTO.class)
                 .getResultList();
     }
 
@@ -118,5 +147,25 @@ public class SeatRepository {
 
         return query.getSingleResult();
     }
+
+    public List<SeatInformationDTO> renameSeat(SeatRenameDTO seatRenameDTO) {
+        int updated = em.createQuery("""
+                        update Seat s
+                        set s.name = :newName
+                        where s.id = :id
+                        """)
+                .setParameter("newName", seatRenameDTO.name())
+                .setParameter("id", seatRenameDTO.id())
+                .executeUpdate();
+
+        if (updated > 0) {
+            return getAllSeats();
+        }
+
+        return new ArrayList<>();
+    }
+
+
+
     //</editor-fold>
 }
