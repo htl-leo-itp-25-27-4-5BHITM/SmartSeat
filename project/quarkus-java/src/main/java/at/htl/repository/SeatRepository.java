@@ -128,19 +128,33 @@ public class SeatRepository {
         return query.getSingleResult();
     }
 
+    public int checkNameExistence(String name) {
+        var query = em.createQuery("""
+                select s from Seat s where s.name = :name
+                """, Seat.class);
+
+        query.setParameter("name", name);
+
+        return query.getResultList().size();
+    }
+
     public List<SeatInformationDTO> renameSeat(SeatRenameDTO seatRenameDTO) {
-        int updated = em.createQuery("""
+
+        if (checkNameExistence(seatRenameDTO.name()) == 0) {
+            int updated = em.createQuery("""
                         update Seat s
                         set s.name = :newName
                         where s.id = :id
                         """)
-                .setParameter("newName", seatRenameDTO.name())
-                .setParameter("id", seatRenameDTO.id())
-                .executeUpdate();
+                    .setParameter("newName", seatRenameDTO.name())
+                    .setParameter("id", seatRenameDTO.id())
+                    .executeUpdate();
 
-        if (updated > 0) {
-            return getAllSeats();
+            if (updated > 0) {
+                return getAllSeats();
+            }
         }
+
 
         return new ArrayList<>();
     }
