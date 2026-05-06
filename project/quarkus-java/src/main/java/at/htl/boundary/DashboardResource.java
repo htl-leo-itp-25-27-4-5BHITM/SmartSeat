@@ -52,4 +52,30 @@ public class DashboardResource {
 
         return Response.status(Response.Status.NOT_FOUND).build();
     }
+
+    @GET
+    @Path("histories")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllHistoriesAVG() {
+        var result = seatRepository.getAVGHistories();
+        if (result != null) {
+            return Response.status(Response.Status.OK).entity(result).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+
+    @GET
+    @Path("history/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHistoryAVGByID(@PathParam("id") long id) {
+        var result = seatRepository.getHistoryAVG(id);
+        if (result != null) {
+            return Response.status(Response.Status.OK).entity(result).build();
+        }
+
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
 }

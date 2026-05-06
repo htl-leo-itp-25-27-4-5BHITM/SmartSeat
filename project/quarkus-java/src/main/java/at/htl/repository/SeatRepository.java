@@ -1,10 +1,12 @@
 package at.htl.repository;
 
 import at.htl.model.Duration;
+import at.htl.model.History;
 import at.htl.model.Seat;
 import at.htl.model.SensorMessage;
 import at.htl.repository.dto.SeatInformationDTO;
 import at.htl.repository.dto.SeatRenameDTO;
+import at.htl.repository.dto.SeatTimeAverageDTO;
 import at.htl.sockets.SeatWebSocket;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -57,16 +59,57 @@ public class SeatRepository {
 
         LocalDateTime threshold = LocalDateTime.now().minusSeconds(query.getResultList().getFirst().getSeconds());
 
-        int updated = em.createQuery("""
-                        update Seat s
-                        set s.status = true, s.occupiedSince = null
-                        where s.lastUpdate < :threshold
-                          and s.status = false
-                        """)
-                .setParameter("threshold", threshold)
-                .executeUpdate();
 
-        if (updated > 0) {
+        var current = LocalDateTime.now();
+
+//        int insertQuery = em.createQuery("""
+//                            insert into History (seat, timePassed)
+//                             select s, :current - s.occupiedSince
+//                             from Seat s
+//                             where s.lastUpdate < :threshold
+//                             and s.status = false
+//                            """)
+//                .setParameter("current", current)
+//                .setParameter("threshold", threshold)
+//                .executeUpdate();
+//
+//
+//        int updated = em.createQuery("""
+//                        update Seat s
+//                        set s.status = true, s.occupiedSince = null
+//                        where s.lastUpdate < :threshold
+//                          and s.status = false
+//                        """)
+//                .setParameter("threshold", threshold)
+//                .executeUpdate();
+//
+//        if (updated > 0 && insertQuery > 0) {
+//            ws.broadcastSeatUpdate();
+//        }
+
+        var seats = em.createQuery("""
+                            select s from Seat s
+                            where s.lastUpdate < :threshold
+                              and s.status = false
+                        """, Seat.class)
+                .setParameter("threshold", threshold)
+                .getResultList();
+
+        for (Seat s : seats) {
+
+            java.time.Duration duration = java.time.Duration.between(s.getOccupiedSince(), current);
+
+            History history = new History();
+            history.setSeat(s);
+            history.setTimePassed(duration.toSeconds());
+
+            em.persist(history);
+
+            s.setStatus(true);
+            s.setOccupiedSince(null);
+        }
+
+        if (!seats.isEmpty()) {
             ws.broadcastSeatUpdate();
         }
     }
@@ -173,6 +216,24 @@ public class SeatRepository {
                 .executeUpdate();
 
         return updated > 0;
+    }
+
+    public Double getAVGHistories() {
+        var query = em.createQuery("""
+                select avg(h.timePassed) from History h
+                """, Double.class);
+
+        return query.getSingleResult();
+    }
+
+    public SeatTimeAverageDTO getHistoryAVG(long id) {
+        var query = em.createQuery("""
+                select new at.htl.repository.dto.SeatTimeAverageDTO(h.seat.id, avg(h.timePassed)) from History h where h.seat.id = :id
+                group by seat
+                """, SeatTimeAverageDTO.class)
+                .setParameter("id", id);
+
+        return query.getSingleResult();
     }
 
     //</editor-fold>
