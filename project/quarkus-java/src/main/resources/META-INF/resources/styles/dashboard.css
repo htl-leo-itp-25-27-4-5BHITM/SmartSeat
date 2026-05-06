@@ -53,24 +53,38 @@ p {
 
 /* ===== DASHBOARD ===== */
 #dashboard {
-    width: 50%;
+    width: 100%;
     height: 90%;
     padding: 5%;
     gap: 5%;
+    display: flex;
 }
 
 #section1 {
-    width: 100%;
+    width: 50%;
     height: 100%;
-    grid-column: 1 / span 2;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
     padding: 1rem;
 }
 
+#section2 {
+    width: 25%;
+    height: 25%;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+#section3 {
+    width: 25%;
+    height: 25%;
+    gap: 1rem;
+    padding: 1rem;
+}
+
 .seat {
-    background-color: #d8d8d8;
+    background-color: #ffffff;
     color: #203540;
     border-radius: 25px;
     padding: 1rem;
@@ -81,7 +95,7 @@ p {
     height: 100%;
 }
 
-.seat button {
+.seat button, #duration-button {
     font-family: 'Poppins', sans-serif;
     background-color: #2e60d8;
     color: white;
@@ -102,7 +116,7 @@ p {
     justify-content: center;
 }
 
-.seat input {
+input {
     max-width: 100%;
     width: 100%;
     padding: 0.5rem 0.75rem;
@@ -118,14 +132,19 @@ p {
     color: #203540;
 }
 
-.seat input:focus {
+input:focus {
     box-shadow: 0 0 0 2px #2e60d8;
+}
+
+button:disabled {
+    background-color: #9aa4c7;
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 
 section {
     background: #203540;
     border-radius: 25px;
-    border: 3px solid white;
+    border: 4px solid white;
 }
-

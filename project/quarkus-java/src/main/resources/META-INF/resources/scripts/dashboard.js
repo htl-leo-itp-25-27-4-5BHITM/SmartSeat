@@ -7,8 +7,18 @@ async function getAllSeats() {
         return [];
     }
 }
+async function getDuration() {
+    try {
+        const res = await fetch(`/api/dashboard/duration`);
+        return await res.json();
+    } catch (err) {
+        console.error(err);
+        return [];
+    }
+}
 
 let seatsData = [];
+let duration;
 
 function renderSeats() {
     let html = '';
@@ -28,6 +38,10 @@ function renderSeats() {
 getAllSeats().then(seats => {
     seatsData = seats;
     renderSeats();
+});
+getDuration().then(d => {
+    duration = d;
+    document.getElementById('duration').value = duration;
 });
 
 function editName(id) {
@@ -94,6 +108,45 @@ async function renameSeat(id) {
 
     } catch (err) {
         console.error("Fetch Fehler:", err);
+        alert("Netzwerkfehler");
+    }
+}
+
+function activateButton() {
+    let d = document.getElementById('duration').value;
+    let button = document.getElementById('duration-button');
+
+    if (Number(d) === Number(duration)) {
+        button.disabled = true;
+    } else {
+        button.disabled = false;
+    }
+}
+
+async function updateDuration() {
+    let d = document.getElementById('duration').value;
+
+    if (!d) return;
+
+    try {
+        const res = await fetch(`/api/dashboard/duration/${d}`, {
+            method: "PUT"
+        });
+
+        if (res.ok) {
+            duration = Number(d);
+            activateButton();
+
+        } else if (res.status === 400) {
+            alert("Ungültiger Wert (muss > 10 sein)");
+        } else if (res.status === 404) {
+            alert("Wert zu klein");
+        } else {
+            alert("Fehler beim Speichern");
+        }
+
+    } catch (err) {
+        console.error(err);
         alert("Netzwerkfehler");
     }
 }

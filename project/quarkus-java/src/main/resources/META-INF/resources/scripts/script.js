@@ -6,7 +6,6 @@ const floorCountDOM = {
 const main1 = document.getElementById('main1');
 const main2 = document.getElementById('main2');
 
-let isFirstFloor = true;
 const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
 let occupiedInfo = document.getElementById('occupied-info');
@@ -28,9 +27,13 @@ const seatDOM2 = {
     5: document.getElementById("e5")
 };
 
-
-const floor1 = document.getElementById("floor_1OG");
-const floor2 = document.getElementById("floor_2OG");
+const nameDom = {
+    1: document.getElementById("name1"),
+    2: document.getElementById("name2"),
+    3: document.getElementById("name3"),
+    4: document.getElementById("name4"),
+    5: document.getElementById("name5")
+};
 
 
 async function loadFloor(floorNumber) {
@@ -108,15 +111,17 @@ function updateEntryClasses(seatData) {
     seatData.forEach(seat => {
         const num = seat.id;
         const el = seatDOM2[num];
+        const name = nameDom[num];
         if (!el) return;
 
+        name.textContent = seat.name;
         el.classList.remove("occupied", "unoccupied");
         el.classList.add(seat.status ? "unoccupied" : "occupied");
     });
 }
 
 function setMessage(count) {
-    let message = "";
+    let message;
     occupiedInfo.style.display = 'flex';
 
     switch (count) {
@@ -158,7 +163,6 @@ ws.onmessage = (e) => {
 
     if (!Array.isArray(seats)) seats = [seats];
 
-    new_data = seats;
     updateSeatClasses(seats);
     updateEntryClasses(seats);
     getAllUnoccupiedCount().then(count => {
@@ -171,29 +175,15 @@ ws.onmessage = (e) => {
     const floors = [...new Set(seats.map(s => s.floor))];
     floors.forEach(floor => getUnoccupiedCount(floor));
 
-    if (isFirstFloor) {
-        loadFloor(1);
-    } else {
-        loadFloor(2);
-    }
-
+    loadFloor(1);
 };
 
 ws.onerror = (err) => console.error("Fehler:", err);
 ws.onclose = () => console.log("Verbindung geschlossen");
 
 function loadView(view) {
-    switch (view) {
-        case 1:
-            main1.style.display = 'flex';
-            main2.style.display = 'none';
-            break;
-        case 2:
-            main1.style.display = 'none';
-            main2.style.display = 'flex';
-            break;
-        default:
-            main1.style.display = 'flex';
-            main2.style.display = 'none';
-    }
+    const showMain1 = view === 1;
+
+    main1.style.display = showMain1 ? 'flex' : 'none';
+    main2.style.display = showMain1 ? 'none' : 'flex';
 }

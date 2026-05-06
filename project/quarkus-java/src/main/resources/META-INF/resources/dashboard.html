@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Seat Dashboard</title>
     <script>
-        let timestamp = new Date().getTime();
+    let timestamp = new Date().getTime();
         let link = document.createElement('link');
         link.rel = 'stylesheet';
         let script = document.createElement('script');
@@ -30,7 +30,13 @@
     <section id="section1">
     </section>
 
+    <section id="section2">
+        <input type="number" min="11" max="100" id="duration" onchange="activateButton()">
+        <button disabled id="duration-button" onclick="updateDuration()">Updaten</button>
+    </section>
 
+    <section id="section3">
+    </section>
 </main>
 
 </body>
