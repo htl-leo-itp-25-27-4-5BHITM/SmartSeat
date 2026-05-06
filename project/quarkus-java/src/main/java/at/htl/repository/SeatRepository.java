@@ -41,6 +41,7 @@ public class SeatRepository {
 
         if (oldStatus != newStatus) {
             seat.setStatus(newStatus);
+            seat.setOccupiedSince(LocalDateTime.now());
 
             ws.broadcastSeatUpdate();
         }
@@ -58,7 +59,7 @@ public class SeatRepository {
 
         int updated = em.createQuery("""
                         update Seat s
-                        set s.status = true
+                        set s.status = true, s.occupiedSince = null
                         where s.lastUpdate < :threshold
                           and s.status = false
                         """)
@@ -79,7 +80,7 @@ public class SeatRepository {
     public List<SeatInformationDTO> getAllSeats() {
         return em.createQuery("""
                         select new at.htl.repository.dto.SeatInformationDTO(
-                            c.id, c.name, c.status, se.floor, se.wing
+                            c.id, c.name, c.status, se.floor, se.wing, c.occupiedSince
                         )
                         from Seat c
                         join SeatLocation se on se.id = c.location.id
@@ -102,7 +103,7 @@ public class SeatRepository {
     }
 
     public List<SeatInformationDTO> getSeatByFloor(String floor) {
-        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.id, c.name, c.status, se.floor, se.wing)" +
+        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.id, c.name, c.status, se.floor, se.wing, c.occupiedSince)" +
                 "from Seat c" +
                 " join SeatLocation se on c.location.id = se.id " +
                 " where lower(se.floor) like lower(:floor) order by c.id desc", SeatInformationDTO.class);
@@ -142,10 +143,10 @@ public class SeatRepository {
 
         if (checkNameExistence(seatRenameDTO.name()) == 0) {
             int updated = em.createQuery("""
-                        update Seat s
-                        set s.name = :newName
-                        where s.id = :id
-                        """)
+                            update Seat s
+                            set s.name = :newName
+                            where s.id = :id
+                            """)
                     .setParameter("newName", seatRenameDTO.name())
                     .setParameter("id", seatRenameDTO.id())
                     .executeUpdate();
@@ -167,9 +168,9 @@ public class SeatRepository {
 
     public boolean changeDuration(int newDuration) {
         int updated = em.createQuery("""
-                update Duration d
-                set d.seconds = :newDuration
-                """)
+                        update Duration d
+                        set d.seconds = :newDuration
+                        """)
                 .setParameter("newDuration", newDuration)
                 .executeUpdate();
 

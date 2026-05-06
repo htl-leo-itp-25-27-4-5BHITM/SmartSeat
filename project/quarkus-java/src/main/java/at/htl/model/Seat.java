@@ -20,6 +20,8 @@ public class Seat {
 
     private LocalDateTime lastUpdate;
 
+    private LocalDateTime occupiedSince;
+
     public Seat ( String name, boolean status) {
         setStatus(status);
         setName(name);
@@ -64,6 +66,14 @@ public class Seat {
 
     public void setLastUpdate(LocalDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public LocalDateTime getOccupiedSince() {
+        return occupiedSince;
+    }
+
+    public void setOccupiedSince(LocalDateTime occupiedSince) {
+        this.occupiedSince = occupiedSince;
     }
 
     //</editor-fold>
