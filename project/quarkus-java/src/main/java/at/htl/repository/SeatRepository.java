@@ -152,12 +152,10 @@ public class SeatRepository {
                     .executeUpdate();
 
             if (updated > 0) {
+                ws.broadcastSeatUpdate();
                 return getAllSeats();
             }
-
-            ws.broadcastSeatUpdate();
         }
-
 
         return new ArrayList<>();
     }
