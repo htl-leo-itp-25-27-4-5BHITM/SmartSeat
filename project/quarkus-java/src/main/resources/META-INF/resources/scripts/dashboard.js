@@ -151,7 +151,7 @@ ws.onmessage = (e) => {
         <ol>
             ${data.map(item => `
                 <li>
-                    Seat ${item.name} – ${item.average} Sekunden
+                    ${item.name} – ${item.average} Sekunden
                 </li>
             `).join("")}
         </ol>
