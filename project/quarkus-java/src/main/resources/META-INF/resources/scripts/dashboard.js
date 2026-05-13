@@ -1,12 +1,3 @@
-async function getAllSeats() {
-    try {
-        const res = await fetch(`/api/seat/getAllSeats`);
-        return await res.json();
-    } catch (err) {
-        console.error(err);
-        return [];
-    }
-}
 async function getDuration() {
     try {
         const res = await fetch(`/api/dashboard/duration`);
@@ -19,6 +10,11 @@ async function getDuration() {
 
 let seatsData = [];
 let duration;
+
+getDuration().then(d => {
+    duration = Number(d);
+    document.getElementById('duration').value = duration;
+});
 
 function renderSeats() {
     let html = '';
@@ -35,14 +31,6 @@ function renderSeats() {
     document.getElementById("section1").innerHTML = html;
 }
 
-getAllSeats().then(seats => {
-    seatsData = seats;
-    renderSeats();
-});
-getDuration().then(d => {
-    duration = d;
-    document.getElementById('duration').value = duration;
-});
 
 function editName(id) {
     const seat = seatsData.find(s => s.id === id);
@@ -62,52 +50,24 @@ function stopEdit() {
 
 
 async function renameSeat(id) {
-    const input = document.getElementById(`name${id}`);
-    const newName = input?.value?.trim();
+    const name = document.getElementById(`name${id}`)?.value.trim();
 
-    if (!newName) {
-        alert("Name darf nicht leer sein");
-        return;
-    }
+    if (!name) return alert("Name darf nicht leer sein");
 
     try {
         const res = await fetch("/api/dashboard/rename", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                id: id,
-                name: newName
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, name })
         });
 
-        if (!res.ok) {
-            const text = await res.text();
-            console.error("Serverfehler:", res.status, text);
-            alert("Änderung nicht akzeptiert");
-            return;
-        }
+        if (!res.ok) return alert("Fehler beim Umbenennen");
 
-        const updatedSeats = await res.json();
-
-        if (!Array.isArray(updatedSeats)) {
-            console.error("Unerwartete Antwort:", updatedSeats);
-            alert("Ungültige Serverantwort");
-            return;
-        }
-
-        if (updatedSeats.length === 0) {
-            alert("Keine Daten zurückgegeben");
-            return;
-        }
-
-        seatsData = updatedSeats;
-
+        seatsData = await res.json();
         renderSeats();
 
     } catch (err) {
-        console.error("Fetch Fehler:", err);
+        console.error(err);
         alert("Netzwerkfehler");
     }
 }
@@ -150,3 +110,55 @@ async function updateDuration() {
         alert("Netzwerkfehler");
     }
 }
+
+async function getAverageWaitingTimesBySeat() {
+    try {
+        const res = await fetch('/api/dashboard/histories');
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        }
+
+        return await res.json();
+
+    } catch (err) {
+        console.error('Failed to load histories:', err);
+        return [];
+    }
+}
+
+
+
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
+ws.onopen = () => console.log("Verbunden!");
+
+
+ws.onmessage = (e) => {
+    let seats = JSON.parse(e.data);
+
+    if (!Array.isArray(seats)) seats = [seats];
+    seatsData = seats;
+
+    renderSeats()
+
+    getAverageWaitingTimesBySeat().then(data => {
+        data.sort((a, b) => b.average - a.average);
+
+        const leaderboard = document.getElementById("section3");
+
+        leaderboard.innerHTML = `
+        <ol>
+            ${data.map(item => `
+                <li>
+                    Seat ${item.name} – ${item.average} Sekunden
+                </li>
+            `).join("")}
+        </ol>
+    `;
+    });
+
+};
+
+ws.onerror = (err) => console.error("Fehler:", err);
+ws.onclose = () => console.log("Verbindung geschlossen");

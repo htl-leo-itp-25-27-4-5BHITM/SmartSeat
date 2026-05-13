@@ -218,7 +218,7 @@ public class SeatRepository {
         return updated > 0;
     }
 
-    public Double getAVGHistories() {
+    public Double getAverageTimePassed() {
         var query = em.createQuery("""
                 select avg(h.timePassed) from History h
                 """, Double.class);
@@ -226,10 +226,23 @@ public class SeatRepository {
         return query.getSingleResult();
     }
 
-    public SeatTimeAverageDTO getHistoryAVG(long id) {
+    public List<SeatTimeAverageDTO> getAverageWaitingTimesBySeat() {
+        return em.createQuery("""
+            select new at.htl.repository.dto.SeatTimeAverageDTO(
+                h.seat.id,
+                h.seat.name,
+                avg(h.timePassed)
+            )
+            from History h
+            group by h.seat.id, h.seat.name
+            """, SeatTimeAverageDTO.class)
+                .getResultList();
+    }
+
+    public SeatTimeAverageDTO getAverageWaitingTimesForId(long id) {
         var query = em.createQuery("""
-                select new at.htl.repository.dto.SeatTimeAverageDTO(h.seat.id, avg(h.timePassed)) from History h where h.seat.id = :id
-                group by seat
+                select new at.htl.repository.dto.SeatTimeAverageDTO(h.seat.id, h.seat.name, avg(h.timePassed)) from History h where h.seat.id = :id
+                group by h.seat.id, h.seat.name
                 """, SeatTimeAverageDTO.class)
                 .setParameter("id", id);
 

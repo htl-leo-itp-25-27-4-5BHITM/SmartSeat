@@ -17,17 +17,21 @@ public class DashboardResource {
     SeatRepository seatRepository;
 
     @POST
-    @Transactional
     @Path("rename")
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response renameSeat(SeatRenameDTO seatRenameDTO) {
-        var seats = seatRepository.renameSeat(seatRenameDTO);
-        if (!seats.isEmpty()) {
-            return Response.status(Response.Status.OK).entity(seats).build();
+    public Response renameSeat(SeatRenameDTO dto) {
+
+        var seats = seatRepository.renameSeat(dto);
+
+        if (seats.isEmpty()) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Name existiert bereits")
+                    .build();
         }
 
-        return Response.status(Response.Status.NOT_FOUND).entity(seats).build();
+        return Response.ok(seats).build();
     }
 
     @GET
@@ -56,26 +60,21 @@ public class DashboardResource {
     @GET
     @Path("histories")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllHistoriesAVG() {
-        var result = seatRepository.getAVGHistories();
-        if (result != null) {
-            return Response.status(Response.Status.OK).entity(result).build();
-        }
-
-        return Response.status(Response.Status.NOT_FOUND).build();
+    public Response getAverageWaitingTimesBySeat() {
+        return Response.ok(seatRepository.getAverageWaitingTimesBySeat()).build();
     }
-
 
     @GET
     @Path("history/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getHistoryAVGByID(@PathParam("id") long id) {
-        var result = seatRepository.getHistoryAVG(id);
-        if (result != null) {
-            return Response.status(Response.Status.OK).entity(result).build();
+
+        var result = seatRepository.getAverageWaitingTimesForId(id);
+
+        if (result == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
 
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.ok(result).build();
     }
-
 }
