@@ -223,6 +223,22 @@ main2 {
     animation: pulse 0.3s ease-out;
 }
 
+#seat-tooltip {
+    position: absolute;
+    display: none;
+    padding: 0.4rem 0.8rem;
+    background: #203540;
+    color: white;
+    border: 2px solid white;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    pointer-events: none;
+
+    transform: translate(-50%, -120%);
+    z-index: 1000;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);

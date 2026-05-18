@@ -149,11 +149,26 @@ ws.onmessage = (e) => {
 
         leaderboard.innerHTML = `
         <ol>
-            ${data.map(item => `
-                <li>
-                    ${item.name} – ${item.average} Sekunden
-                </li>
-            `).join("")}
+            ${data.map(item => {
+            const seconds = Math.round(item.average);
+
+            let formattedTime;
+
+            if (seconds >= 60) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+
+                formattedTime = `${minutes} Min ${remainingSeconds} Sek`;
+            } else {
+                formattedTime = `${seconds} Sekunden`;
+            }
+
+            return `
+                    <li>
+                        ${item.name} – ${formattedTime}
+                    </li>
+                `;
+        }).join("")}
         </ol>
     `;
     });

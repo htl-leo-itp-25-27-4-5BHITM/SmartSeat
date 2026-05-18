@@ -10,6 +10,8 @@ const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
 let occupiedInfo = document.getElementById('occupied-info');
 let occupiedCount = -1;
+let seatsData = []
+let currentFloor = 1;
 
 const seatDOM = {
     1: document.getElementById("k1"),
@@ -60,6 +62,7 @@ async function loadFloor(floorNumber) {
         selected2.style.display = "block";
     }
 
+    currentFloor = floorNumber;
     getUnoccupiedCount(floorCode);
 }
 
@@ -96,14 +99,122 @@ function getUnoccupiedCount(floor) {
         .catch(err => console.error(err));
 }
 
+const tooltip = document.getElementById("seat-tooltip");
+
+let activeSeatId = null;
+let tooltipInterval = null;
+
 function updateSeatClasses(seatData) {
+
     seatData.forEach(seat => {
-        const num = seat.id; // <-- clean mapping
+
+        const num = seat.id;
         const el = seatDOM[num];
+
         if (!el) return;
 
         el.classList.remove("occupied", "unoccupied");
         el.classList.add(seat.status ? "unoccupied" : "occupied");
+
+        el.onmouseover = null;
+        el.onmouseleave = null;
+
+        el.onmouseover = () => {
+
+            activeSeatId = seat.id;
+
+            clearInterval(tooltipInterval);
+
+            const updateTooltip = () => {
+
+                if (activeSeatId !== seat.id) return;
+
+                const currentSeat =
+                    seatsData.find(s => s.id === seat.id) || seat;
+
+                let text = currentSeat.name;
+
+                // status false = besetzt
+                if (currentSeat.status === false) {
+
+                    if (currentSeat.occupiedSince) {
+
+                        // ISO-Fix
+                        const since = new Date(
+                            currentSeat.occupiedSince
+                        );
+
+                        const now = new Date();
+
+                        const diffMs = now - since;
+
+                        const totalSeconds =
+                            Math.floor(diffMs / 1000);
+
+                        const hours =
+                            Math.floor(totalSeconds / 3600);
+
+                        const minutes =
+                            Math.floor((totalSeconds % 3600) / 60);
+
+                        const seconds =
+                            totalSeconds % 60;
+
+                        let timeString = "";
+
+                        if (hours > 0) {
+
+                            timeString =
+                                `${hours}h ${minutes}m ${seconds}s`;
+
+                        } else if (minutes > 0) {
+
+                            timeString =
+                                `${minutes}m ${seconds}s`;
+
+                        } else {
+
+                            timeString =
+                                `${seconds}s`;
+                        }
+
+                        text +=
+                            `\nBesetzt seit: ${timeString}`;
+
+                    } else {
+
+                        text +=
+                            `\nGerade eben besetzt`;
+                    }
+                }
+
+                tooltip.innerText = text;
+            };
+
+            updateTooltip();
+
+            tooltip.style.display = "block";
+
+            tooltip.style.left =
+                el.offsetLeft +
+                el.offsetWidth / 2 +
+                "px";
+
+            tooltip.style.top =
+                el.offsetTop + "px";
+
+            tooltipInterval =
+                setInterval(updateTooltip, 1000);
+        };
+
+        el.onmouseleave = () => {
+
+            activeSeatId = null;
+
+            tooltip.style.display = "none";
+
+            clearInterval(tooltipInterval);
+        };
     });
 }
 
@@ -157,11 +268,11 @@ const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
 
-
 ws.onmessage = (e) => {
     let seats = JSON.parse(e.data);
 
     if (!Array.isArray(seats)) seats = [seats];
+    seatsData = seats;
 
     updateSeatClasses(seats);
     updateEntryClasses(seats);
@@ -175,7 +286,7 @@ ws.onmessage = (e) => {
     const floors = [...new Set(seats.map(s => s.floor))];
     floors.forEach(floor => getUnoccupiedCount(floor));
 
-    loadFloor(1);
+    loadFloor(currentFloor);
 };
 
 ws.onerror = (err) => console.error("Fehler:", err);
