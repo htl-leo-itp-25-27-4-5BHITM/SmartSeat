@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ApplicationScoped
 public class SeatRepository {
@@ -27,97 +28,91 @@ public class SeatRepository {
     @Inject
     SeatWebSocket ws;
 
+    private final ConcurrentHashMap<Long, LocalDateTime> inactiveCheckMap =
+            new ConcurrentHashMap<>();
+
+
     @Transactional
     public void updateSeatFromSensor(SensorMessage msg) {
 
-        Seat seat = em.createQuery("""
-                        select s from Seat s where s.id = :id
-                        """, Seat.class)
-                .setParameter("id", msg.getId())
-                .getSingleResult();
+        Seat seat = em.find(Seat.class, msg.getId());
+
+        if (seat == null) {
+            return;
+        }
 
         boolean oldStatus = seat.getStatus();
         boolean newStatus = msg.getStatus();
 
-        seat.setLastUpdate(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
 
         if (oldStatus != newStatus) {
+
             seat.setStatus(newStatus);
-            seat.setOccupiedSince(LocalDateTime.now());
+
+            if (!newStatus) {
+                seat.setOccupiedSince(now);
+                inactiveCheckMap.put(seat.getId(), now);
+            } else {
+                seat.setOccupiedSince(null);
+                inactiveCheckMap.remove(seat.getId());
+            }
 
             ws.broadcastSeatUpdate();
+        } else {
+            if (!newStatus) {
+                inactiveCheckMap.put(seat.getId(), now);
+            }
         }
     }
 
+
+    @Scheduled(every = "1s")
     @Transactional
-    public void resetInactiveSeats() {
+    void checkInactiveSeats() {
 
-        var query = em.createQuery("""
-                select d from Duration d
-                """, Duration.class);
+        int durationSeconds = em.find(Duration.class, 1).getSeconds();
 
+        LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime threshold = LocalDateTime.now().minusSeconds(query.getResultList().getFirst().getSeconds());
+        List<Long> seatsToRemove = new ArrayList<>();
 
+        for (var entry : inactiveCheckMap.entrySet()) {
 
-        var current = LocalDateTime.now();
+            Long seatId = entry.getKey();
+            LocalDateTime lastSeen = entry.getValue();
 
-//        int insertQuery = em.createQuery("""
-//                            insert into History (seat, timePassed)
-//                             select s, :current - s.occupiedSince
-//                             from Seat s
-//                             where s.lastUpdate < :threshold
-//                             and s.status = false
-//                            """)
-//                .setParameter("current", current)
-//                .setParameter("threshold", threshold)
-//                .executeUpdate();
-//
-//
-//        int updated = em.createQuery("""
-//                        update Seat s
-//                        set s.status = true, s.occupiedSince = null
-//                        where s.lastUpdate < :threshold
-//                          and s.status = false
-//                        """)
-//                .setParameter("threshold", threshold)
-//                .executeUpdate();
-//
-//        if (updated > 0 && insertQuery > 0) {
-//            ws.broadcastSeatUpdate();
-//        }
+            if (lastSeen.plusSeconds(durationSeconds).isBefore(now)) {
 
-        var seats = em.createQuery("""
-                            select s from Seat s
-                            where s.lastUpdate < :threshold
-                              and s.status = false
-                        """, Seat.class)
-                .setParameter("threshold", threshold)
-                .getResultList();
+                Seat seat = em.find(Seat.class, seatId);
 
-        for (Seat s : seats) {
+                if (seat != null && !seat.getStatus()) {
 
-            java.time.Duration duration = java.time.Duration.between(s.getOccupiedSince(), current);
+                    long seconds = java.time.Duration
+                            .between(seat.getOccupiedSince(), now)
+                            .toSeconds();
 
-            History history = new History();
-            history.setSeat(s);
-            history.setTimePassed(duration.toSeconds());
+                    History history = new History();
+                    history.setSeat(seat);
+                    history.setTimePassed(seconds);
 
-            em.persist(history);
+                    em.persist(history);
 
-            s.setStatus(true);
-            s.setOccupiedSince(null);
+                    seat.setStatus(true);
+                    seat.setOccupiedSince(null);
+                }
+
+                seatsToRemove.add(seatId);
+            }
         }
 
-        if (!seats.isEmpty()) {
+        seatsToRemove.forEach(inactiveCheckMap::remove);
+
+        if (!seatsToRemove.isEmpty()) {
             ws.broadcastSeatUpdate();
         }
     }
 
-    @Scheduled(every = "10s")
-    void checkInactiveSeats() {
-        resetInactiveSeats();
-    }
 
     //<editor-fold desc="Basic Functions">
     public List<SeatInformationDTO> getAllSeats() {
@@ -134,47 +129,89 @@ public class SeatRepository {
 
     @Transactional
     public boolean changeStatus(Long id) {
+
         if (id <= 5 && id >= 1) {
+
             try {
-                em.find(Seat.class, id).setStatus(!em.find(Seat.class, id).getStatus());
+
+                Seat seat = em.find(Seat.class, id);
+
+                boolean newStatus = !seat.getStatus();
+
+                seat.setStatus(newStatus);
+
+                if (newStatus) {
+                    inactiveCheckMap.remove(id);
+                    seat.setOccupiedSince(null);
+                } else {
+                    LocalDateTime now = LocalDateTime.now();
+                    inactiveCheckMap.put(id, now);
+                    seat.setOccupiedSince(now);
+                }
+
             } catch (Exception e) {
                 return false;
             }
+
             return true;
         }
+
         return false;
     }
 
     public List<SeatInformationDTO> getSeatByFloor(String floor) {
-        var query = em.createQuery("select new at.htl.repository.dto.SeatInformationDTO(c.id, c.name, c.status, se.floor, se.wing, c.occupiedSince)" +
-                "from Seat c" +
-                " join SeatLocation se on c.location.id = se.id " +
-                " where lower(se.floor) like lower(:floor) order by c.id desc", SeatInformationDTO.class);
+
+        var query = em.createQuery("""
+                select new at.htl.repository.dto.SeatInformationDTO(
+                    c.id,
+                    c.name,
+                    c.status,
+                    se.floor,
+                    se.wing,
+                    c.occupiedSince
+                )
+                from Seat c
+                join SeatLocation se on c.location.id = se.id
+                where lower(se.floor) like lower(:floor)
+                order by c.id desc
+                """, SeatInformationDTO.class);
+
         query.setParameter("floor", floor);
+
         return query.getResultList();
     }
 
     public long getUnoccupiedCount() {
-        return em.createQuery(
-                "select count(s) from Seat s where s.status = true",
-                Long.class
-        ).getSingleResult();
+
+        return em.createQuery("""
+                select count(s)
+                from Seat s
+                where s.status = true
+                """, Long.class)
+                .getSingleResult();
     }
 
     public long getUnoccupiedByFloor(String floor) {
-        var query = em.createQuery("select count(c)" +
-                " from Seat c " +
-                " join SeatLocation se on c.location.id = se.id" +
-                " where lower(se.floor) like lower(:floor)" +
-                "and c.status = true", Long.class);
+
+        var query = em.createQuery("""
+                select count(c)
+                from Seat c
+                join SeatLocation se on c.location.id = se.id
+                where lower(se.floor) like lower(:floor)
+                and c.status = true
+                """, Long.class);
+
         query.setParameter("floor", floor);
 
         return query.getSingleResult();
     }
 
     public int checkNameExistence(String name) {
+
         var query = em.createQuery("""
-                select s from Seat s where s.name = :name
+                select s
+                from Seat s
+                where s.name = :name
                 """, Seat.class);
 
         query.setParameter("name", name);
@@ -182,9 +219,11 @@ public class SeatRepository {
         return query.getResultList().size();
     }
 
+    @Transactional
     public List<SeatInformationDTO> renameSeat(SeatRenameDTO seatRenameDTO) {
 
         if (checkNameExistence(seatRenameDTO.name()) == 0) {
+
             int updated = em.createQuery("""
                             update Seat s
                             set s.name = :newName
@@ -195,7 +234,9 @@ public class SeatRepository {
                     .executeUpdate();
 
             if (updated > 0) {
+
                 ws.broadcastSeatUpdate();
+
                 return getAllSeats();
             }
         }
@@ -204,10 +245,13 @@ public class SeatRepository {
     }
 
     public int getDuration() {
+
         return em.find(Duration.class, 1).getSeconds();
     }
 
+    @Transactional
     public boolean changeDuration(int newDuration) {
+
         int updated = em.createQuery("""
                         update Duration d
                         set d.seconds = :newDuration
@@ -219,14 +263,17 @@ public class SeatRepository {
     }
 
     public Double getAverageTimePassed() {
+
         var query = em.createQuery("""
-                select avg(h.timePassed) from History h
+                select avg(h.timePassed)
+                from History h
                 """, Double.class);
 
         return query.getSingleResult();
     }
 
     public List<SeatTimeAverageDTO> getAverageWaitingTimesBySeat() {
+
         return em.createQuery("""
             select new at.htl.repository.dto.SeatTimeAverageDTO(
                 h.seat.id,
@@ -240,8 +287,15 @@ public class SeatRepository {
     }
 
     public SeatTimeAverageDTO getAverageWaitingTimesForId(long id) {
+
         var query = em.createQuery("""
-                select new at.htl.repository.dto.SeatTimeAverageDTO(h.seat.id, h.seat.name, avg(h.timePassed)) from History h where h.seat.id = :id
+                select new at.htl.repository.dto.SeatTimeAverageDTO(
+                    h.seat.id,
+                    h.seat.name,
+                    avg(h.timePassed)
+                )
+                from History h
+                where h.seat.id = :id
                 group by h.seat.id, h.seat.name
                 """, SeatTimeAverageDTO.class)
                 .setParameter("id", id);

@@ -14,19 +14,8 @@ VALUES
     ('Koje 4', true, 3),
     ('Koje 5', true, 4);
 
-
-INSERT INTO endtimes (endtime)
-VALUES
-    (TIME '08:50'),
-    (TIME '09:45'),
-    (TIME '10:50'),
-    (TIME '11:45'),
-    (TIME '12:40'),
-    (TIME '13:35'),
-    (TIME '14:30'),
-    (TIME '15:25'),
-    (TIME '16:20'),
-    (TIME '17:15');
-
 INSERT INTO duration (seconds)
 VALUES (35);
+
+INSERT INTO users (username, password) VALUES ('admin',
+'$2a$10$U2CGyz7osq40XL50dbdkL.MRUIca1RDnnq/k5U6PVFFLKikpmrrcq');

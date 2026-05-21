@@ -1,3 +1,18 @@
+window.onload = () => {
+
+    const loggedIn = sessionStorage.getItem("loggedIn");
+
+    if (loggedIn === "true") {
+
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+
+    } else {
+        document.getElementById("login-screen").style.display = "flex";
+        document.getElementById("app").style.display = "none";
+    }
+};
+
 async function getDuration() {
     try {
         const res = await fetch(`/api/dashboard/duration`);
@@ -21,9 +36,9 @@ function renderSeats() {
 
     for (let seat of seatsData.slice().reverse()) {
         html += `
-            <div class="seat" id="box${seat.id}">
+            <div class="seat" id="box${seat.id}" onclick="editName(${seat.id})">
                 <h3>${seat.name}</h3>
-                <button onclick="editName(${seat.id})">Bearbeiten</button>
+                <p>Klicken zum Bearbeiten</p>
             </div>
         `;
     }
@@ -36,11 +51,24 @@ function editName(id) {
     const seat = seatsData.find(s => s.id === id);
 
     document.getElementById(`box${id}`).innerHTML = `
-        <input type="text" id="name${id}" value="${seat.name}">
-    <div class="edit-buttons">
-        <button onclick="renameSeat(${id})">Umbenennen</button>
-        <button onclick="stopEdit()">Abbrechen</button>
-    </div>
+ <input 
+    type="text" 
+    id="name${id}" 
+    value="${seat.name}"
+    onkeydown="handleRename(event, ${id})"
+    onclick="event.stopPropagation()"
+    autofocus
+>
+
+        <div class="edit-buttons">
+       <button onclick="event.stopPropagation(); renameSeat(${id})">
+    Speichern
+</button>
+
+<button onclick="event.stopPropagation(); stopEdit()">
+    Abbrechen
+</button>
+        </div>
     `;
 }
 
@@ -48,6 +76,15 @@ function stopEdit() {
     renderSeats();
 }
 
+function handleRename(event, id) {
+    if (event.key === "Enter") {
+        renameSeat(id);
+    }
+
+    if (event.key === "Escape") {
+        stopEdit();
+    }
+}
 
 async function renameSeat(id) {
     const name = document.getElementById(`name${id}`)?.value.trim();
@@ -76,11 +113,7 @@ function activateButton() {
     let d = document.getElementById('duration').value;
     let button = document.getElementById('duration-button');
 
-    if (Number(d) === Number(duration)) {
-        button.disabled = true;
-    } else {
-        button.disabled = false;
-    }
+    button.disabled = Number(d) === Number(duration);
 }
 
 async function updateDuration() {
@@ -143,11 +176,12 @@ ws.onmessage = (e) => {
     renderSeats()
 
     getAverageWaitingTimesBySeat().then(data => {
-        data.sort((a, b) => b.average - a.average);
+        data.sort((a, b) => a.average - b.average);
 
         const leaderboard = document.getElementById("section3");
 
         leaderboard.innerHTML = `
+        <h2 class="panel-title">Leaderboard</h2>
         <ol>
             ${data.map(item => {
             const seconds = Math.round(item.average);
@@ -177,3 +211,29 @@ ws.onmessage = (e) => {
 
 ws.onerror = (err) => console.error("Fehler:", err);
 ws.onclose = () => console.log("Verbindung geschlossen");
+
+async function login() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+
+    const res = await fetch("/api/user/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    if (!res.ok) {
+        document.getElementById("login-error").innerText =
+            "Falscher Benutzername oder Passwort";
+        return;
+    }
+
+    sessionStorage.setItem("loggedIn", "true");
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+}

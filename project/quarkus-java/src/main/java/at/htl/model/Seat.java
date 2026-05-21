@@ -18,8 +18,6 @@ public class Seat {
     @Column(name = "unoccupied")
     private boolean status;
 
-    private LocalDateTime lastUpdate;
-
     private LocalDateTime occupiedSince;
 
     public Seat ( String name, boolean status) {
@@ -58,14 +56,6 @@ public class Seat {
 
     public void setLocation(SeatLocation location) {
         this.location = location;
-    }
-
-    public LocalDateTime getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(LocalDateTime lastUpdate) {
-        this.lastUpdate = lastUpdate;
     }
 
     public LocalDateTime getOccupiedSince() {

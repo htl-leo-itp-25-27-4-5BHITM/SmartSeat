@@ -19,25 +19,76 @@
     </script>
 </head>
 <body>
-<header id="nav">
-    <div id="nav-left">
+
+<!-- LOGIN -->
+<div id="login-screen">
+    <div id="login-box">
         <img src="./assets/img/logo.png" alt="logo">
-        <h1>Dashboard</h1>
+
+        <h2>Smart Seat Login</h2>
+
+        <input
+                type="text"
+                id="username"
+                placeholder="Benutzername"
+        >
+
+        <input
+                type="password"
+                id="password"
+                placeholder="Passwort"
+        >
+
+        <button onclick="login()">
+            Login
+        </button>
+
+        <p id="login-error"></p>
     </div>
-</header>
+</div>
 
-<main id="dashboard">
-    <section id="section1">
-    </section>
+<!-- DASHBOARD -->
+<div id="app" style="display: none;">
 
-    <section id="section2">
-        <input type="number" min="11" max="100" id="duration" onchange="activateButton()">
-        <button disabled id="duration-button" onclick="updateDuration()">Updaten</button>
-    </section>
+    <header id="nav">
+        <div id="nav-left">
+            <img src="./assets/img/logo.png" alt="logo">
+            <h1>Dashboard</h1>
+        </div>
+    </header>
 
-    <section id="section3">
-    </section>
-</main>
+    <main id="dashboard">
+
+        <section id="section1">
+        </section>
+
+        <section id="section2">
+            <h2 class="panel-title">Dauer</h2>
+
+            <input
+                    type="number"
+                    min="11"
+                    max="100"
+                    id="duration"
+                    onchange="activateButton()"
+            >
+
+            <button
+                    disabled
+                    id="duration-button"
+                    onclick="updateDuration()"
+            >
+                Updaten
+            </button>
+        </section>
+
+        <section id="section3">
+            <h2 class="panel-title">Leaderboard</h2>
+        </section>
+
+    </main>
+
+</div>
 
 </body>
 </html>

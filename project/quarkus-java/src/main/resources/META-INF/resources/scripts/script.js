@@ -134,15 +134,19 @@ function updateSeatClasses(seatData) {
 
                 let text = currentSeat.name;
 
-                // status false = besetzt
                 if (currentSeat.status === false) {
 
                     if (currentSeat.occupiedSince) {
 
-                        // ISO-Fix
-                        const since = new Date(
-                            currentSeat.occupiedSince
-                        );
+                        const rawDate = currentSeat.occupiedSince;
+
+                        const normalizedDate =
+                            rawDate.includes("T") &&
+                            !/Z$|[+-]\d{2}:\d{2}$/.test(rawDate)
+                                ? rawDate + "+02:00"
+                                : rawDate;
+
+                        const since = new Date(normalizedDate);
 
                         const now = new Date();
 
