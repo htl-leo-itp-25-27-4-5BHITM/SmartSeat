@@ -338,3 +338,17 @@ button:disabled {
     font-size: 0.9rem;
     min-height: 20px;
 }
+
+#changed-info {
+    position: fixed;
+    top: 2.5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 27.5vw;
+    height: 7.5vh;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25px;
+    background-color: #203540;
+}

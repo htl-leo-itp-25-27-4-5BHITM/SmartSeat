@@ -5,17 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Seat Dashboard</title>
     <script>
-    let timestamp = new Date().getTime();
+        let timestamp = new Date().getTime();
         let link = document.createElement('link');
         link.rel = 'stylesheet';
         let script = document.createElement('script');
         script.defer = true;
+        let favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/png';
 
         link.href = './styles/dashboard.css' + `?${timestamp}`;
         script.src = './scripts/dashboard.js' + `?${timestamp}`;
+        favicon.href = './assets/img/favicon.ico?' + timestamp;
 
         document.head.appendChild(link);
         document.head.appendChild(script);
+        document.head.appendChild(favicon);
     </script>
 </head>
 <body>
@@ -78,7 +83,7 @@
                     id="duration-button"
                     onclick="updateDuration()"
             >
-                Updaten
+                Speichern
             </button>
         </section>
 
@@ -88,6 +93,7 @@
 
     </main>
 
+    <div id="changed-info"></div>
 </div>
 
 </body>

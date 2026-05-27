@@ -11,12 +11,17 @@
         link.rel = 'stylesheet';
         let script = document.createElement('script');
         script.defer = true;
+        let favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/png';
 
         link.href = './styles/style.css' + `?${timestamp}`;
         script.src = './scripts/script.js' + `?${timestamp}`;
+        favicon.href = './assets/img/favicon.ico?' + timestamp;
 
         document.head.appendChild(link);
         document.head.appendChild(script);
+        document.head.appendChild(favicon);
     </script>
 </head>
 

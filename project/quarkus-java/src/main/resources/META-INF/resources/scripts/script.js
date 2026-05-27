@@ -10,7 +10,8 @@ const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
 let occupiedInfo = document.getElementById('occupied-info');
 let occupiedCount = -1;
-let seatsData = []
+let seatsData = [];
+let averageWaitingTimes = {};
 let currentFloor = 1;
 
 const seatDOM = {
@@ -184,6 +185,39 @@ function updateSeatClasses(seatData) {
 
                         text +=
                             `\nBesetzt seit: ${timeString}`;
+                        // const averageWaitingTime =
+                        //     averageWaitingTimes[currentSeat.id];
+                        //
+                        // if (averageWaitingTime) {
+                        //
+                        //     const estimatedEnd =
+                        //         new Date(
+                        //             since.getTime() +
+                        //             averageWaitingTime * 1000
+                        //         );
+                        //
+                        //     const now = new Date();
+                        //
+                        //     if (now > estimatedEnd) {
+                        //
+                        //         text +=
+                        //             `\nLänger als erwartet`;
+                        //
+                        //     } else {
+                        //
+                        //         const estimatedTime =
+                        //             estimatedEnd.toLocaleTimeString(
+                        //                 "de-DE",
+                        //                 {
+                        //                     hour: "2-digit",
+                        //                     minute: "2-digit"
+                        //                 }
+                        //             );
+                        //
+                        //         text +=
+                        //             `\nWahrscheinlich frei bis: ${estimatedTime}`;
+                        //     }
+                        // }
 
                     } else {
 
@@ -268,12 +302,42 @@ function setMessage(count) {
     }, 1500);
 }
 
+// async function getAverageWaitingTimesBySeat() {
+//     try {
+//         const res = await fetch('/api/dashboard/histories');
+//
+//         if (!res.ok) {
+//             throw new Error(`HTTP ${res.status}`);
+//         }
+//
+//         return await res.json();
+//
+//     } catch (err) {
+//         console.error('Failed to load histories:', err);
+//         return [];
+//     }
+// }
+//
+// async function loadAverageWaitingTimes() {
+//
+//     const histories = await getAverageWaitingTimesBySeat();
+//
+//     averageWaitingTimes = {};
+//
+//     histories.forEach(entry => {
+//
+//         averageWaitingTimes[entry.seat_id] =
+//             entry.average;
+//     });
+// }
+
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
 const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
 ws.onopen = () => console.log("Verbunden!");
 
 ws.onmessage = (e) => {
     let seats = JSON.parse(e.data);
+    // loadAverageWaitingTimes();
 
     if (!Array.isArray(seats)) seats = [seats];
     seatsData = seats;

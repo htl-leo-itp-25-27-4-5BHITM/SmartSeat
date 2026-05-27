@@ -25,6 +25,7 @@ async function getDuration() {
 
 let seatsData = [];
 let duration;
+let changedInfoBox = document.getElementById('changed-info');
 
 getDuration().then(d => {
     duration = Number(d);
@@ -94,11 +95,24 @@ async function renameSeat(id) {
     try {
         const res = await fetch("/api/dashboard/rename", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id, name })
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({id, name})
         });
 
-        if (!res.ok) return alert("Fehler beim Umbenennen");
+        if (!res.ok) {
+            changedInfoBox.innerHTML = `<h2> Fehler beim Umbenennen! </h2>`;
+            changedInfoBox.style.display = 'flex';
+            setTimeout(() => {
+                changedInfoBox.style.display = 'none';
+            }, 2000);
+            return;
+        }
+
+        changedInfoBox.innerHTML = `<h2> Erfolgreich umbenannt! </h2>`;
+        changedInfoBox.style.display = 'flex';
+        setTimeout(() => {
+            changedInfoBox.style.display = 'none';
+        }, 2000);
 
         seatsData = await res.json();
         renderSeats();
@@ -129,14 +143,20 @@ async function updateDuration() {
         if (res.ok) {
             duration = Number(d);
             activateButton();
+            changedInfoBox.innerHTML = `<h2> Duration bearbeitet! </h2>`;
 
         } else if (res.status === 400) {
-            alert("Ungültiger Wert (muss > 10 sein)");
+            changedInfoBox.innerHTML = `<h2> Ungültiger Wert (muss > 10 sein) </h2>`;
         } else if (res.status === 404) {
-            alert("Wert zu klein");
+            changedInfoBox.innerHTML = `<h2>Wert zu klein</h2>`;
         } else {
-            alert("Fehler beim Speichern");
+            changedInfoBox.innerHTML = `<h2> Fehler beim Speichern </h2>`;
         }
+
+        changedInfoBox.style.display = 'flex';
+        setTimeout(() => {
+            changedInfoBox.style.display = 'none';
+        }, 2000);
 
     } catch (err) {
         console.error(err);
@@ -159,7 +179,6 @@ async function getAverageWaitingTimesBySeat() {
         return [];
     }
 }
-
 
 
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
