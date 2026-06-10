@@ -1,3 +1,7 @@
+<script
+        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0">
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -27,101 +31,108 @@
 
 <body>
 
-    <!-- NAV -->
-    <header id="nav">
-        <div id="nav-left">
-            <img src="./assets/img/logo.png" alt="logo">
-            <h1>Smart Seat</h1>
+<!-- NAV -->
+<header id="nav">
+    <div id="nav-left">
+        <img src="./assets/img/logo.png" alt="logo">
+        <h1>Smart Seat</h1>
+    </div>
+
+    <div id="btns">
+        <button onclick="loadView(1)">Map</button>
+        <button onclick="loadView(2)">List</button>
+    </div>
+</header>
+
+
+<main id="main1">
+    <div id="floor-box">
+        <div class="floors" onclick="loadFloor(1)">
+            <h2>1.OG</h2>
+            <p id="count1"></p>
+            <img id="selected1" src="./assets/img/selected.png">
         </div>
 
-        <div id="btns">
-            <button onclick="loadView(1)">Map</button>
-            <button onclick="loadView(2)">List</button>
+        <div class="floors" onclick="loadFloor(2)">
+            <h2>2.OG</h2>
+            <p id="count2"></p>
+            <img id="selected2" src="./assets/img/selected.png">
         </div>
-    </header>
+    </div>
 
+    <div id="map">
+        <div class="koje" id="k1"></div>
+        <div class="koje" id="k2"></div>
+        <div class="koje" id="k3"></div>
+        <div class="koje" id="k4"></div>
+        <div class="koje" id="k5"></div>
+        <div id="seat-tooltip"></div>
+    </div>
 
-    <main id="main1">
-        <div id="floor-box">
-            <div class="floors" onclick="loadFloor(1)">
-                <h2>1.OG</h2>
-                <p id="count1"></p>
-                <img id="selected1" src="./assets/img/selected.png">
+</main>
+
+<main2 id="main2">
+    <div id="entries">
+        <div class="koje-entry">
+            <div class="infos-entry">
+                <h1 id="name1">Koje 1</h1>
+                <p>1.OG - linker Flügel</p>
             </div>
-
-            <div class="floors" onclick="loadFloor(2)">
-                <h2>2.OG</h2>
-                <p id="count2"></p>
-                <img id="selected2" src="./assets/img/selected.png">
-            </div>
-        </div>
-
-        <div id="map">
-            <div class="koje" id="k1"></div>
-            <div class="koje" id="k2"></div>
-            <div class="koje" id="k3"></div>
-            <div class="koje" id="k4"></div>
-            <div class="koje" id="k5"></div>
-            <div id="seat-tooltip"></div>
-        </div>
-
-    </main>
-
-    <main2 id="main2">
-        <div id="entries">
-            <div class="koje-entry">
-                <div class="infos-entry" >
-                    <h1 id="name1">Koje 1</h1>
-                    <p>1.OG - linker Flügel</p>
-                </div>
-                <div>
-                    <div class="koje2" id="e1"></div>
-                </div>
-            </div>
-
-            <div class="koje-entry">
-                <div class="infos-entry" >
-                    <h1 id="name2">Koje 2</h1>
-                    <p>1.OG - rechter Flügel</p>
-                </div>
-                <div>
-                    <div class="koje2" id="e2"></div>
-                </div>
-            </div>
-
-            <div class="koje-entry">
-                <div class="infos-entry" >
-                    <h1 id="name3">Koje 3</h1>
-                    <p>1.OG - rechter Flügel</p>
-                </div>
-                <div>
-                    <div class="koje2" id="e3"></div>
-                </div>
-            </div>
-
-            <div class="koje-entry">
-                <div class="infos-entry" >
-                    <h1 id="name4">Koje 4</h1>
-                    <p>2.OG - linker Flügel</p>
-                </div>
-                <div>
-                    <div class="koje2" id="e4"></div>
-                </div>
-            </div>
-
-            <div class="koje-entry">
-                <div class="infos-entry" >
-                    <h1 id="name5">Koje 5</h1>
-                    <p>2.OG - rechter Flügel</p>
-                </div>
-                <div>
-                    <div class="koje2" id="e5"></div>
-                </div>
+            <div>
+                <div class="koje2" id="e1"></div>
             </div>
         </div>
-    </main2>
 
-    <div id="occupied-info"></div>
+        <div class="koje-entry">
+            <div class="infos-entry">
+                <h1 id="name2">Koje 2</h1>
+                <p>1.OG - rechter Flügel</p>
+            </div>
+            <div>
+                <div class="koje2" id="e2"></div>
+            </div>
+        </div>
+
+        <div class="koje-entry">
+            <div class="infos-entry">
+                <h1 id="name3">Koje 3</h1>
+                <p>1.OG - rechter Flügel</p>
+            </div>
+            <div>
+                <div class="koje2" id="e3"></div>
+            </div>
+        </div>
+
+        <div class="koje-entry">
+            <div class="infos-entry">
+                <h1 id="name4">Koje 4</h1>
+                <p>2.OG - linker Flügel</p>
+            </div>
+            <div>
+                <div class="koje2" id="e4"></div>
+            </div>
+        </div>
+
+        <div class="koje-entry">
+            <div class="infos-entry">
+                <h1 id="name5">Koje 5</h1>
+                <p>2.OG - rechter Flügel</p>
+            </div>
+            <div>
+                <div class="koje2" id="e5"></div>
+            </div>
+        </div>
+    </div>
+</main2>
+
+<div id="occupied-info"></div>
+
+
+<main3>
+    <canvas id="myChart" style="width:100%;max-width:700px">
+        
+    </canvas>
+</main3>
 
 
 </body>

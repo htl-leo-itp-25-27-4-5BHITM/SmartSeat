@@ -55,7 +55,7 @@ p {
     border: none;
     outline: none;
     color: white;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 0.5rem 4.5rem;
     border-radius: 25px;
     font-weight: 800;
@@ -65,7 +65,7 @@ p {
 }
 
 #nav button:hover {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* ===== MAIN ===== */
@@ -239,6 +239,12 @@ main2 {
     z-index: 1000;
 }
 
+#myChart {
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 2vh;
+    padding: 1%;
+}
+
 @keyframes pulse {
     0% {
         transform: scale(1);
@@ -361,7 +367,7 @@ main2 {
     }
 
     #entries {
-    font-size: 0.8em;
+        font-size: 0.8em;
     }
 
     .koje2 {

@@ -342,6 +342,7 @@ ws.onmessage = (e) => {
     if (!Array.isArray(seats)) seats = [seats];
     seatsData = seats;
 
+    loadChart();
     updateSeatClasses(seats);
     updateEntryClasses(seats);
     getAllUnoccupiedCount().then(count => {
@@ -366,3 +367,106 @@ function loadView(view) {
     main1.style.display = showMain1 ? 'flex' : 'none';
     main2.style.display = showMain1 ? 'none' : 'flex';
 }
+
+function loadChart() {
+    let newDate = new Date();
+
+    let date = newDate.getFullYear() + "-";
+
+    if (newDate.getMonth() < 10) {
+        date += "0" + (newDate.getMonth() + 1);
+    } else {
+        date += (newDate.getMonth() + 1);
+    }
+
+    date += "-"
+
+    if (newDate.getDate() < 10) {
+        date += "0" + newDate.getDate();
+    } else {
+        date += newDate.getDate();
+    }
+
+    console.log(date)
+
+    let xValues = [];
+    let yValues = [];
+
+    fetch(`/api/dashboard/history/count/${date}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data)
+            for (let i = 0; i < data.length; i++) {
+                xValues.push(data[i].name);
+                yValues.push(data[i].count)
+            }
+
+            console.log(xValues)
+            console.log(yValues)
+
+            const barColors = ["#AECCFC", "#7a9ab0", "#ebf7ff", "#d8efff", "#ffffff"];
+
+            let ctx = document.getElementById('myChart')
+
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: xValues,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: yValues,
+                        barThickness: 100,
+                        borderRadius: 20,
+                        borderColor: "black",
+                        borderWidth: 2,
+                        borderStyle: "solid"
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {display: false},
+                        title: {
+                            display: true,
+                            text: "Am häufigsten besetzte Kojen",
+                            font: {size: 20},
+                            color: "#0370ff"
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: "white",
+                                lineWidth: 1.5
+                            },
+                            ticks: {
+                                color: "#0370ff",
+                                font: {
+                                    family: "Poppins",
+                                    size: 20,
+                                    weight: "bold"
+                                }
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: "white",
+                                lineWidth: 1.5
+                            },
+                            ticks: {
+                                color: "#0370ff",
+                                font: {
+                                    family: "Poppins",
+                                    size: 15,
+                                    weight: "bold"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(err => console.error(err));
+
+
+}
+
