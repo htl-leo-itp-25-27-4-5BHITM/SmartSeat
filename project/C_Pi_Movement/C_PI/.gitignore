@@ -7,3 +7,4 @@ CMakeFiles
 build
 MqttConf.h
 eclipse-paho-mqtt.c
+.env
