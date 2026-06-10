@@ -1,6 +1,7 @@
 package at.htl.boundary;
 
 import at.htl.repository.SeatRepository;
+import at.htl.repository.dto.HistorySeatCountDTO;
 import at.htl.repository.dto.SeatRenameDTO;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -9,6 +10,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.beans.ConstructorProperties;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Path("dashboard")
 public class DashboardResource {
@@ -76,5 +80,22 @@ public class DashboardResource {
         }
 
         return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/history/count/{date}")
+    public Response countHistoryByDate(@PathParam("date") String date) {
+        try {
+            LocalDate d = LocalDate.parse(date);
+            List<HistorySeatCountDTO> seatCountDTOS =
+                    seatRepository.countHistoryForDateAndSeat(d);
+
+            return Response.ok(seatCountDTOS).build();
+
+        } catch (DateTimeParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Ungültiges Datumsformat. Erwartet: yyyy-MM-dd")
+                    .build();
+        }
     }
 }

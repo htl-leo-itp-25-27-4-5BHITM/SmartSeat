@@ -3,6 +3,7 @@ package at.htl.model;
 import jakarta.persistence.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Entity
 public class History {
@@ -16,14 +17,16 @@ public class History {
 
     private long timePassed;
 
-    public History(Seat seat, long timePassed) {
+    private LocalDateTime endedAt;
+
+    public History(Seat seat, long timePassed, LocalDateTime endedAt) {
         this.seat = seat;
         this.timePassed = timePassed;
+        this.endedAt = endedAt;
     }
 
     public History() {
     }
-
 
     public long getId() {
         return id;
@@ -47,5 +50,13 @@ public class History {
 
     public void setTimePassed(long timePassed) {
         this.timePassed = timePassed;
+    }
+
+    public LocalDateTime getEndedAt() {
+        return endedAt;
+    }
+
+    public void setEndedAt(LocalDateTime endedAt) {
+        this.endedAt = endedAt;
     }
 }

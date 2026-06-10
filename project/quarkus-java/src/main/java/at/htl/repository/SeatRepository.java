@@ -4,6 +4,7 @@ import at.htl.model.Duration;
 import at.htl.model.History;
 import at.htl.model.Seat;
 import at.htl.model.SensorMessage;
+import at.htl.repository.dto.HistorySeatCountDTO;
 import at.htl.repository.dto.SeatInformationDTO;
 import at.htl.repository.dto.SeatRenameDTO;
 import at.htl.repository.dto.SeatTimeAverageDTO;
@@ -14,6 +15,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +97,7 @@ public class SeatRepository {
                     History history = new History();
                     history.setSeat(seat);
                     history.setTimePassed(seconds);
+                    history.setEndedAt(LocalDateTime.now());
 
                     em.persist(history);
 
@@ -301,6 +304,39 @@ public class SeatRepository {
                 .setParameter("id", id);
 
         return query.getSingleResult();
+    }
+
+    public long countHistoryForDate(LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        return em.createQuery("""
+            select count(h)
+            from History h
+            where h.endedAt >= :start
+              and h.endedAt < :end
+            """, Long.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getSingleResult();
+    }
+
+    public List<HistorySeatCountDTO> countHistoryForDateAndSeat(LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.plusDays(1).atStartOfDay();
+
+        return em.createQuery("""
+            select new at.htl.repository.dto.HistorySeatCountDTO(
+            h.seat.id, h.seat.name, count(h)
+            )
+            from History h
+            where h.endedAt >= :start
+              and h.endedAt < :end
+              group by seat.id, seat.name
+            """, HistorySeatCountDTO.class)
+                .setParameter("start", start)
+                .setParameter("end", end)
+                .getResultList();
     }
 
     //</editor-fold>
