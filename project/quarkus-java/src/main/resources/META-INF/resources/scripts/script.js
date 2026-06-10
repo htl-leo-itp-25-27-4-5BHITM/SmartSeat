@@ -367,48 +367,48 @@ function loadView(view) {
     main1.style.display = showMain1 ? 'flex' : 'none';
     main2.style.display = showMain1 ? 'none' : 'flex';
 }
-
+let occupancyChart = null;
 function loadChart() {
-    let newDate = new Date();
 
-    let date = newDate.getFullYear() + "-";
+    const newDate = new Date();
 
-    if (newDate.getMonth() < 10) {
-        date += "0" + (newDate.getMonth() + 1);
-    } else {
-        date += (newDate.getMonth() + 1);
-    }
+    const date =
+        newDate.getFullYear() + "-" +
+        String(newDate.getMonth() + 1).padStart(2, "0") + "-" +
+        String(newDate.getDate()).padStart(2, "0");
 
-    date += "-"
-
-    if (newDate.getDate() < 10) {
-        date += "0" + newDate.getDate();
-    } else {
-        date += newDate.getDate();
-    }
-
-    console.log(date)
-
-    let xValues = [];
-    let yValues = [];
-
-    fetch(`/api/dashboard/history/count/${date}`)
+    fetch(`/api/dashboard/history/count/${date}?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
-            console.log(data)
-            for (let i = 0; i < data.length; i++) {
-                xValues.push(data[i].name);
-                yValues.push(data[i].count)
+
+            const xValues = [];
+            const yValues = [];
+
+            data.forEach(item => {
+                xValues.push(item.name);
+                yValues.push(item.count);
+            });
+
+            const barColors = [
+                "#AECCFC",
+                "#7a9ab0",
+                "#ebf7ff",
+                "#d8efff",
+                "#ffffff"
+            ];
+
+            const ctx = document.getElementById("myChart");
+
+            if (occupancyChart) {
+
+                occupancyChart.data.labels = xValues;
+                occupancyChart.data.datasets[0].data = yValues;
+                occupancyChart.update();
+
+                return;
             }
 
-            console.log(xValues)
-            console.log(yValues)
-
-            const barColors = ["#AECCFC", "#7a9ab0", "#ebf7ff", "#d8efff", "#ffffff"];
-
-            let ctx = document.getElementById('myChart')
-
-            new Chart(ctx, {
+            occupancyChart = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: xValues,
@@ -423,12 +423,18 @@ function loadChart() {
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: {display: false},
+                        legend: {
+                            display: false
+                        },
                         title: {
                             display: true,
                             text: "Am häufigsten besetzte Kojen",
-                            font: {size: 20},
+                            font: {
+                                size: 20
+                            },
                             color: "#0370ff"
                         }
                     },
@@ -448,6 +454,7 @@ function loadChart() {
                             }
                         },
                         y: {
+                            beginAtZero: true,
                             grid: {
                                 color: "white",
                                 lineWidth: 1.5
@@ -464,9 +471,7 @@ function loadChart() {
                     }
                 }
             });
+
         })
         .catch(err => console.error(err));
-
-
 }
-
