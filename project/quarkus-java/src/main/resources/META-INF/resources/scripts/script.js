@@ -5,6 +5,7 @@ const floorCountDOM = {
 
 const main1 = document.getElementById('main1');
 const main2 = document.getElementById('main2');
+const main3 = document.getElementById('main3');
 
 const selected1 = document.getElementById("selected1");
 const selected2 = document.getElementById("selected2");
@@ -362,12 +363,31 @@ ws.onerror = (err) => console.error("Fehler:", err);
 ws.onclose = () => console.log("Verbindung geschlossen");
 
 function loadView(view) {
-    const showMain1 = view === 1;
 
-    main1.style.display = showMain1 ? 'flex' : 'none';
-    main2.style.display = showMain1 ? 'none' : 'flex';
+    switch (view) {
+        case 1:
+            main1.style.display = 'flex';
+            main2.style.display = 'none';
+            main3.style.display = 'none';
+            break;
+
+        case 2:
+            main1.style.display = 'none';
+            main2.style.display = 'flex';
+            main3.style.display = 'none';
+            break;
+
+        case 3:
+            main1.style.display = 'none'
+            main2.style.display = 'none'
+            main3.style.display = 'block'
+            break;
+    }
+
 }
+
 let occupancyChart = null;
+
 function loadChart() {
 
     const newDate = new Date();
@@ -449,7 +469,7 @@ function loadChart() {
                                 font: {
                                     family: "Poppins",
                                     size: 20,
-                                    weight: "bold"
+                                    weight: "bold",
                                 }
                             }
                         },
@@ -460,6 +480,7 @@ function loadChart() {
                                 lineWidth: 1.5
                             },
                             ticks: {
+                                stepSize: 1,
                                 color: "#0370ff",
                                 font: {
                                     family: "Poppins",

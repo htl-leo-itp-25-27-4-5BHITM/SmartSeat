@@ -86,6 +86,14 @@ main2 {
     display: none;
 }
 
+main3 {
+    width: 100%;
+    height: 90dvh;
+    justify-content: center;
+    align-items: center;
+    display: none;
+}
+
 #floor-box {
     display: flex;
     flex-direction: column;
@@ -243,6 +251,8 @@ main2 {
     background: rgba(0, 0, 0, 0.7);
     border-radius: 2vh;
     padding: 1%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @keyframes pulse {
