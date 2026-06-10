@@ -97,6 +97,9 @@ main2 {
 #myChart {
     width: 80vw !important;
     height: 70dvh !important;
+    background-color: #203540;
+    padding: 2%;
+    border-radius: 2vh
 }
 
 

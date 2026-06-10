@@ -456,7 +456,7 @@ function loadChart() {
                             display: true,
                             text: "Am häufigsten besetzte Kojen",
                             font: {
-                                size: 20
+                                size: 30
                             },
                             color: "#0370ff"
                         }
@@ -471,7 +471,7 @@ function loadChart() {
                                 color: "#0370ff",
                                 font: {
                                     family: "Poppins",
-                                    size: 20,
+                                    size: 25,
                                     weight: "bold",
                                 }
                             }
@@ -487,7 +487,7 @@ function loadChart() {
                                 color: "#0370ff",
                                 font: {
                                     family: "Poppins",
-                                    size: 15,
+                                    size: 20,
                                     weight: "bold"
                                 }
                             }
