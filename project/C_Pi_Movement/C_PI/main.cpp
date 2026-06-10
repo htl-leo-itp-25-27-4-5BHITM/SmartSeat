@@ -14,6 +14,7 @@
 #include "lwip/netif.h"
 
 #include "WLANConf.h"
+#include "hardware/watchdog.h"
 
 // -------------------- App Settings --------------------
 #ifndef DEVICE_NAME
@@ -51,10 +52,17 @@ typedef struct {
     bool connect_done;
 } MQTT_CLIENT_DATA_T;
 
+// SYS reset
+static void reset_sys() {
+    watchdog_enable(1, 1);
+    while(1);
+}
+
 // -------------------- MQTT helpers --------------------
 static void pub_request_cb(__unused void* arg, err_t err) {
     if (err != ERR_OK) {
         ERROR_printf("MQTT publish failed: %d\n", (int)err);
+        reset_sys();
     }
 }
 
