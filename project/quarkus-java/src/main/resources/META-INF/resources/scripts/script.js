@@ -385,7 +385,7 @@ function loadView(view) {
     }
 
 }
-loadView(3)
+loadView(1)
 
 let occupancyChart = null;
 
@@ -436,60 +436,83 @@ function loadChart() {
                 data: {
                     labels: xValues,
                     datasets: [{
-                        backgroundColor: barColors,
+                        label: "Belegungen",
                         data: yValues,
-                        barThickness: 100,
-                        borderRadius: 20,
-                        borderColor: "black",
-                        borderWidth: 2,
-                        borderStyle: "solid"
+                        backgroundColor: [
+                            "#4F8CFF",
+                            "#5B96FF",
+                            "#67A0FF",
+                            "#73AAFF",
+                            "#7FB4FF"
+                        ],
+                        borderRadius: 16,
+                        borderSkipped: false,
+                        hoverBackgroundColor: "#2F75FF"
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 800,
+                        easing: "easeOutQuart"
+                    },
                     plugins: {
                         legend: {
                             display: false
                         },
                         title: {
                             display: true,
-                            text: "Am häufigsten besetzte Kojen",
+                            text: "Belegung der Kojen heute",
+                            color: "#ffffff",
                             font: {
-                                size: 30
+                                family: "Poppins",
+                                size: 24,
+                                weight: "600"
                             },
-                            color: "#0370ff"
+                            padding: {
+                                bottom: 30
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: "#1E293B",
+                            titleFont: {
+                                size: 14
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 12,
+                            cornerRadius: 10
                         }
                     },
                     scales: {
                         x: {
                             grid: {
-                                color: "white",
-                                lineWidth: 1.5
+                                display: false
                             },
                             ticks: {
-                                color: "#0370ff",
+                                color: "#ffffff",
                                 font: {
                                     family: "Poppins",
-                                    size: 25,
-                                    weight: "bold",
+                                    size: 16,
+                                    weight: "600"
                                 }
                             }
                         },
                         y: {
                             beginAtZero: true,
-                            grid: {
-                                color: "white",
-                                lineWidth: 1.5
-                            },
                             ticks: {
                                 stepSize: 1,
-                                color: "#0370ff",
+                                color: "#ffffff",
                                 font: {
                                     family: "Poppins",
-                                    size: 20,
-                                    weight: "bold"
+                                    size: 14
                                 }
+                            },
+                            grid: {
+                                color: "rgb(255,255,255)",
+                                drawBorder: false
                             }
                         }
                     }

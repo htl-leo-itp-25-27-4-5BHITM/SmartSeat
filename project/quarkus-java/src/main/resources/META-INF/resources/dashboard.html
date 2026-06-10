@@ -91,6 +91,37 @@
             <h2 class="panel-title">Leaderboard</h2>
         </section>
 
+
+            <section id="section4">
+                <h2>Daten Generator</h2>
+                <select id="seat">
+                    <option value="1" selected>Koje 1</option>
+                    <option value="2">Koje 2</option>
+                    <option value="3">Koje 3</option>
+                    <option value="4">Koje 4</option>
+                    <option value="5">Koje 5</option>
+                </select>
+
+                <input type="number" placeholder="Anzahl Einträge" id="n" min="1" max="50">
+                <div class="time-inputs">
+                    <input
+                            type="number"
+                            placeholder="Minimale Sitzzeit"
+                            id="minSeconds"
+                            min="1">
+
+                    <input
+                            type="number"
+                            placeholder="Maximale Sitzzeit"
+                            id="maxSeconds"
+                            min="1">
+                </div>
+
+                <button type="button" onclick="createHistories()">
+                    Erstellen
+                </button>
+
+            </section>
     </main>
 
     <div id="changed-info"></div>

@@ -1,6 +1,8 @@
 package at.htl.boundary;
 
+import at.htl.repository.HistoryRepository;
 import at.htl.repository.SeatRepository;
+import at.htl.repository.dto.HistoryDTO;
 import at.htl.repository.dto.HistorySeatCountDTO;
 import at.htl.repository.dto.SeatRenameDTO;
 import jakarta.inject.Inject;
@@ -17,6 +19,9 @@ public class DashboardResource {
 
     @Inject
     SeatRepository seatRepository;
+
+    @Inject
+    HistoryRepository historyRepository;
 
     @POST
     @Path("rename")
@@ -95,5 +100,17 @@ public class DashboardResource {
                     .entity("Ungültiges Datumsformat. Erwartet: yyyy-MM-dd")
                     .build();
         }
+    }
+
+    @POST
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/history/add")
+    public Response addHistories(HistoryDTO dto) {
+        long status = historyRepository.addHistories(dto);
+
+        return Response
+                .status((int) status)
+                .build();
     }
 }

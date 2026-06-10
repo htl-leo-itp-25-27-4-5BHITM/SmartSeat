@@ -143,24 +143,18 @@ async function updateDuration() {
         if (res.ok) {
             duration = Number(d);
             activateButton();
-            changedInfoBox.innerHTML = `<h2> Duration bearbeitet! </h2>`;
+            showMessage("Duration bearbeitet!")
 
         } else if (res.status === 400) {
-            changedInfoBox.innerHTML = `<h2> Ungültiger Wert (muss > 10 sein) </h2>`;
+            showMessage("Ungültiger Wert (muss > 10 sein)")
         } else if (res.status === 404) {
-            changedInfoBox.innerHTML = `<h2>Wert zu klein</h2>`;
+            showMessage("Wert zu klein")
         } else {
-            changedInfoBox.innerHTML = `<h2> Fehler beim Speichern </h2>`;
+            showMessage("Fehler beim Speichern")
         }
-
-        changedInfoBox.style.display = 'flex';
-        setTimeout(() => {
-            changedInfoBox.style.display = 'none';
-        }, 2000);
-
     } catch (err) {
         console.error(err);
-        alert("Netzwerkfehler");
+        showMessage("Netzwerkfehler")
     }
 }
 
@@ -255,4 +249,57 @@ async function login() {
     sessionStorage.setItem("loggedIn", "true");
     document.getElementById("login-screen").style.display = "none";
     document.getElementById("app").style.display = "block";
+}
+
+
+async function createHistories() {
+
+    const seat_id = Number(document.getElementById("seat").value);
+    const n = Number(document.getElementById("n").value);
+    const minSeconds = Number(document.getElementById("minSeconds").value);
+    const maxSeconds = Number(document.getElementById("maxSeconds").value);
+
+    if (n <= 0) {
+        showMessage("n muss größer als 0 sein");
+        return;
+    }
+
+    if (n > 50) {
+        showMessage("Maximal 50 Einträge erlaubt");
+        return;
+    }
+
+    if (minSeconds >= maxSeconds) {
+        showMessage("Min. Sekunden müssen kleiner als Max. Sekunden sein");
+        return;
+    }
+
+    const response = await fetch("/api/dashboard/history/add", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            seat_id,
+            n,
+            minSeconds,
+            maxSeconds
+        })
+    });
+
+    if (response.ok) {
+        showMessage("Historien erfolgreich erstellt");
+    } else {
+        showMessage("Fehler beim Erstellen");
+    }
+}
+
+function showMessage(message) {
+
+    changedInfoBox.innerHTML = `<h2>${message}</h2>`;
+    changedInfoBox.style.display = 'flex';
+
+    setTimeout(() => {
+        changedInfoBox.style.display = 'none';
+    }, 2000);
 }

@@ -102,7 +102,13 @@ main2 {
     border-radius: 2vh
 }
 
-
+.chart-container {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow:
+            0 10px 30px rgba(15, 23, 42, 0.08);
+}
 
 #floor-box {
     display: flex;
