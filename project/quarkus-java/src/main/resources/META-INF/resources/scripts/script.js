@@ -385,6 +385,7 @@ function loadView(view) {
     }
 
 }
+
 loadView(1)
 
 let occupancyChart = null;
@@ -409,6 +410,27 @@ function loadChart() {
                 xValues.push(item.name);
                 yValues.push(item.count);
             });
+
+            const chartMessage = document.getElementById("chart-message");
+
+            if (data.length === 0) {
+
+                if (occupancyChart) {
+                    occupancyChart.destroy();
+                    occupancyChart = null;
+                }
+
+                document.getElementById("myChart").style.display = "none";
+
+                chartMessage.innerHTML =
+                    "Heute noch keine Daten verfügbar";
+                chartMessage.style.display = "flex";
+
+                return;
+            }
+
+            document.getElementById("myChart").style.display = "block";
+            chartMessage.style.display = "none";
 
             const barColors = [
                 "#AECCFC",
