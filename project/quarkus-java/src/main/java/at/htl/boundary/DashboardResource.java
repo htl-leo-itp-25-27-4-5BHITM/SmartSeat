@@ -8,8 +8,6 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import java.beans.ConstructorProperties;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;

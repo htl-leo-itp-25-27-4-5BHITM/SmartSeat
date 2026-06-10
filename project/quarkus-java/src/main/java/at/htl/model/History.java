@@ -1,8 +1,6 @@
 package at.htl.model;
 
 import jakarta.persistence.*;
-
-import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity

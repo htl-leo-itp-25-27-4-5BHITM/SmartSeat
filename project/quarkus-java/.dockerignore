@@ -1,0 +1,11 @@
+*
+
+!pom.xml
+!mvnw
+!mvnw.cmd
+!.mvn/**
+!src/**
+
+!Dockerfile
+!docker-compose.yaml
+!docker-compose.yml
