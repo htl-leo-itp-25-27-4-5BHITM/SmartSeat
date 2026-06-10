@@ -380,11 +380,12 @@ function loadView(view) {
         case 3:
             main1.style.display = 'none'
             main2.style.display = 'none'
-            main3.style.display = 'block'
+            main3.style.display = 'flex'
             break;
     }
 
 }
+loadView(3)
 
 let occupancyChart = null;
 
@@ -417,7 +418,9 @@ function loadChart() {
                 "#ffffff"
             ];
 
-            const ctx = document.getElementById("myChart");
+            const ctx = document
+                .getElementById("myChart")
+                .getContext("2d");
 
             if (occupancyChart) {
 

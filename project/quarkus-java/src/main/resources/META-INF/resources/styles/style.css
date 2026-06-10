@@ -86,13 +86,20 @@ main2 {
     display: none;
 }
 
-main3 {
-    width: 100%;
+#main3 {
+    width: 100vw;
     height: 90dvh;
+    display: none;
     justify-content: center;
     align-items: center;
-    display: none;
 }
+
+#myChart {
+    width: 80vw !important;
+    height: 70dvh !important;
+}
+
+
 
 #floor-box {
     display: flex;
@@ -247,13 +254,7 @@ main3 {
     z-index: 1000;
 }
 
-#myChart {
-    background: rgba(0, 0, 0, 0.7);
-    border-radius: 2vh;
-    padding: 1%;
-    margin-left: auto;
-    margin-right: auto;
-}
+
 
 @keyframes pulse {
     0% {
