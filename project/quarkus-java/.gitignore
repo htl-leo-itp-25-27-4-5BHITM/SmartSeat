@@ -38,7 +38,9 @@ nb-configuration.xml
 *.rej
 
 # Local environment
-src/main/java/at/htl/repository/.env
+.env
+/k8s
+/src/main/docker/postgres
 
 # Plugin directory
 /.quarkus/cli/plugins/
