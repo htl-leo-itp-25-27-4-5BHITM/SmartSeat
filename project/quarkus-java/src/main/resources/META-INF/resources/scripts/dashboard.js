@@ -66,15 +66,20 @@ function editName(id) {
     Speichern
 </button>
 
-<button onclick="event.stopPropagation(); stopEdit()">
+<button onclick="event.stopPropagation(); stopEdit(${id})">
     Abbrechen
 </button>
         </div>
     `;
 }
 
-function stopEdit() {
-    renderSeats();
+function stopEdit(id) {
+    const seat = seatsData.find(s => s.id === id);
+
+    document.getElementById(`box${id}`).innerHTML = `
+        <h3>${seat.name}</h3>
+        <p>Klicken zum Bearbeiten</p>
+    `;
 }
 
 function handleRename(event, id) {
