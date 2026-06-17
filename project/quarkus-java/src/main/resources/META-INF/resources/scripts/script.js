@@ -392,149 +392,184 @@ let occupancyChart = null;
 
 function loadChart() {
 
-    const newDate = new Date();
+    const now = new Date();
 
     const date =
-        newDate.getFullYear() + "-" +
-        String(newDate.getMonth() + 1).padStart(2, "0") + "-" +
-        String(newDate.getDate()).padStart(2, "0");
+        now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
 
-    fetch(`/api/dashboard/history/count/${date}?t=${Date.now()}`)
+    fetch(`/api/dashboard/history/occupancy/${date}?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
 
-            const xValues = [];
-            const yValues = [];
+            const hours = [];
+
+            const k1 = [];
+            const k2 = [];
+            const k3 = [];
+            const k4 = [];
+            const k5 = [];
 
             data.forEach(item => {
-                xValues.push(item.name);
-                yValues.push(item.count);
+
+                if (item.seatId === 1) {
+
+                    hours.push(item.hour);
+                    k1.push(item.occupancy);
+
+                } else if (item.seatId === 2) {
+
+                    k2.push(item.occupancy);
+
+                } else if (item.seatId === 3) {
+
+                    k3.push(item.occupancy);
+
+                } else if (item.seatId === 4) {
+
+                    k4.push(item.occupancy);
+
+                } else if (item.seatId === 5) {
+
+                    k5.push(item.occupancy);
+                }
             });
 
-            const chartMessage = document.getElementById("chart-message");
-
-            if (data.length === 0) {
-
-                if (occupancyChart) {
-                    occupancyChart.destroy();
-                    occupancyChart = null;
-                }
-
-                document.getElementById("myChart").style.display = "none";
-
-                chartMessage.innerHTML =
-                    "Heute noch keine Daten verfügbar";
-                chartMessage.style.display = "flex";
-
-                return;
-            }
-
-            document.getElementById("myChart").style.display = "block";
-            chartMessage.style.display = "none";
-
-            const barColors = [
-                "#AECCFC",
-                "#7a9ab0",
-                "#ebf7ff",
-                "#d8efff",
-                "#ffffff"
-            ];
-
-            const ctx = document
-                .getElementById("myChart")
-                .getContext("2d");
+            const ctx =
+                document.getElementById("myChart")
+                    .getContext("2d");
 
             if (occupancyChart) {
-
-                occupancyChart.data.labels = xValues;
-                occupancyChart.data.datasets[0].data = yValues;
-                occupancyChart.update();
-
-                return;
+                occupancyChart.destroy();
             }
 
+            console.log(data)
             occupancyChart = new Chart(ctx, {
-                type: "bar",
+
+                type: "line",
+
                 data: {
-                    labels: xValues,
-                    datasets: [{
-                        label: "Belegungen",
-                        data: yValues,
-                        backgroundColor: [
-                            "#4F8CFF",
-                            "#5B96FF",
-                            "#67A0FF",
-                            "#73AAFF",
-                            "#7FB4FF"
-                        ],
-                        borderRadius: 16,
-                        borderSkipped: false,
-                        hoverBackgroundColor: "#2F75FF"
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 800,
-                        easing: "easeOutQuart"
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
+
+                    labels: hours,
+
+                    datasets: [
+
+                        {
+                            label: "Koje 1",
+                            data: k1,
+                            borderColor: "#e74c3c",
+                            tension: 0.4
                         },
+                        {
+                            label: "Koje 2",
+                            data: k2,
+                            borderColor: "#3498db",
+                            tension: 0.4
+                        },
+                        {
+                            label: "Koje 3",
+                            data: k3,
+                            borderColor: "#2ecc71",
+                            tension: 0.4
+                        },
+                        {
+                            label: "Koje 4",
+                            data: k4,
+                            borderColor: "#f39c12",
+                            tension: 0.4
+                        },
+                        {
+                            label: "Koje 5",
+                            data: k5,
+                            borderColor: "#9b59b6",
+                            tension: 0.4
+                        }
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: {
+
                         title: {
+
                             display: true,
-                            text: "Belegung der Kojen heute",
+
+                            text: "Auslastung der Kojen",
+
                             color: "#ffffff",
+
                             font: {
+
                                 family: "Poppins",
+
                                 size: 24,
+
                                 weight: "600"
-                            },
-                            padding: {
-                                bottom: 30
                             }
                         },
-                        tooltip: {
-                            backgroundColor: "#1E293B",
-                            titleFont: {
-                                size: 14
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            padding: 12,
-                            cornerRadius: 10
+
+                        legend: {
+
+                            labels: {
+
+                                color: "#ffffff"
+                            }
                         }
                     },
+
                     scales: {
+
                         x: {
-                            grid: {
-                                display: false
+
+                            title: {
+
+                                display: true,
+
+                                text: "Uhrzeit",
+
+                                color: "#ffffff"
                             },
+
                             ticks: {
-                                color: "#ffffff",
-                                font: {
-                                    family: "Poppins",
-                                    size: 16,
-                                    weight: "600"
-                                }
+
+                                color: "#ffffff"
+                            },
+
+                            grid: {
+
+                                color: "rgba(255,255,255,0.15)"
                             }
                         },
+
                         y: {
+
                             beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                                color: "#ffffff",
-                                font: {
-                                    family: "Poppins",
-                                    size: 14
-                                }
+
+                            max: 1,
+
+                            title: {
+
+                                display: true,
+
+                                text: "Auslastung",
+
+                                color: "#ffffff"
                             },
+
+                            ticks: {
+
+                                color: "#ffffff"
+                            },
+
                             grid: {
-                                color: "rgb(255,255,255)",
-                                drawBorder: false
+
+                                color: "rgba(255,255,255,0.15)"
                             }
                         }
                     }

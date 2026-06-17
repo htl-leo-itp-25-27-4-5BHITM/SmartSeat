@@ -113,4 +113,14 @@ public class DashboardResource {
                 .status((int) status)
                 .build();
     }
+
+    @GET
+    @Path("/history/occupancy/{date}")
+    public Response getOccupancy(
+            @PathParam("date") String date) {
+
+        LocalDate d = LocalDate.parse(date);
+
+        return Response.ok().entity(historyRepository.getOccupancyForDate(d)).build();
+    }
 }

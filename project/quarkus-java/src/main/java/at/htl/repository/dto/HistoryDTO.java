@@ -1,4 +1,6 @@
 package at.htl.repository.dto;
 
-public record HistoryDTO(long seat_id, long n, long minSeconds, long maxSeconds) {
+import java.time.LocalDateTime;
+
+public record HistoryDTO(long seat_id, LocalDateTime dateTime, long minSeconds, long maxSeconds) {
 }

@@ -7,6 +7,18 @@ window.onload = () => {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("app").style.display = "block";
 
+        const input = document.getElementById("date");
+
+        const now = new Date();
+
+        const value =
+            now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now.getDate()).padStart(2, "0") + "T" +
+            String(now.getHours()).padStart(2, "0") + ":" +
+            String(now.getMinutes()).padStart(2, "0");
+
+        input.value = value;
     } else {
         document.getElementById("login-screen").style.display = "flex";
         document.getElementById("app").style.display = "none";
@@ -260,24 +272,17 @@ async function login() {
 async function createHistories() {
 
     const seat_id = Number(document.getElementById("seat").value);
-    const n = Number(document.getElementById("n").value);
-    const minSeconds = Number(document.getElementById("minSeconds").value);
-    const maxSeconds = Number(document.getElementById("maxSeconds").value);
+    const dateTime = document.getElementById("date").value;
+    const minMinutes = Number(document.getElementById("minMinutes").value);
+    const maxMinutes = Number(document.getElementById("maxMinutes").value);
 
-    if (n <= 0) {
-        showMessage("n muss größer als 0 sein");
+    if (minMinutes >= maxMinutes) {
+        showMessage("Min. Minuten müssen kleiner als Max. Minuten sein");
         return;
     }
 
-    if (n > 50) {
-        showMessage("Maximal 50 Einträge erlaubt");
-        return;
-    }
-
-    if (minSeconds >= maxSeconds) {
-        showMessage("Min. Sekunden müssen kleiner als Max. Sekunden sein");
-        return;
-    }
+    const minSeconds = minMinutes * 60;
+    const maxSeconds = maxMinutes * 60;
 
     const response = await fetch("/api/dashboard/history/add", {
         method: "POST",
@@ -286,7 +291,7 @@ async function createHistories() {
         },
         body: JSON.stringify({
             seat_id,
-            n,
+            dateTime,
             minSeconds,
             maxSeconds
         })
