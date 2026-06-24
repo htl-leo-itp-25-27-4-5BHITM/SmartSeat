@@ -25,7 +25,7 @@ Damit man aber nachschauen kann was der Pico wirklich macht, kann man ihn an ein
 1. Visual Studio Code, bzw ein Terminal 
 2. Serial Monitor Erweiterung 
 
-Sobald der Pico angeschlossen ist muss man bei dem Serial Monitor COM5, bzw serielles USB-Gerät auswählen und auf das Play Symbol klicken. Nun kann sehen was er Pico macht. Solang er nicht irgeneinen Fehler wirft, befindet er sich im Normalbetrieb. 
+Sobald der Pico angeschlossen ist muss man bei dem Serial Monitor COM5, bzw serielles USB-Gerät auswählen und auf das Play Symbol klicken. Nun kann man sehen was der Pico macht. Solang er nicht irgeneinen Fehler wirft, befindet er sich im Normalbetrieb. 
 
 #### Sensor 
 
