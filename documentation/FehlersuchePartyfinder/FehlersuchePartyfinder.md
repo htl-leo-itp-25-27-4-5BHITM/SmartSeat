@@ -48,3 +48,7 @@
 * Beim registrieren wird die Nachricht doppelt gesendet
 
 ![doppelt](img/doppelt.png)
+
+* Bei der Partyunterseite ist über dem "Create new Party" Knopf zu wenig Platz.
+
+* Navbar ist bei der Profilseiten nicht gleich groß.
