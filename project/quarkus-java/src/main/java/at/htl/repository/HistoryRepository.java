@@ -12,7 +12,9 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @ApplicationScoped
@@ -66,32 +68,41 @@ public class HistoryRepository {
     public List<SeatOccupancyDTO> getOccupancyForDate(LocalDate date) {
 
         LocalDateTime startDay = date.atStartOfDay();
-        LocalDateTime endDay = date.plusDays(1).atStartOfDay();
+        List<Seat> seats = em.createQuery("select s from Seat s order by s.id", Seat.class)
+                .getResultList();
 
         List<History> histories = em.createQuery("""
             select h
             from History h
-            where h.endedAt >= :start
-            and h.endedAt < :end
+            join fetch h.seat
+            where h.endedAt > :start
             """, History.class)
                 .setParameter("start", startDay)
-                .setParameter("end", endDay)
                 .getResultList();
 
-        double[][] occupancies = new double[5][24];
+        return calculateOccupancy(seats, histories, date);
+    }
+
+    static List<SeatOccupancyDTO> calculateOccupancy(
+            List<Seat> seats, List<History> histories, LocalDate date) {
+        LocalDateTime startDay = date.atStartOfDay();
+        LocalDateTime endDay = date.plusDays(1).atStartOfDay();
+        Map<Long, long[]> occupancySeconds = new LinkedHashMap<>();
+        seats.forEach(seat -> occupancySeconds.put(seat.getId(), new long[24]));
+        boolean hasData = false;
 
         for (History h : histories) {
-
-            int seatIndex = Math.toIntExact(h.getSeat().getId() - 1);
-
             LocalDateTime end = h.getEndedAt();
+            LocalDateTime intervalStart = end.minusSeconds(Math.max(0, h.getTimePassed()));
+            LocalDateTime current = intervalStart.isBefore(startDay) ? startDay : intervalStart;
+            LocalDateTime effectiveEnd = end.isAfter(endDay) ? endDay : end;
+            long[] buckets = occupancySeconds.get(h.getSeat().getId());
 
-            LocalDateTime start =
-                    end.minusSeconds(h.getTimePassed());
+            if (buckets == null || !current.isBefore(effectiveEnd)) {
+                continue;
+            }
 
-            LocalDateTime current = start;
-
-            while (current.isBefore(end)) {
+            while (current.isBefore(effectiveEnd)) {
 
                 int hour = current.getHour();
 
@@ -102,37 +113,41 @@ public class HistoryRepository {
                                 .plusHours(1);
 
                 LocalDateTime border =
-                        nextHour.isBefore(end)
+                        nextHour.isBefore(effectiveEnd)
                                 ? nextHour
-                                : end;
+                                : effectiveEnd;
 
                 long seconds =
                         java.time.Duration
                                 .between(current, border)
                                 .toSeconds();
 
-                double value = (double) seconds / 3600.0;
-
-                occupancies[seatIndex][hour] =
-                        Math.max(occupancies[seatIndex][hour], value);
+                if (seconds > 0) {
+                    buckets[hour] = Math.min(3600, buckets[hour] + seconds);
+                    hasData = true;
+                }
 
                 current = border;
             }
         }
 
-        List<SeatOccupancyDTO> result = new ArrayList<>();
+        if (!hasData) {
+            return List.of();
+        }
 
-        for (int seat = 0; seat < 5; seat++) {
+        List<SeatOccupancyDTO> result = new ArrayList<>();
+        for (Seat seat : seats) {
+            long[] buckets = occupancySeconds.get(seat.getId());
 
             for (int hour = 0; hour < 24; hour++) {
 
                 result.add(
                         new SeatOccupancyDTO(
-                                seat + 1,
-                                "Koje " + (seat + 1),
+                                seat.getId(),
+                                seat.getName(),
                                 String.format("%02d:00", hour),
                                 Math.round(
-                                        occupancies[seat][hour] * 100
+                                        ((double) buckets[hour] / 3600.0) * 100
                                 ) / 100.0
                         )
                 );

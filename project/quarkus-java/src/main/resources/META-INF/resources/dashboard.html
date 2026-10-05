@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -68,15 +68,18 @@
         </section>
 
         <section id="section2">
-            <h2 class="panel-title">Dauer</h2>
+            <h2 class="panel-title">Inaktivitätsdauer</h2>
 
+            <label for="duration">Dauer in Sekunden</label>
             <input
                     type="number"
                     min="11"
-                    max="100"
+                    step="1"
                     id="duration"
+                    aria-describedby="duration-hint"
                     onchange="activateButton()"
             >
+            <p id="duration-hint">Ganze Sekunden, größer als 10.</p>
 
             <button
                     disabled
@@ -94,28 +97,28 @@
 
         <section id="section4">
             <h2>Daten Generator</h2>
-            <select id="seat">
-                <option value="1" selected>Koje 1</option>
-                <option value="2">Koje 2</option>
-                <option value="3">Koje 3</option>
-                <option value="4">Koje 4</option>
-                <option value="5">Koje 5</option>
-            </select>
+            <label for="seat">Sitzplatz</label>
+            <select id="seat"></select>
 
+            <label for="date">Endzeit</label>
             <input type="datetime-local" id="date">
 
             <div class="time-inputs">
+                <label for="minMinutes">Minimum in Minuten
                 <input
                         type="number"
                         placeholder="Minimale Sitzzeit"
                         id="minMinutes"
                         min="1" value="1">
+                </label>
 
+                <label for="maxMinutes">Maximum in Minuten
                 <input
                         type="number"
                         placeholder="Maximale Sitzzeit"
                         id="maxMinutes"
                         min="1" value="25">
+                </label>
             </div>
 
             <button type="button" onclick="createHistories()">
@@ -125,7 +128,7 @@
         </section>
     </main>
 
-    <div id="changed-info"></div>
+    <div id="changed-info" role="status" aria-live="polite"></div>
 </div>
 
 </body>

@@ -1,581 +1,354 @@
-const floorCountDOM = {
-    "1OG": document.getElementById("count1"),
-    "2OG": document.getElementById("count2")
-};
+const {
+    canonicalState,
+    stateLabel,
+    displayFloor,
+    formatElapsed,
+    shiftIsoDate,
+    groupSeatsByFloor,
+    buildChartModel
+} = globalThis.SmartSeatLogic;
 
-const main1 = document.getElementById('main1');
-const main2 = document.getElementById('main2');
-const main3 = document.getElementById('main3');
+const views = new Map(
+    [...document.querySelectorAll(".view-button")].map(button => [button.dataset.view, {
+        button,
+        panel: document.getElementById(button.getAttribute("aria-controls"))
+    }])
+);
 
-const selected1 = document.getElementById("selected1");
-const selected2 = document.getElementById("selected2");
-let occupiedInfo = document.getElementById('occupied-info');
-let occupiedCount = -1;
+const floorMaps = document.getElementById("floor-maps");
+const entries = document.getElementById("entries");
+const seatDetails = document.getElementById("seat-details");
+const occupiedInfo = document.getElementById("occupied-info");
+const chartDateLabel = document.getElementById("chart-date-label");
+const previousDateButton = document.getElementById("previous-date");
+const nextDateButton = document.getElementById("next-date");
+const chartMessage = document.getElementById("chart-message");
+const chartContent = document.getElementById("chart-content");
+const chartValuesAccessible = document.getElementById("chart-values-accessible");
+const locationMessage = document.getElementById("location-message");
+
 let seatsData = [];
-let averageWaitingTimes = {};
-let currentFloor = 1;
-
-const seatDOM = {
-    1: document.getElementById("k1"),
-    2: document.getElementById("k2"),
-    3: document.getElementById("k3"),
-    4: document.getElementById("k4"),
-    5: document.getElementById("k5")
-};
-
-const seatDOM2 = {
-    1: document.getElementById("e1"),
-    2: document.getElementById("e2"),
-    3: document.getElementById("e3"),
-    4: document.getElementById("e4"),
-    5: document.getElementById("e5")
-};
-
-const nameDom = {
-    1: document.getElementById("name1"),
-    2: document.getElementById("name2"),
-    3: document.getElementById("name3"),
-    4: document.getElementById("name4"),
-    5: document.getElementById("name5")
-};
-
-
-async function loadFloor(floorNumber) {
-    let floorCode = floorNumber === 1 ? "1OG" : "2OG";
-    let seats = await getSeatsByFloor(floorCode);
-
-    Object.keys(seatDOM).forEach(num => {
-        let isFloor1Seat = ["1", "2", "3"].includes(num);
-        seatDOM[num].style.display =
-            (floorNumber === 1 && isFloor1Seat) ||
-            (floorNumber === 2 && !isFloor1Seat)
-                ? "block"
-                : "none";
-    });
-
-    updateSeatClasses(seats);
-
-    if (floorNumber === 1) {
-        selected1.style.display = "block";
-        selected2.style.display = "none";
-    }
-    if (floorNumber === 2) {
-        selected1.style.display = "none";
-        selected2.style.display = "block";
-    }
-
-    currentFloor = floorNumber;
-    getUnoccupiedCount(floorCode);
-}
-
-async function getSeatsByFloor(floor) {
-    try {
-        const res = await fetch(`/api/seat/getSeatsByFloor/${floor}`);
-        return await res.json();
-    } catch (err) {
-        console.error(err);
-        return [];
-    }
-}
-
-async function getAllUnoccupiedCount() {
-    try {
-        const res = await fetch(`/api/seat/getUnoccupiedCount`);
-        return await res.json();
-    } catch (err) {
-        console.error(err);
-        return [];
-    }
-}
-
-
-function getUnoccupiedCount(floor) {
-    fetch(`/api/seat/getUnoccupiedSeatsByFloor/${floor}`)
-        .then(res => res.json())
-        .then(data => {
-            const label = data === 1 ? "Koje" : "Kojen";
-            const color = data === 0 ? "red" : "rgb(29, 195, 98)";
-            floorCountDOM[floor].innerText = `${data} ${label} verfügbar`;
-            floorCountDOM[floor].style.color = color;
-        })
-        .catch(err => console.error(err));
-}
-
-const tooltip = document.getElementById("seat-tooltip");
-
-let activeSeatId = null;
-let tooltipInterval = null;
-
-function updateSeatClasses(seatData) {
-
-    seatData.forEach(seat => {
-
-        const num = seat.id;
-        const el = seatDOM[num];
-
-        if (!el) return;
-
-        el.classList.remove("occupied", "unoccupied");
-        el.classList.add(seat.status ? "unoccupied" : "occupied");
-
-        el.onmouseover = null;
-        el.onmouseleave = null;
-
-        el.onmouseover = () => {
-
-            activeSeatId = seat.id;
-
-            clearInterval(tooltipInterval);
-
-            const updateTooltip = () => {
-
-                if (activeSeatId !== seat.id) return;
-
-                const currentSeat =
-                    seatsData.find(s => s.id === seat.id) || seat;
-
-                let text = currentSeat.name;
-
-                if (currentSeat.status === false) {
-
-                    if (currentSeat.occupiedSince) {
-
-                        const rawDate = currentSeat.occupiedSince;
-
-                        const normalizedDate =
-                            rawDate.includes("T") &&
-                            !/Z$|[+-]\d{2}:\d{2}$/.test(rawDate)
-                                ? rawDate + "+02:00"
-                                : rawDate;
-
-                        const since = new Date(normalizedDate);
-
-                        const now = new Date();
-
-                        const diffMs = now - since;
-
-                        const totalSeconds =
-                            Math.floor(diffMs / 1000);
-
-                        const hours =
-                            Math.floor(totalSeconds / 3600);
-
-                        const minutes =
-                            Math.floor((totalSeconds % 3600) / 60);
-
-                        const seconds =
-                            totalSeconds % 60;
-
-                        let timeString = "";
-
-                        if (hours > 0) {
-
-                            timeString =
-                                `${hours}h ${minutes}m ${seconds}s`;
-
-                        } else if (minutes > 0) {
-
-                            timeString =
-                                `${minutes}m ${seconds}s`;
-
-                        } else {
-
-                            timeString =
-                                `${seconds}s`;
-                        }
-
-                        text +=
-                            `\nBesetzt seit: ${timeString}`;
-                        // const averageWaitingTime =
-                        //     averageWaitingTimes[currentSeat.id];
-                        //
-                        // if (averageWaitingTime) {
-                        //
-                        //     const estimatedEnd =
-                        //         new Date(
-                        //             since.getTime() +
-                        //             averageWaitingTime * 1000
-                        //         );
-                        //
-                        //     const now = new Date();
-                        //
-                        //     if (now > estimatedEnd) {
-                        //
-                        //         text +=
-                        //             `\nLänger als erwartet`;
-                        //
-                        //     } else {
-                        //
-                        //         const estimatedTime =
-                        //             estimatedEnd.toLocaleTimeString(
-                        //                 "de-DE",
-                        //                 {
-                        //                     hour: "2-digit",
-                        //                     minute: "2-digit"
-                        //                 }
-                        //             );
-                        //
-                        //         text +=
-                        //             `\nWahrscheinlich frei bis: ${estimatedTime}`;
-                        //     }
-                        // }
-
-                    } else {
-
-                        text +=
-                            `\nGerade eben besetzt`;
-                    }
-                }
-
-                tooltip.innerText = text;
-            };
-
-            updateTooltip();
-
-            tooltip.style.display = "block";
-
-            tooltip.style.left =
-                el.offsetLeft +
-                el.offsetWidth / 2 +
-                "px";
-
-            tooltip.style.top =
-                el.offsetTop + "px";
-
-            tooltipInterval =
-                setInterval(updateTooltip, 1000);
-        };
-
-        el.onmouseleave = () => {
-
-            activeSeatId = null;
-
-            tooltip.style.display = "none";
-
-            clearInterval(tooltipInterval);
-        };
-    });
-}
-
-function updateEntryClasses(seatData) {
-    seatData.forEach(seat => {
-        const num = seat.id;
-        const el = seatDOM2[num];
-        const name = nameDom[num];
-        if (!el) return;
-
-        name.textContent = seat.name;
-        el.classList.remove("occupied", "unoccupied");
-        el.classList.add(seat.status ? "unoccupied" : "occupied");
-    });
-}
-
-function setMessage(count) {
-    let message;
-    occupiedInfo.style.display = 'flex';
-
-    switch (count) {
-        case 5:
-            message = "Alle Kojen frei!";
-            break;
-        case 4:
-            message = "4 Kojen frei!";
-            break;
-        case 3:
-            message = "3 Kojen frei!";
-            break;
-        case 2:
-            message = "2 Kojen frei!";
-            break;
-        case 1:
-            message = "1 Koje frei!";
-            break;
-        case 0:
-            message = "Alle Kojen belegt!";
-            break;
-        default:
-            message = "Ungültiger Wert!";
-    }
-    occupiedInfo.innerHTML = `<h2>${message}</h2>`;
-
-    setTimeout(() => {
-        occupiedInfo.style.display = 'none';
-    }, 1500);
-}
-
-// async function getAverageWaitingTimesBySeat() {
-//     try {
-//         const res = await fetch('/api/dashboard/histories');
-//
-//         if (!res.ok) {
-//             throw new Error(`HTTP ${res.status}`);
-//         }
-//
-//         return await res.json();
-//
-//     } catch (err) {
-//         console.error('Failed to load histories:', err);
-//         return [];
-//     }
-// }
-//
-// async function loadAverageWaitingTimes() {
-//
-//     const histories = await getAverageWaitingTimesBySeat();
-//
-//     averageWaitingTimes = {};
-//
-//     histories.forEach(entry => {
-//
-//         averageWaitingTimes[entry.seat_id] =
-//             entry.average;
-//     });
-// }
-
-const protocol = window.location.protocol === "https:" ? "wss" : "ws";
-const ws = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
-ws.onopen = () => console.log("Verbunden!");
-
-ws.onmessage = (e) => {
-    let seats = JSON.parse(e.data);
-    // loadAverageWaitingTimes();
-
-    if (!Array.isArray(seats)) seats = [seats];
-    seatsData = seats;
-
-    loadChart();
-    updateSeatClasses(seats);
-    updateEntryClasses(seats);
-    getAllUnoccupiedCount().then(count => {
-        if (occupiedCount === -1 || occupiedCount !== count) {
-            setMessage(count);
-            occupiedCount = count;
-        }
-    });
-
-    const floors = [...new Set(seats.map(s => s.floor))];
-    floors.forEach(floor => getUnoccupiedCount(floor));
-
-    loadFloor(currentFloor);
-};
-
-ws.onerror = (err) => console.error("Fehler:", err);
-ws.onclose = () => console.log("Verbindung geschlossen");
-
-function loadView(view) {
-
-    switch (view) {
-        case 1:
-            main1.style.display = 'flex';
-            main2.style.display = 'none';
-            main3.style.display = 'none';
-            break;
-
-        case 2:
-            main1.style.display = 'none';
-            main2.style.display = 'flex';
-            main3.style.display = 'none';
-            break;
-
-        case 3:
-            main1.style.display = 'none'
-            main2.style.display = 'none'
-            main3.style.display = 'flex'
-            break;
-    }
-
-}
-
-loadView(1)
-
+let configuredFloors = [];
+let selectedSeatId = null;
+let activeView = "map";
+let previousFreeCount = null;
 let occupancyChart = null;
+let loadedChartKey = null;
+let catalogSignature = "";
+let chartRequestCount = 0;
+let selectedChartDate = localIsoDate();
 
-function loadChart() {
+function seatAccessibleText(seat) {
+    const state = canonicalState(seat);
+    const duration = state === "OCCUPIED" ? `, belegt seit ${formatElapsed(seat.occupiedSince)}` : "";
+    return `${seat.name}, ${stateLabel(state)}${duration}`;
+}
 
-    const now = new Date();
+function showSeatDetails(seatId) {
+    const seat = seatsData.find(item => Number(item.id) === Number(seatId));
+    if (!seat) return;
+    selectedSeatId = seat.id;
+    const state = canonicalState(seat);
+    seatDetails.replaceChildren();
+    const heading = document.createElement("h2");
+    heading.textContent = seat.name;
+    const location = document.createElement("p");
+    location.textContent = `${displayFloor(seat.floor)} · ${seat.wing}`;
+    const status = document.createElement("p");
+    status.className = `state-text state-${state.toLowerCase()}`;
+    status.textContent = `Status: ${stateLabel(state)}`;
+    seatDetails.append(heading, location, status);
+    if (state === "OCCUPIED") {
+        const duration = document.createElement("p");
+        duration.dataset.role = "duration";
+        duration.textContent = `Aktuelle Belegungsdauer: ${formatElapsed(seat.occupiedSince)}`;
+        seatDetails.append(duration);
+    }
+}
 
-    const date =
-        now.getFullYear() + "-" +
-        String(now.getMonth() + 1).padStart(2, "0") + "-" +
-        String(now.getDate()).padStart(2, "0");
+function createMarker(seat) {
+    const marker = document.createElement("button");
+    const state = canonicalState(seat);
+    marker.type = "button";
+    marker.className = `seat-marker state-${state.toLowerCase()}`;
+    marker.style.setProperty("--map-x", `${Number(seat.mapX) * 100}%`);
+    marker.style.setProperty("--map-y", `${Number(seat.mapY) * 100}%`);
+    marker.dataset.seatId = seat.id;
+    marker.setAttribute("aria-label", seatAccessibleText(seat));
+    marker.title = seatAccessibleText(seat);
+    marker.addEventListener("focus", () => showSeatDetails(seat.id));
+    marker.addEventListener("click", () => showSeatDetails(seat.id));
+    marker.addEventListener("pointerenter", () => showSeatDetails(seat.id));
+    return marker;
+}
 
-    fetch(`/api/dashboard/history/occupancy/${date}?t=${Date.now()}`)
-        .then(res => res.json())
-        .then(data => {
+function renderFloorMaps() {
+    floorMaps.replaceChildren();
+    groupSeatsByFloor(seatsData, configuredFloors)
+        .forEach(({floor, seats: floorSeats, placeable, unplaced}) => {
+        const freeCount = floorSeats.filter(seat => canonicalState(seat) === "FREE").length;
+        const panel = document.createElement("article");
+        panel.className = "floor-panel";
+        panel.dataset.floor = floor;
+        const header = document.createElement("header");
+        const title = document.createElement("h3");
+        title.textContent = displayFloor(floor);
+        const count = document.createElement("p");
+        count.className = "floor-count";
+        count.textContent = `${freeCount} ${freeCount === 1 ? "Sitzplatz" : "Sitzplätze"} frei`;
+        header.append(title, count);
+        const map = document.createElement("div");
+        map.className = "floor-map";
+        map.setAttribute("aria-label", `Karte ${displayFloor(floor)}`);
+        placeable.forEach(seat => map.append(createMarker(seat)));
+        if (floorSeats.length === 0) {
+            const empty = document.createElement("p");
+            empty.className = "map-empty";
+            empty.textContent = "Keine Sitzplätze auf diesem Stockwerk.";
+            map.append(empty);
+        }
+        panel.append(header, map);
+        if (unplaced.length > 0) {
+            const fallback = document.createElement("p");
+            fallback.className = "unplaced-seats";
+            fallback.textContent = `Ohne Kartenposition: ${unplaced.map(seat => seat.name).join(", ")}`;
+            panel.append(fallback);
+        }
+        floorMaps.append(panel);
+        });
+    focusRequestedFloor();
+}
 
-            const hours = [];
+function renderList() {
+    entries.replaceChildren();
+    [...seatsData].sort((a, b) => Number(a.id) - Number(b.id)).forEach(seat => {
+        const state = canonicalState(seat);
+        const entry = document.createElement("button");
+        entry.type = "button";
+        entry.className = "seat-entry";
+        entry.addEventListener("click", () => showSeatDetails(seat.id));
+        const text = document.createElement("span");
+        const name = document.createElement("strong");
+        name.textContent = seat.name;
+        const location = document.createElement("small");
+        location.textContent = `${displayFloor(seat.floor)} · ${seat.wing}`;
+        text.append(name, location);
+        const status = document.createElement("span");
+        status.className = `state-badge state-${state.toLowerCase()}`;
+        status.textContent = stateLabel(state);
+        entry.append(text, status);
+        entries.append(entry);
+    });
+}
 
-            const k1 = [];
-            const k2 = [];
-            const k3 = [];
-            const k4 = [];
-            const k5 = [];
+function focusRequestedFloor() {
+    const requested = new URLSearchParams(window.location.search).get("floor");
+    if (!requested) return;
+    const normalized = requested.replace(".", "").toUpperCase();
+    const panel = [...document.querySelectorAll(".floor-panel")]
+        .find(item => String(item.dataset.floor).replace(".", "").toUpperCase() === normalized);
+    locationMessage.hidden = false;
+    if (panel) {
+        panel.classList.add("floor-panel-focused");
+        locationMessage.textContent = `${displayFloor(panel.dataset.floor)} wurde hervorgehoben. Alle Stockwerke bleiben sichtbar.`;
+    } else {
+        locationMessage.textContent = "Das angeforderte Stockwerk wurde nicht gefunden. Alle Stockwerke werden angezeigt.";
+    }
+}
 
-            data.forEach(item => {
+function announceFreeCount() {
+    const count = seatsData.filter(seat => canonicalState(seat) === "FREE").length;
+    if (previousFreeCount !== null && previousFreeCount !== count) {
+        occupiedInfo.textContent = count === 0
+            ? "Alle Sitzplätze sind belegt."
+            : `${count} ${count === 1 ? "Sitzplatz ist" : "Sitzplätze sind"} frei.`;
+        occupiedInfo.classList.add("visible");
+        window.setTimeout(() => occupiedInfo.classList.remove("visible"), 1800);
+    }
+    previousFreeCount = count;
+}
 
-                if (item.seatId === 1) {
+function renderSnapshot(seats) {
+    const previousById = new Map(seatsData.map(seat => [Number(seat.id), seat]));
+    seatsData = Array.isArray(seats) ? seats : [seats];
+    renderFloorMaps();
+    renderList();
+    announceFreeCount();
+    if (selectedSeatId !== null) showSeatDetails(selectedSeatId);
+    const nextSignature = seatsData.map(seat => `${seat.id}:${seat.name}`).join("|");
+    const analyticsChanged = seatsData.some(seat => {
+        const previous = previousById.get(Number(seat.id));
+        return previous && (previous.name !== seat.name ||
+            (canonicalState(previous) === "OCCUPIED" && canonicalState(seat) === "FREE"));
+    });
+    if (analyticsChanged && activeView === "chart") loadChart(true);
+    catalogSignature = nextSignature;
+}
 
-                    hours.push(item.hour);
-                    k1.push(item.occupancy);
+function activateView(viewName) {
+    if (!views.has(viewName)) return;
+    const changed = activeView !== viewName;
+    activeView = viewName;
+    views.forEach(({button, panel}, name) => {
+        const active = name === viewName;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+        panel.hidden = !active;
+    });
+    if (viewName === "chart") loadChart(changed);
+}
 
-                } else if (item.seatId === 2) {
+views.forEach(({button}, name) => button.addEventListener("click", () => activateView(name)));
 
-                    k2.push(item.occupancy);
+function localIsoDate(date = new Date()) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
 
-                } else if (item.seatId === 3) {
+function renderAccessibleChartValues(hours, seatSeries) {
+    chartValuesAccessible.replaceChildren();
+    const heading = document.createElement("h3");
+    heading.textContent = `Stündliche Auslastung am ${selectedChartDate} in Prozent`;
+    const list = document.createElement("ul");
+    hours.forEach((hour, index) => {
+        const item = document.createElement("li");
+        const values = seatSeries.map(series => `${series.name}: ${series.values[index].toFixed(2)} %`);
+        item.textContent = `${hour}: ${values.join(", ")}`;
+        list.append(item);
+    });
+    chartValuesAccessible.append(heading, list);
+}
 
-                    k3.push(item.occupancy);
-
-                } else if (item.seatId === 4) {
-
-                    k4.push(item.occupancy);
-
-                } else if (item.seatId === 5) {
-
-                    k5.push(item.occupancy);
-                }
-            });
-
-            const ctx =
-                document.getElementById("myChart")
-                    .getContext("2d");
-
+async function loadChart(force = false) {
+    const date = selectedChartDate;
+    const requestKey = `${date}:${catalogSignature}`;
+    if (!force && loadedChartKey === requestKey) return;
+    try {
+        chartRequestCount += 1;
+        document.getElementById("chart-view").dataset.requestCount = String(chartRequestCount);
+        const response = await fetch(`/api/dashboard/history/occupancy/${date}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        loadedChartKey = requestKey;
+        if (!Array.isArray(data) || data.length === 0 || !data.some(item => Number(item.occupancy) > 0)) {
+            chartMessage.hidden = false;
+            chartContent.hidden = true;
             if (occupancyChart) {
                 occupancyChart.destroy();
+                occupancyChart = null;
             }
+            chartValuesAccessible.replaceChildren();
+            return;
+        }
 
-            console.log(data)
-            occupancyChart = new Chart(ctx, {
+        const {hours, seatSeries} = buildChartModel(data);
 
-                type: "line",
-
-                data: {
-
-                    labels: hours,
-
-                    datasets: [
-
-                        {
-                            label: "Koje 1",
-                            data: k1,
-                            borderColor: "#e74c3c",
-                            tension: 0.4
-                        },
-                        {
-                            label: "Koje 2",
-                            data: k2,
-                            borderColor: "#3498db",
-                            tension: 0.4
-                        },
-                        {
-                            label: "Koje 3",
-                            data: k3,
-                            borderColor: "#2ecc71",
-                            tension: 0.4
-                        },
-                        {
-                            label: "Koje 4",
-                            data: k4,
-                            borderColor: "#f39c12",
-                            tension: 0.4
-                        },
-                        {
-                            label: "Koje 5",
-                            data: k5,
-                            borderColor: "#9b59b6",
-                            tension: 0.4
-                        }
-                    ]
+        renderAccessibleChartValues(hours, seatSeries);
+        chartMessage.hidden = true;
+        chartContent.hidden = false;
+        if (typeof Chart === "undefined") return;
+        if (occupancyChart) occupancyChart.destroy();
+        const colors = ["#ff7675", "#74b9ff", "#55efc4", "#ffeaa7", "#a29bfe", "#fd79a8", "#81ecec"];
+        occupancyChart = new Chart(document.getElementById("myChart"), {
+            type: "line",
+            data: {
+                labels: hours,
+                datasets: seatSeries.map((series, index) => ({
+                    label: series.name,
+                    data: series.values,
+                    borderColor: colors[index % colors.length],
+                    backgroundColor: colors[index % colors.length],
+                    tension: 0.25,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
+                    pointHitRadius: 12
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {mode: "index", intersect: false},
+                plugins: {
+                    title: {display: true, text: "Belegte Zeit je Sitzplatz-Stunde", color: "#ffffff"},
+                    legend: {labels: {color: "#ffffff"}},
+                    tooltip: {mode: "index", intersect: false}
                 },
-
-                options: {
-
-                    responsive: true,
-
-                    maintainAspectRatio: false,
-
-                    plugins: {
-
-                        title: {
-
-                            display: true,
-
-                            text: "Auslastung der Kojen",
-
-                            color: "#ffffff",
-
-                            font: {
-
-                                family: "Poppins",
-
-                                size: 24,
-
-                                weight: "600"
-                            }
-                        },
-
-                        legend: {
-
-                            labels: {
-
-                                color: "#ffffff"
-                            }
-                        }
+                scales: {
+                    x: {
+                        title: {display: true, text: "Uhrzeit", color: "#ffffff"},
+                        ticks: {color: "#ffffff"},
+                        grid: {color: "rgba(255,255,255,0.12)"}
                     },
-
-                    scales: {
-
-                        x: {
-
-                            title: {
-
-                                display: true,
-
-                                text: "Uhrzeit",
-
-                                color: "#ffffff"
-                            },
-
-                            ticks: {
-
-                                color: "#ffffff"
-                            },
-
-                            grid: {
-
-                                color: "rgba(255,255,255,0.15)"
-                            }
-                        },
-
-                        y: {
-
-                            beginAtZero: true,
-
-                            max: 1,
-
-                            title: {
-
-                                display: true,
-
-                                text: "Auslastung",
-
-                                color: "#ffffff"
-                            },
-
-                            ticks: {
-
-                                color: "#ffffff"
-                            },
-
-                            grid: {
-
-                                color: "rgba(255,255,255,0.15)"
-                            }
-                        }
+                    y: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 100,
+                        title: {display: true, text: "Auslastung – belegte Zeit (%)", color: "#ffffff"},
+                        ticks: {color: "#ffffff", callback: value => `${value} %`},
+                        grid: {color: "rgba(255,255,255,0.12)"}
                     }
                 }
-            });
-
-        })
-        .catch(err => console.error(err));
+            }
+        });
+    } catch (error) {
+        console.error("Auslastung konnte nicht geladen werden", error);
+        chartContent.hidden = true;
+        chartMessage.hidden = false;
+        chartMessage.textContent = "Die Auslastungsdaten konnten nicht geladen werden.";
+    }
 }
+
+function renderSelectedChartDate() {
+    const [year, month, day] = selectedChartDate.split("-").map(Number);
+    const date = new Date(year, month - 1, day, 12);
+    chartDateLabel.dateTime = selectedChartDate;
+    chartDateLabel.textContent = new Intl.DateTimeFormat("de-AT", {
+        weekday: "short",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    }).format(date);
+}
+
+function changeChartDate(days) {
+    selectedChartDate = shiftIsoDate(selectedChartDate, days);
+    renderSelectedChartDate();
+    loadedChartKey = null;
+    if (activeView === "chart") loadChart(true);
+}
+
+renderSelectedChartDate();
+previousDateButton.addEventListener("click", () => changeChartDate(-1));
+nextDateButton.addEventListener("click", () => changeChartDate(1));
+
+window.setInterval(() => {
+    if (selectedSeatId !== null) showSeatDetails(selectedSeatId);
+    document.querySelectorAll(".seat-marker").forEach(marker => {
+        const seat = seatsData.find(item => Number(item.id) === Number(marker.dataset.seatId));
+        if (seat) {
+            marker.setAttribute("aria-label", seatAccessibleText(seat));
+            marker.title = seatAccessibleText(seat);
+        }
+    });
+}, 1000);
+
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(`${protocol}://${window.location.host}/ws/seats`);
+socket.onmessage = event => renderSnapshot(JSON.parse(event.data));
+socket.onerror = error => console.error("WebSocket-Fehler", error);
+
+fetch("/api/seat/getFloors")
+    .then(response => response.ok ? response.json() : [])
+    .then(floors => {
+        configuredFloors = Array.isArray(floors) ? floors : [];
+        if (seatsData.length > 0) renderFloorMaps();
+    })
+    .catch(error => console.error("Stockwerke konnten nicht geladen werden", error));
+
+activateView("map");
+window.SmartSeat = {
+    renderSnapshot,
+    activateView,
+    formatElapsed,
+    loadChart,
+    getChartRequestCount: () => chartRequestCount
+};

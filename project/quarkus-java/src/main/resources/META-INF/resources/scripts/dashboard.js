@@ -59,6 +59,19 @@ function renderSeats() {
     document.getElementById("section1").innerHTML = html;
 }
 
+function renderSeatOptions() {
+    const select = document.getElementById("seat");
+    const selected = select.value;
+    select.replaceChildren();
+    [...seatsData].sort((a, b) => Number(a.id) - Number(b.id)).forEach(seat => {
+        const option = document.createElement("option");
+        option.value = seat.id;
+        option.textContent = seat.name;
+        select.append(option);
+    });
+    if ([...select.options].some(option => option.value === selected)) select.value = selected;
+}
+
 
 function editName(id) {
     const seat = seatsData.find(s => s.id === id);
@@ -100,7 +113,7 @@ function handleRename(event, id) {
     }
 
     if (event.key === "Escape") {
-        stopEdit();
+        stopEdit(id);
     }
 }
 
@@ -125,7 +138,7 @@ async function renameSeat(id) {
             return;
         }
 
-        changedInfoBox.innerHTML = `<h2> Erfolgreich umbenannt! </h2>`;
+        changedInfoBox.innerHTML = `<h2>Name erfolgreich gespeichert!</h2>`;
         changedInfoBox.style.display = 'flex';
         setTimeout(() => {
             changedInfoBox.style.display = 'none';
@@ -133,6 +146,7 @@ async function renameSeat(id) {
 
         seatsData = await res.json();
         renderSeats();
+        renderSeatOptions();
 
     } catch (err) {
         console.error(err);
@@ -160,7 +174,7 @@ async function updateDuration() {
         if (res.ok) {
             duration = Number(d);
             activateButton();
-            showMessage("Duration bearbeitet!")
+            showMessage(`Inaktivitätsdauer auf ${duration} Sekunden gesetzt.`)
 
         } else if (res.status === 400) {
             showMessage("Ungültiger Wert (muss > 10 sein)")
@@ -204,6 +218,7 @@ ws.onmessage = (e) => {
     seatsData = seats;
 
     renderSeats()
+    renderSeatOptions()
 
     getAverageWaitingTimesBySeat().then(data => {
         data.sort((a, b) => a.average - b.average);
@@ -212,7 +227,7 @@ ws.onmessage = (e) => {
 
         leaderboard.innerHTML = `
         <h2 class="panel-title">Leaderboard</h2>
-        <ol>
+        <ol class="leaderboard-list" tabindex="0" aria-label="Leaderboard-Einträge">
             ${data.map(item => {
             const seconds = Math.round(item.average);
 

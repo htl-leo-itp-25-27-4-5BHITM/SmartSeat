@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Layout Fixture</title>
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+<body>
+<div id="app">
+    <header id="nav"><div id="nav-left"><h1>Dashboard</h1></div></header>
+    <main id="dashboard">
+        <section id="section1">
+            <div class="seat"><h3>Testplatz 1</h3><p>Klicken zum Bearbeiten</p></div>
+            <div class="seat"><h3>Testplatz 2</h3><p>Klicken zum Bearbeiten</p></div>
+        </section>
+        <section id="section2">
+            <h2 class="panel-title">Inaktivitätsdauer</h2>
+            <label for="duration">Dauer in Sekunden</label>
+            <input id="duration" type="number" value="35">
+            <button>Speichern</button>
+        </section>
+        <section id="section3">
+            <h2 class="panel-title">Leaderboard</h2>
+            <ol class="leaderboard-list" tabindex="0" aria-label="Leaderboard-Einträge"></ol>
+        </section>
+        <section id="section4">
+            <h2>Daten Generator</h2>
+            <label for="seat">Sitzplatz</label>
+            <select id="seat"><option>Testplatz 1</option></select>
+            <button>Erstellen</button>
+        </section>
+    </main>
+</div>
+<script>
+    const list = document.querySelector(".leaderboard-list");
+    for (let index = 1; index <= 30; index += 1) {
+        const item = document.createElement("li");
+        item.textContent = `Testplatz ${index} – ${index} Minuten`;
+        list.append(item);
+    }
+</script>
+</body>
+</html>

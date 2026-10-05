@@ -6,13 +6,13 @@ VALUES
     ('Right', '2OG');
 
 
-INSERT INTO seat (name, unoccupied, location_id)
+INSERT INTO seat (name, unoccupied, location_id, mapx, mapy)
 VALUES
-    ('Koje 1', true, 1),
-    ('Koje 2', true, 2),
-    ('Koje 3', true, 2),
-    ('Koje 4', true, 3),
-    ('Koje 5', true, 4);
+    ('Koje 1', true, 1, 0.31, 0.17),
+    ('Koje 2', true, 2, 0.65, 0.17),
+    ('Koje 3', true, 2, 0.68, 0.45),
+    ('Koje 4', true, 3, 0.32, 0.45),
+    ('Koje 5', true, 4, 0.68, 0.45);
 
 INSERT INTO duration (seconds)
 VALUES (35);

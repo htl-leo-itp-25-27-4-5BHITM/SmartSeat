@@ -1,143 +1,73 @@
-<script
-        src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0">
-</script>
-
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Seat</title>
-    <script>
-        let timestamp = new Date().getTime();
-        let link = document.createElement('link');
-        link.rel = 'stylesheet';
-        let script = document.createElement('script');
-        script.defer = true;
-        let favicon = document.createElement('link');
-        favicon.rel = 'icon';
-        favicon.type = 'image/png';
-
-        link.href = './styles/style.css' + `?${timestamp}`;
-        script.src = './scripts/script.js' + `?${timestamp}`;
-        favicon.href = './assets/img/favicon.ico?' + timestamp;
-
-        document.head.appendChild(link);
-        document.head.appendChild(script);
-        document.head.appendChild(favicon);
-    </script>
+    <link rel="icon" href="./assets/img/favicon.ico">
+    <link rel="stylesheet" href="./styles/style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+    <script defer src="./scripts/frontend-logic.js"></script>
+    <script defer src="./scripts/script.js"></script>
 </head>
-
 <body>
-
-<!-- NAV -->
 <header id="nav">
     <div id="nav-left">
-        <img src="./assets/img/logo.png" alt="logo">
+        <img src="./assets/img/logo.png" alt="">
         <h1>Smart Seat</h1>
     </div>
-
-    <div id="btns">
-        <button onclick="loadView(1)">Map</button>
-        <button onclick="loadView(2)">List</button>
-        <button onclick="loadView(3)">Chart</button>
-    </div>
+    <nav id="btns" aria-label="Ansicht wählen">
+        <button id="view-map" class="view-button active" type="button" data-view="map"
+                aria-controls="map-view" aria-pressed="true">Map</button>
+        <button id="view-list" class="view-button" type="button" data-view="list"
+                aria-controls="list-view" aria-pressed="false">List</button>
+        <button id="view-chart" class="view-button" type="button" data-view="chart"
+                aria-controls="chart-view" aria-pressed="false">Chart</button>
+    </nav>
 </header>
 
+<main id="app-main">
+    <section id="map-view" class="view" aria-labelledby="map-heading">
+        <h2 id="map-heading" class="sr-only">Sitzplatzkarten nach Stockwerk</h2>
+        <div id="location-message" class="inline-message" role="status" hidden></div>
+        <div id="floor-maps" aria-live="polite"></div>
+        <aside id="seat-details" class="seat-details" aria-live="polite">
+            <h2>Sitzplatzdetails</h2>
+            <p>Wählen Sie einen Sitzplatz per Maus oder Tastatur aus.</p>
+        </aside>
+    </section>
 
-<main id="main1">
-    <div id="floor-box">
-        <div class="floors" onclick="loadFloor(1)">
-            <h2>1.OG</h2>
-            <p id="count1"></p>
-            <img id="selected1" src="./assets/img/selected.png">
+    <section id="list-view" class="view" aria-labelledby="list-heading" hidden>
+        <h2 id="list-heading">Alle Sitzplätze</h2>
+        <div id="entries"></div>
+    </section>
+
+    <section id="chart-view" class="view" aria-labelledby="chart-heading" hidden>
+        <div class="chart-toolbar">
+            <div>
+                <h2 id="chart-heading">Stündliche Auslastung</h2>
+                <p>Prozentualer Anteil der belegten Zeit innerhalb jeder Sitzplatz-Stunde.</p>
+            </div>
+            <div class="date-navigation" aria-label="Datum auswählen">
+                <button id="previous-date" class="date-arrow" type="button"
+                        aria-label="Einen Tag zurück">&#8592;</button>
+                <time id="chart-date-label" class="chart-date-label"></time>
+                <button id="next-date" class="date-arrow" type="button"
+                        aria-label="Einen Tag vor">&#8594;</button>
+            </div>
         </div>
-
-        <div class="floors" onclick="loadFloor(2)">
-            <h2>2.OG</h2>
-            <p id="count2"></p>
-            <img id="selected2" src="./assets/img/selected.png">
+        <div id="chart-message" class="chart-message" role="status" hidden>
+            Für dieses Datum sind keine abgeschlossenen Belegungsdaten verfügbar.
         </div>
-    </div>
-
-    <div id="map">
-        <div class="koje" id="k1"></div>
-        <div class="koje" id="k2"></div>
-        <div class="koje" id="k3"></div>
-        <div class="koje" id="k4"></div>
-        <div class="koje" id="k5"></div>
-        <div id="seat-tooltip"></div>
-    </div>
-
+        <div id="chart-content" hidden>
+            <div class="chart-container">
+                <canvas id="myChart" aria-label="Stündliche Auslastung in Prozent" role="img"></canvas>
+            </div>
+            <div id="chart-values-accessible" class="sr-only" aria-live="polite"></div>
+        </div>
+    </section>
 </main>
 
-<main2 id="main2">
-    <div id="entries">
-        <div class="koje-entry">
-            <div class="infos-entry">
-                <h1 id="name1">Koje 1</h1>
-                <p>1.OG - linker Flügel</p>
-            </div>
-            <div>
-                <div class="koje2" id="e1"></div>
-            </div>
-        </div>
-
-        <div class="koje-entry">
-            <div class="infos-entry">
-                <h1 id="name2">Koje 2</h1>
-                <p>1.OG - rechter Flügel</p>
-            </div>
-            <div>
-                <div class="koje2" id="e2"></div>
-            </div>
-        </div>
-
-        <div class="koje-entry">
-            <div class="infos-entry">
-                <h1 id="name3">Koje 3</h1>
-                <p>1.OG - rechter Flügel</p>
-            </div>
-            <div>
-                <div class="koje2" id="e3"></div>
-            </div>
-        </div>
-
-        <div class="koje-entry">
-            <div class="infos-entry">
-                <h1 id="name4">Koje 4</h1>
-                <p>2.OG - linker Flügel</p>
-            </div>
-            <div>
-                <div class="koje2" id="e4"></div>
-            </div>
-        </div>
-
-        <div class="koje-entry">
-            <div class="infos-entry">
-                <h1 id="name5">Koje 5</h1>
-                <p>2.OG - rechter Flügel</p>
-            </div>
-            <div>
-                <div class="koje2" id="e5"></div>
-            </div>
-        </div>
-    </div>
-</main2>
-
-<div id="occupied-info"></div>
-
-
-<main3 id="main3">
-    <canvas id="myChart"></canvas>
-
-    <div id="chart-message" class="chart-message">
-        Heute noch keine Daten verfügbar
-    </div>
-</main3>
-
-
+<div id="occupied-info" role="status" aria-live="polite"></div>
 </body>
-
 </html>

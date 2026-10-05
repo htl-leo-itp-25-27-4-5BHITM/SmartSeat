@@ -5,6 +5,7 @@ import at.htl.repository.SeatRepository;
 import at.htl.repository.dto.HistoryDTO;
 import at.htl.repository.dto.HistorySeatCountDTO;
 import at.htl.repository.dto.SeatRenameDTO;
+import at.htl.repository.dto.SeatRenameResult;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -30,15 +31,17 @@ public class DashboardResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response renameSeat(SeatRenameDTO dto) {
 
-        var seats = seatRepository.renameSeat(dto);
+        SeatRenameResult result = seatRepository.renameSeat(dto);
 
-        if (seats.isEmpty()) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("Name existiert bereits")
-                    .build();
-        }
-
-        return Response.ok(seats).build();
+        return switch (result.status()) {
+            case SUCCESS -> Response.ok(result.seats()).build();
+            case INVALID -> Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Name darf nicht leer sein").build();
+            case NOT_FOUND -> Response.status(Response.Status.NOT_FOUND)
+                    .entity("Sitzplatz nicht gefunden").build();
+            case CONFLICT -> Response.status(Response.Status.CONFLICT)
+                    .entity("Name existiert bereits").build();
+        };
     }
 
     @GET
@@ -118,9 +121,13 @@ public class DashboardResource {
     @Path("/history/occupancy/{date}")
     public Response getOccupancy(
             @PathParam("date") String date) {
-
-        LocalDate d = LocalDate.parse(date);
-
-        return Response.ok().entity(historyRepository.getOccupancyForDate(d)).build();
+        try {
+            LocalDate d = LocalDate.parse(date);
+            return Response.ok().entity(historyRepository.getOccupancyForDate(d)).build();
+        } catch (DateTimeParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Ungültiges Datumsformat. Erwartet: yyyy-MM-dd")
+                    .build();
+        }
     }
 }

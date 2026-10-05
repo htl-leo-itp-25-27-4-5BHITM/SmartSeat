@@ -7,6 +7,7 @@ import at.htl.model.SensorMessage;
 import at.htl.repository.dto.HistorySeatCountDTO;
 import at.htl.repository.dto.SeatInformationDTO;
 import at.htl.repository.dto.SeatRenameDTO;
+import at.htl.repository.dto.SeatRenameResult;
 import at.htl.repository.dto.SeatTimeAverageDTO;
 import at.htl.sockets.SeatWebSocket;
 import io.quarkus.scheduler.Scheduled;
@@ -15,6 +16,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,7 +33,10 @@ public class SeatRepository {
     @Inject
     SeatWebSocket ws;
 
-    private final ConcurrentHashMap<Long, LocalDateTime> inactiveCheckMap =
+    @Inject
+    Clock clock;
+
+    private final ConcurrentHashMap<Long, Instant> inactiveCheckMap =
             new ConcurrentHashMap<>();
 
 
@@ -46,7 +52,7 @@ public class SeatRepository {
         boolean oldStatus = seat.getStatus();
         boolean newStatus = msg.getStatus();
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = clock.instant();
 
         if (oldStatus != newStatus) {
 
@@ -75,34 +81,22 @@ public class SeatRepository {
 
         int durationSeconds = em.find(Duration.class, 1).getSeconds();
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = clock.instant();
 
         List<Long> seatsToRemove = new ArrayList<>();
 
         for (var entry : inactiveCheckMap.entrySet()) {
 
             Long seatId = entry.getKey();
-            LocalDateTime lastSeen = entry.getValue();
+            Instant lastSeen = entry.getValue();
 
-            if (lastSeen.plusSeconds(durationSeconds).isBefore(now)) {
+            if (!lastSeen.plusSeconds(durationSeconds).isAfter(now)) {
 
                 Seat seat = em.find(Seat.class, seatId);
 
                 if (seat != null && !seat.getStatus()) {
 
-                    long seconds = java.time.Duration
-                            .between(seat.getOccupiedSince(), now)
-                            .toSeconds();
-
-                    History history = new History();
-                    history.setSeat(seat);
-                    history.setTimePassed(seconds);
-                    history.setEndedAt(LocalDateTime.now());
-
-                    em.persist(history);
-
-                    seat.setStatus(true);
-                    seat.setOccupiedSince(null);
+                    completeOccupancy(seat, now);
                 }
 
                 seatsToRemove.add(seatId);
@@ -119,69 +113,51 @@ public class SeatRepository {
 
     //<editor-fold desc="Basic Functions">
     public List<SeatInformationDTO> getAllSeats() {
-        return em.createQuery("""
-                        select new at.htl.repository.dto.SeatInformationDTO(
-                            c.id, c.name, c.status, se.floor, se.wing, c.occupiedSince
-                        )
-                        from Seat c
-                        join SeatLocation se on se.id = c.location.id
-                        order by c.id desc
-                        """, SeatInformationDTO.class)
+        return em.createQuery("select s from Seat s join fetch s.location order by s.id", Seat.class)
+                .getResultStream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<String> getAllFloors() {
+        return em.createQuery("select distinct location.floor from SeatLocation location order by location.floor", String.class)
                 .getResultList();
     }
 
     @Transactional
     public boolean changeStatus(Long id) {
-
-        if (id <= 5 && id >= 1) {
-
-            try {
-
-                Seat seat = em.find(Seat.class, id);
-
-                boolean newStatus = !seat.getStatus();
-
-                seat.setStatus(newStatus);
-
-                if (newStatus) {
-                    inactiveCheckMap.remove(id);
-                    seat.setOccupiedSince(null);
-                } else {
-                    LocalDateTime now = LocalDateTime.now();
-                    inactiveCheckMap.put(id, now);
-                    seat.setOccupiedSince(now);
-                }
-
-            } catch (Exception e) {
-                return false;
-            }
-
-            return true;
+        Seat seat = em.find(Seat.class, id);
+        if (seat == null) {
+            return false;
         }
 
-        return false;
+        Instant now = clock.instant();
+        boolean becomingFree = !seat.getStatus();
+
+        if (becomingFree) {
+            completeOccupancy(seat, now);
+            inactiveCheckMap.remove(id);
+        } else {
+            seat.setStatus(false);
+            seat.setOccupiedSince(now);
+            inactiveCheckMap.put(id, now);
+        }
+
+        return true;
     }
 
     public List<SeatInformationDTO> getSeatByFloor(String floor) {
-
         var query = em.createQuery("""
-                select new at.htl.repository.dto.SeatInformationDTO(
-                    c.id,
-                    c.name,
-                    c.status,
-                    se.floor,
-                    se.wing,
-                    c.occupiedSince
-                )
+                select c
                 from Seat c
-                join SeatLocation se on c.location.id = se.id
-                where lower(se.floor) like lower(:floor)
-                order by c.id desc
-                """, SeatInformationDTO.class);
+                join fetch c.location se
+                where lower(se.floor) = lower(:floor)
+                order by c.id
+                """, Seat.class);
 
         query.setParameter("floor", floor);
 
-        return query.getResultList();
+        return query.getResultStream().map(this::toDto).toList();
     }
 
     public long getUnoccupiedCount() {
@@ -209,42 +185,43 @@ public class SeatRepository {
         return query.getSingleResult();
     }
 
-    public int checkNameExistence(String name) {
-
-        var query = em.createQuery("""
-                select s
-                from Seat s
-                where s.name = :name
-                """, Seat.class);
-
-        query.setParameter("name", name);
-
-        return query.getResultList().size();
-    }
-
     @Transactional
-    public List<SeatInformationDTO> renameSeat(SeatRenameDTO seatRenameDTO) {
-
-        if (checkNameExistence(seatRenameDTO.name()) == 0) {
-
-            int updated = em.createQuery("""
-                            update Seat s
-                            set s.name = :newName
-                            where s.id = :id
-                            """)
-                    .setParameter("newName", seatRenameDTO.name())
-                    .setParameter("id", seatRenameDTO.id())
-                    .executeUpdate();
-
-            if (updated > 0) {
-
-                ws.broadcastSeatUpdate();
-
-                return getAllSeats();
-            }
+    public SeatRenameResult renameSeat(SeatRenameDTO seatRenameDTO) {
+        if (seatRenameDTO == null || seatRenameDTO.name() == null) {
+            return new SeatRenameResult(SeatRenameResult.Status.INVALID, List.of());
         }
 
-        return new ArrayList<>();
+        String normalizedName = seatRenameDTO.name().trim();
+        if (normalizedName.isBlank()) {
+            return new SeatRenameResult(SeatRenameResult.Status.INVALID, List.of());
+        }
+
+        Seat target = em.find(Seat.class, seatRenameDTO.id());
+        if (target == null) {
+            return new SeatRenameResult(SeatRenameResult.Status.NOT_FOUND, List.of());
+        }
+
+        if (normalizedName.equals(target.getName().trim())) {
+            return new SeatRenameResult(SeatRenameResult.Status.SUCCESS, getAllSeats());
+        }
+
+        long otherOwners = em.createQuery("""
+                        select count(s)
+                        from Seat s
+                        where s.id <> :id and s.name = :name
+                        """, Long.class)
+                .setParameter("id", seatRenameDTO.id())
+                .setParameter("name", normalizedName)
+                .getSingleResult();
+
+        if (otherOwners > 0) {
+            return new SeatRenameResult(SeatRenameResult.Status.CONFLICT, List.of());
+        }
+
+        target.setName(normalizedName);
+        em.flush();
+        ws.broadcastSeatUpdate();
+        return new SeatRenameResult(SeatRenameResult.Status.SUCCESS, getAllSeats());
     }
 
     public int getDuration() {
@@ -337,6 +314,35 @@ public class SeatRepository {
                 .setParameter("start", start)
                 .setParameter("end", end)
                 .getResultList();
+    }
+
+    private SeatInformationDTO toDto(Seat seat) {
+        return new SeatInformationDTO(
+                seat.getId(),
+                seat.getName(),
+                seat.getStatus(),
+                seat.getStatus() ? "FREE" : "OCCUPIED",
+                seat.getLocation().getFloor(),
+                seat.getLocation().getWing(),
+                seat.getMapX(),
+                seat.getMapY(),
+                seat.getOccupiedSince()
+        );
+    }
+
+    private void completeOccupancy(Seat seat, Instant endedAt) {
+        if (seat.getOccupiedSince() != null) {
+            History history = new History();
+            history.setSeat(seat);
+            history.setTimePassed(Math.max(0, java.time.Duration
+                    .between(seat.getOccupiedSince(), endedAt)
+                    .toSeconds()));
+            history.setEndedAt(LocalDateTime.ofInstant(endedAt, clock.getZone()));
+            em.persist(history);
+        }
+
+        seat.setStatus(true);
+        seat.setOccupiedSince(null);
     }
 
     //</editor-fold>

@@ -1,7 +1,7 @@
 package at.htl.model;
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 public class Seat {
@@ -18,7 +18,11 @@ public class Seat {
     @Column(name = "unoccupied")
     private boolean status;
 
-    private LocalDateTime occupiedSince;
+    private Instant occupiedSince;
+
+    private Double mapX;
+
+    private Double mapY;
 
     public Seat ( String name, boolean status) {
         setStatus(status);
@@ -50,6 +54,10 @@ public class Seat {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public SeatLocation getLocation() {
         return location;
     }
@@ -58,12 +66,28 @@ public class Seat {
         this.location = location;
     }
 
-    public LocalDateTime getOccupiedSince() {
+    public Instant getOccupiedSince() {
         return occupiedSince;
     }
 
-    public void setOccupiedSince(LocalDateTime occupiedSince) {
+    public void setOccupiedSince(Instant occupiedSince) {
         this.occupiedSince = occupiedSince;
+    }
+
+    public Double getMapX() {
+        return mapX;
+    }
+
+    public void setMapX(Double mapX) {
+        this.mapX = mapX;
+    }
+
+    public Double getMapY() {
+        return mapY;
+    }
+
+    public void setMapY(Double mapY) {
+        this.mapY = mapY;
     }
 
     //</editor-fold>

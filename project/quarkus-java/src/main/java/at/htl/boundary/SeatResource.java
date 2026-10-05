@@ -31,6 +31,13 @@ public class SeatResource {
     }
 
     @GET
+    @Path("getFloors")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getFloors() {
+        return Response.ok(seatRepository.getAllFloors()).build();
+    }
+
+    @GET
     @Path("getSeatsByFloor/{floor}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getSeatsByFloor(@PathParam("floor") String floor) {

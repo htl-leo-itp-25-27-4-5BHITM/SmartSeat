@@ -1,32 +1,6 @@
-# Seat Availability Specification
+# Spec Delta
 
-## Purpose
-
-Defines how people discover current learning-seat availability without authentication and how the view remains accurate as occupancy changes.
-
-## Requirements
-
-### Requirement: Public availability access
-The system SHALL allow a user to view seat availability without signing in.
-
-#### Scenario: Open availability view
-- **WHEN** a user opens the SmartSeat public entry point
-- **THEN** the system displays the current seat-availability view without requesting credentials
-
-#### Scenario: Administrative functions remain separate
-- **WHEN** an unauthenticated user uses the public availability view
-- **THEN** the system does not expose controls that modify seats, configuration, accounts, or history
-
-### Requirement: Seat availability presentation
-The system SHALL present each configured seat with its stable identifier, display name, floor, wing, and canonical state of `FREE`, `OCCUPIED`, or `UNKNOWN`.
-
-#### Scenario: Display free and occupied seats
-- **WHEN** the current catalog contains seats in free and occupied states
-- **THEN** the map and list distinguish those states consistently and provide a textual state indicator in addition to color
-
-#### Scenario: Display unknown state
-- **WHEN** the system cannot establish a trustworthy current state for a configured seat
-- **THEN** the public view identifies the seat as `UNKNOWN` rather than reporting it as free
+## MODIFIED Requirements
 
 ### Requirement: Location filtering and counts
 The system SHALL present every configured floor in a separately labeled map in the default public map view, SHALL allow a location-specific entry point to focus the requested location, and SHALL calculate each displayed free-seat count from the same seat dataset shown for that location.
@@ -47,17 +21,6 @@ The system SHALL present every configured floor in a separately labeled map in t
 - **WHEN** a configured floor has no seats
 - **THEN** its labeled map shows an empty state and a free-seat count of zero without reporting an error
 
-### Requirement: Live availability updates
-The system SHALL deliver a complete current seat snapshot when a realtime connection is established and SHALL publish subsequent state or catalog changes to connected clients.
-
-#### Scenario: Realtime state change
-- **WHEN** an occupied seat becomes free or a free seat becomes occupied
-- **THEN** connected public views update that seat without requiring a page reload
-
-#### Scenario: Reconnect after interruption
-- **WHEN** a client restores a lost realtime connection
-- **THEN** the system sends a fresh complete snapshot before applying later incremental changes
-
 ### Requirement: Current occupancy duration
 The system SHALL show the non-negative elapsed duration of the current occupancy interval for an occupied seat, calculated from an unambiguous recorded interval start and the current time, and SHALL omit that duration for free or unknown seats.
 
@@ -76,6 +39,8 @@ The system SHALL show the non-negative elapsed duration of the current occupancy
 #### Scenario: Seat becomes free
 - **WHEN** an occupied seat transitions to free
 - **THEN** the public view stops displaying an active occupancy duration for that seat
+
+## ADDED Requirements
 
 ### Requirement: Public view navigation state
 The system SHALL keep the Map, List, and Chart views available and SHALL visibly and programmatically identify which view is active.
@@ -102,15 +67,3 @@ The public availability interface SHALL keep floor labels, seat states, counts, 
 #### Scenario: Seat details without hover
 - **WHEN** a user cannot or does not use pointer hover
 - **THEN** the seat name, state, and active duration remain available through focus, activation, or equivalent visible text
-
-### Requirement: Location-specific QR entry
-The system SHALL support QR-code URLs that open the public availability view with a configured location already selected.
-
-#### Scenario: Valid location QR code
-- **WHEN** a user follows a QR-code URL for a known location
-- **THEN** the public view opens with that location filter applied
-
-#### Scenario: Invalid location QR code
-- **WHEN** a QR-code URL references an unknown location
-- **THEN** the system shows the unfiltered availability view and explains that the requested location was not found
-
